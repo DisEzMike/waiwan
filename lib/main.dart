@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
       title: 'Waiwan',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: myPrimaryColor,
+          seedColor: const Color(0xFF6EB715),
           primary: myPrimaryColor,
           secondary: mySecondaryColor,
           surface: myBackgroundColor,

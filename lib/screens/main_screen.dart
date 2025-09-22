@@ -49,7 +49,108 @@ class _MyMainPageState extends State<MyMainPage> {
           ),
         ),
       ),
-      body: Scaffold(),
+
+      body: IndexedStack(
+        index: _currentIndex,
+        children: [
+
+
+          // search bar 
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: SearchBar(
+                    hintText: 'ค้นหา',
+                    leading: const Icon(Icons.search , size: 30),
+                    constraints: const BoxConstraints(
+                      maxHeight: 60,
+                      minHeight: 50,
+                    ),
+                    padding: const MaterialStatePropertyAll<EdgeInsets>(
+                      EdgeInsets.symmetric(horizontal: 24.0),
+                    ),
+                    hintStyle: MaterialStatePropertyAll<TextStyle>(
+                      TextStyle(fontSize: 16, color: Colors.grey[600]),
+                    ),
+                    elevation: const MaterialStatePropertyAll<double>(1.0),
+                  ),
+                ),
+
+                //ปุ่มคูปอง
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: () {},
+                        style: FilledButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+                          foregroundColor: const Color.fromARGB(255, 0, 0, 0),
+                          elevation: 1,
+                          shadowColor: Colors.black.withOpacity(0.3),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        icon: Image.asset(
+                          'assets/images/coupon.png',
+                          width: 24,
+                          height: 24,
+                        ),
+                        label: const Text(
+                          'ดูปองของฉัน',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+
+                    //ปุ่มดูคะแนน
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: () {},
+                        style: FilledButton.styleFrom(
+                          backgroundColor: Colors.green[100],
+                          foregroundColor: const Color.fromARGB(255, 0, 0, 0),
+                          elevation: 1,
+                          shadowColor: Colors.black.withOpacity(0.3),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        icon: Image.asset(
+                          'assets/images/p.png',
+                          width: 24,
+                          height: 24,
+                        ),
+                        label: const Text(
+                          '1000 คะแนน',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // หน้าข้อความ
+          const Center(
+            child: Text(''),
+          ),
+          // หน้าแจ้งเตือน
+          const Center(
+            child: Text(''),
+          ),
+          // หน้าโปรไฟล์
+          const Center(
+            child: Text(''),
+          ),
+        ],
+      ),
       bottomNavigationBar: NavigationBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
         labelTextStyle: WidgetStateProperty.all(
