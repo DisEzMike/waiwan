@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'elderlyscreen/elderly_screen.dart';
+import 'profilescreen/contractor_profile.dart';
 
 class Destination {
   final IconData icon;
@@ -81,7 +82,7 @@ class _MyMainPageState extends State<MyMainPage> {
           style: TextStyle(
             color: onPrimary,
             fontWeight: FontWeight.w600,
-            fontSize: 30,
+            fontSize: 25,
           ),
         ),
       ),
@@ -91,7 +92,7 @@ class _MyMainPageState extends State<MyMainPage> {
           _homePage(context),
           const Center(child: Text('หน้าข้อความ')),
           const Center(child: Text('หน้าแจ้งเตือน')),
-          const Center(child: Text('หน้าโปรไฟล์')),
+          const ContractorProfile(),
         ],
       ),
       bottomNavigationBar: NavigationBar(

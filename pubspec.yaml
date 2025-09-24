@@ -64,6 +64,7 @@ flutter:
     - assets/images/guy_old.png
     - assets/images/coupon.png
     - assets/images/p.png
+    - assets/images/guy.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
