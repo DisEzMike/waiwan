@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'demo_data.dart';
 import 'card.dart';
+import 'elderly_profile.dart';
 
 class ElderlyScreen extends StatelessWidget {
   const ElderlyScreen({super.key});
@@ -101,8 +102,13 @@ class ElderlyScreen extends StatelessWidget {
                 return ElderlyPersonCard(
                   person: person,
                   onTap: () {
-                    // Handle card tap
-                    print('Tapped on ${person.name}');
+                    // Navigate to elderly profile page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ElderlyProfilePage(person: person),
+                      ),
+                    );
                   },
                 );
               },
