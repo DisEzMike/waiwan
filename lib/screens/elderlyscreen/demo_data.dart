@@ -138,4 +138,22 @@ final List<ElderlyPerson> demoElderlyPersons = [
       ),
     ],
   ),
+  ElderlyPerson(
+    name: 'นายสมปอง',
+    distance: '700 m.',
+    ability: 'พูดกล่อง',
+    imageUrl: 'assets/images/guy_old.png',
+    phoneNumber: 1234567890,
+    chronicDiseases: 'ไม่มี',
+    workExperience: '1 ปี',
+    reviews: [
+      Review(
+        reviewId: 'r9',
+        reviewerName: 'นางสาวใจดี',
+        rating: 4,
+        comment: 'ทำงานดี มีความรับผิดชอบ',
+        reviewDate: DateTime.now().subtract(const Duration(days: 5)),
+      ),
+    ],
+  ),
 ];
