@@ -1,5 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:waiwan/components/bottom_appbar.dart';
+
+class Destination {
+  final IconData icon;
+  final IconData iconSelected;
+  final String label;
+  const Destination({
+    required this.icon,
+    required this.iconSelected,
+    required this.label,
+  });
+}
 
 class MyMainPage extends StatefulWidget {
   const MyMainPage({super.key});
@@ -32,158 +42,165 @@ class _MyMainPageState extends State<MyMainPage> {
     Destination(
       icon: Icons.person_outlined,
       iconSelected: Icons.person,
-      label: 'โปรไฟล์',
+      label: 'โปรไฟ',
     ),
   ];
+
+  Widget _homePage(BuildContext context) {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            // Search Bar
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 8.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(25),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: SearchBar(
+                hintText: 'ค้นหา',
+                leading: const Icon(Icons.search, size: 30),
+                constraints: const BoxConstraints(
+                  maxHeight: 60,
+                  minHeight: 50,
+                ),
+                padding: const MaterialStatePropertyAll<EdgeInsets>(
+                  EdgeInsets.symmetric(horizontal: 24.0),
+                ),
+                hintStyle: MaterialStatePropertyAll<TextStyle>(
+                  TextStyle(fontSize: 16, color: Colors.grey[600]),
+                ),
+                elevation: const MaterialStatePropertyAll<double>(1.0),
+              ),
+            ),
+
+            // ปุ่มคูปอง + คะแนน
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: () {},
+                    style: FilledButton.styleFrom(
+                      backgroundColor: const Color(0xFFFFFFFF),
+                      foregroundColor: const Color(0xFF000000),
+                      elevation: 1,
+                      shadowColor: Colors.black.withOpacity(0.3),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    icon: Image.asset('assets/images/coupon.png', width: 24, height: 24),
+                    label: const Text(
+                      'ดูปองของฉัน',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: () {},
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.green[100],
+                      foregroundColor: const Color(0xFF000000),
+                      elevation: 1,
+                      shadowColor: Colors.black.withOpacity(0.3),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    icon: Image.asset('assets/images/p.png', width: 24, height: 24),
+                    label: const Text(
+                      '1000 คะแนน',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final onPrimary = Theme.of(context).colorScheme.onPrimary;
+
+    return Theme(
+      data: Theme.of(context).copyWith(
+        navigationBarTheme: NavigationBarThemeData(
+          labelTextStyle: MaterialStateProperty.resolveWith((states) {
+            if (states.contains(MaterialState.selected)) {
+              return const TextStyle(color: Colors.black);
+            }
+            return const TextStyle(color: Colors.white);
+          }),
+        ),
+      ),
+      child: Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
         title: Text(
           _currentTitle,
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onPrimary,
+            color: onPrimary,
             fontWeight: FontWeight.w600,
             fontSize: 30,
           ),
         ),
       ),
-
       body: IndexedStack(
         index: _currentIndex,
         children: [
-
-
-          // search bar 
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: SearchBar(
-                    hintText: 'ค้นหา',
-                    leading: const Icon(Icons.search , size: 30),
-                    constraints: const BoxConstraints(
-                      maxHeight: 60,
-                      minHeight: 50,
-                    ),
-                    padding: const MaterialStatePropertyAll<EdgeInsets>(
-                      EdgeInsets.symmetric(horizontal: 24.0),
-                    ),
-                    hintStyle: MaterialStatePropertyAll<TextStyle>(
-                      TextStyle(fontSize: 16, color: Colors.grey[600]),
-                    ),
-                    elevation: const MaterialStatePropertyAll<double>(1.0),
-                  ),
-                ),
-
-                //ปุ่มคูปอง
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: FilledButton.icon(
-                        onPressed: () {},
-                        style: FilledButton.styleFrom(
-                          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-                          foregroundColor: const Color.fromARGB(255, 0, 0, 0),
-                          elevation: 1,
-                          shadowColor: Colors.black.withOpacity(0.3),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        icon: Image.asset(
-                          'assets/images/coupon.png',
-                          width: 24,
-                          height: 24,
-                        ),
-                        label: const Text(
-                          'ดูปองของฉัน',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-
-                    //ปุ่มดูคะแนน
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: FilledButton.icon(
-                        onPressed: () {},
-                        style: FilledButton.styleFrom(
-                          backgroundColor: Colors.green[100],
-                          foregroundColor: const Color.fromARGB(255, 0, 0, 0),
-                          elevation: 1,
-                          shadowColor: Colors.black.withOpacity(0.3),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        icon: Image.asset(
-                          'assets/images/p.png',
-                          width: 24,
-                          height: 24,
-                        ),
-                        label: const Text(
-                          '1000 คะแนน',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          // หน้าข้อความ
-          const Center(
-            child: Text(''),
-          ),
-          // หน้าแจ้งเตือน
-          const Center(
-            child: Text(''),
-          ),
-          // หน้าโปรไฟล์
-          const Center(
-            child: Text(''),
-          ),
+          _homePage(context),
+          const Center(child: Text('หน้าข้อความ')),
+          const Center(child: Text('หน้าแจ้งเตือน')),
+          const Center(child: Text('หน้าโปรไฟล์')),
         ],
       ),
       bottomNavigationBar: NavigationBar(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        labelTextStyle: WidgetStateProperty.all(
-          TextStyle(
-            color: Theme.of(context).colorScheme.onPrimary,
-            fontWeight: FontWeight.w500,
-            fontSize: 16,
-          ),
-        ),
-        destinations: destinations
-            .map<NavigationDestination>(
-              (Destination destination) => NavigationDestination(
-                icon: Icon(
-                  destination.icon,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-                selectedIcon: Icon(
-                  destination.iconSelected,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-                label: destination.label,
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          elevation: 0,
+          indicatorColor: Colors.transparent,
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          height: 65,
+          destinations: destinations.map((d) {
+            final isSelected = _currentIndex == destinations.indexOf(d);
+            return NavigationDestination(
+              icon: Icon(
+                d.icon,
+                color: isSelected ? Colors.black : Colors.white,
+                size: 30,
               ),
-            )
-            .toList(),
-        selectedIndex: _currentIndex,
-        indicatorColor: Theme.of(context).colorScheme.inversePrimary,
-        onDestinationSelected: (int index) {
-          setState(() {
-            _currentIndex = index;
-            _currentTitle = destinations[index].label;
-          });
-        },
+              selectedIcon: Icon(
+                d.iconSelected,
+                color: Colors.black,
+                size: 30,
+              ),
+              label: d.label,
+            );
+          }).toList(),
+          selectedIndex: _currentIndex,
+          onDestinationSelected: (int index) {
+            setState(() {
+              _currentIndex = index;
+              _currentTitle = destinations[index].label;
+            });
+          },
       ),
+    ),
     );
   }
 }
