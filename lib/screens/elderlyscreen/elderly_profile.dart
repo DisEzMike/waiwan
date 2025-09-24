@@ -120,17 +120,25 @@ class ElderlyProfilePage extends StatelessWidget {
             
             // Action Buttons
             SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.phone),
-                label: const Text('ติดต่อ'),
+              width: 375,        // Figma Width: 375px
+              height: 65,        // Figma Height: 65px
+              child: ElevatedButton(
                 onPressed: () {
                   // TODO: Implement contact action
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+                  backgroundColor: Color.fromRGBO(110, 183, 21, 95), // Green color
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8), // Add rounded corners
+                  ),
+                ),
+                child: const Text(
+                  'แชทเพื่อเสนองาน',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
