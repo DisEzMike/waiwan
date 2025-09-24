@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'elderly_screen.dart';
 
 class Destination {
   final IconData icon;
@@ -42,96 +43,12 @@ class _MyMainPageState extends State<MyMainPage> {
     Destination(
       icon: Icons.person_outlined,
       iconSelected: Icons.person,
-      label: 'โปรไฟ',
+      label: 'โปรไฟล์',
     ),
   ];
 
   Widget _homePage(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // Search Bar
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 8.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(25),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: SearchBar(
-                hintText: 'ค้นหา',
-                leading: const Icon(Icons.search, size: 30),
-                constraints: const BoxConstraints(
-                  maxHeight: 60,
-                  minHeight: 50,
-                ),
-                padding: const MaterialStatePropertyAll<EdgeInsets>(
-                  EdgeInsets.symmetric(horizontal: 24.0),
-                ),
-                hintStyle: MaterialStatePropertyAll<TextStyle>(
-                  TextStyle(fontSize: 16, color: Colors.grey[600]),
-                ),
-                elevation: const MaterialStatePropertyAll<double>(1.0),
-              ),
-            ),
-
-            // ปุ่มคูปอง + คะแนน
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: FilledButton.icon(
-                    onPressed: () {},
-                    style: FilledButton.styleFrom(
-                      backgroundColor: const Color(0xFFFFFFFF),
-                      foregroundColor: const Color(0xFF000000),
-                      elevation: 1,
-                      shadowColor: Colors.black.withOpacity(0.3),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    icon: Image.asset('assets/images/coupon.png', width: 24, height: 24),
-                    label: const Text(
-                      'ดูปองของฉัน',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: FilledButton.icon(
-                    onPressed: () {},
-                    style: FilledButton.styleFrom(
-                      backgroundColor: Colors.green[100],
-                      foregroundColor: const Color(0xFF000000),
-                      elevation: 1,
-                      shadowColor: Colors.black.withOpacity(0.3),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    icon: Image.asset('assets/images/p.png', width: 24, height: 24),
-                    label: const Text(
-                      '1000 คะแนน',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
+    return const ElderlyScreen();
   }
 
   @override
