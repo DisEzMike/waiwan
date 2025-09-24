@@ -143,10 +143,17 @@ class _MyMainPageState extends State<MyMainPage> {
         navigationBarTheme: NavigationBarThemeData(
           labelTextStyle: MaterialStateProperty.resolveWith((states) {
             if (states.contains(MaterialState.selected)) {
-              return const TextStyle(color: Colors.black);
+              return const TextStyle(color: Colors.black, height: 0.5);
             }
-            return const TextStyle(color: Colors.white);
+            return const TextStyle(color: Colors.white, height: 0.5);
           }),
+          iconTheme: MaterialStateProperty.resolveWith((states) {
+            if (states.contains(MaterialState.selected)) {
+              return const IconThemeData(size: 30, color: Colors.black);
+            }
+            return const IconThemeData(size: 30, color: Colors.white);
+          }),
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         ),
       ),
       child: Scaffold(
@@ -174,21 +181,11 @@ class _MyMainPageState extends State<MyMainPage> {
           backgroundColor: Theme.of(context).colorScheme.primary,
           elevation: 0,
           indicatorColor: Colors.transparent,
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-          height: 65,
+          height: 70,
           destinations: destinations.map((d) {
-            final isSelected = _currentIndex == destinations.indexOf(d);
             return NavigationDestination(
-              icon: Icon(
-                d.icon,
-                color: isSelected ? Colors.black : Colors.white,
-                size: 30,
-              ),
-              selectedIcon: Icon(
-                d.iconSelected,
-                color: Colors.black,
-                size: 30,
-              ),
+              icon: Icon(d.icon),
+              selectedIcon: Icon(d.iconSelected),
               label: d.label,
             );
           }).toList(),
