@@ -74,9 +74,9 @@ final List<Review> phasReviews = [
 
 final List<ElderlyPerson> demoElderlyPersons = [
   ElderlyPerson(
-    name: 'นายสมชาย',
+    name: 'นายม่อน',
     distance: '500 m.',
-    ability: 'พูดกล่อง',
+    ability: 'พับกล่อง',
     imageUrl: 'assets/images/guy_old.png',
     phoneNumber: 1234567890,
     chronicDiseases: 'เบาหวาน',
@@ -85,9 +85,9 @@ final List<ElderlyPerson> demoElderlyPersons = [
     isVerified: true,
   ),
   ElderlyPerson(
-    name: 'นายภาส',
+    name: 'นายกาย',
     distance: '600 m.',
-    ability: 'พูดกล่อง',
+    ability: 'พับกล่อง',
     imageUrl: 'assets/images/guy_old.png',
     phoneNumber: 1234567890,
     chronicDiseases: 'ความดัน',
@@ -95,9 +95,9 @@ final List<ElderlyPerson> demoElderlyPersons = [
     reviews: phasReviews,
   ),
   ElderlyPerson(
-    name: 'นายคันนายน์',
+    name: 'นายไมค์',
     distance: '500 m.',
-    ability: 'พูดกล่อง',
+    ability: 'พับกล่อง',
     imageUrl: 'assets/images/guy_old.png',
     phoneNumber: 1234567890,
     chronicDiseases: 'โรคหัวใจ',
@@ -113,9 +113,9 @@ final List<ElderlyPerson> demoElderlyPersons = [
     ],
   ),
   ElderlyPerson(
-    name: 'นางน้อน',
+    name: 'นางสดใส',
     distance: '450 m.',
-    ability: 'พูดกล่อง',
+    ability: 'พับกล่อง',
     imageUrl: 'assets/images/guy_old.png',
     phoneNumber: 1234567890,
     chronicDiseases: 'โรคหอบหืด',
@@ -139,9 +139,9 @@ final List<ElderlyPerson> demoElderlyPersons = [
     ],
   ),
   ElderlyPerson(
-    name: 'นายสมปอง',
+    name: 'นายหมายใจ',
     distance: '700 m.',
-    ability: 'พูดกล่อง',
+    ability: 'พับกล่อง',
     imageUrl: 'assets/images/guy_old.png',
     phoneNumber: 1234567890,
     chronicDiseases: 'ไม่มี',

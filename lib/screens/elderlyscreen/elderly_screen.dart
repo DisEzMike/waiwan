@@ -27,7 +27,7 @@ class ElderlyScreen extends StatelessWidget {
                 ],
               ),
               child: SearchBar(
-                hintText: 'พบกล่อง',
+                hintText: 'พับกล่อง',
                 leading: const Icon(Icons.search, size: 30),
                 constraints: const BoxConstraints(
                   maxHeight: 60,
