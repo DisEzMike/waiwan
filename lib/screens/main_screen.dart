@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'elderly_screen.dart';
+import 'elderlyscreen/elderly_screen.dart';
 
 class Destination {
   final IconData icon;
@@ -14,7 +14,6 @@ class Destination {
 
 class MyMainPage extends StatefulWidget {
   const MyMainPage({super.key});
-  final String title = 'หน้าแรก';
 
   @override
   State<MyMainPage> createState() => _MyMainPageState();
@@ -58,14 +57,14 @@ class _MyMainPageState extends State<MyMainPage> {
     return Theme(
       data: Theme.of(context).copyWith(
         navigationBarTheme: NavigationBarThemeData(
-          labelTextStyle: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.selected)) {
+          labelTextStyle: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
               return const TextStyle(color: Colors.black, height: 0.5);
             }
             return const TextStyle(color: Colors.white, height: 0.5);
           }),
-          iconTheme: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.selected)) {
+          iconTheme: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
               return const IconThemeData(size: 30, color: Colors.black);
             }
             return const IconThemeData(size: 30, color: Colors.white);
@@ -76,6 +75,7 @@ class _MyMainPageState extends State<MyMainPage> {
       child: Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
+        centerTitle: true,    // Center the title
         title: Text(
           _currentTitle,
           style: TextStyle(
