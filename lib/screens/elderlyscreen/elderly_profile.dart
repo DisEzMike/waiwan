@@ -130,7 +130,7 @@ class ElderlyProfilePage extends StatelessWidget {
                   backgroundColor: Color.fromRGBO(110, 183, 21, 95), // Green color
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8), // Add rounded corners
+                    borderRadius: BorderRadius.circular(10), // Add rounded corners
                   ),
                 ),
                 child: const Text(
