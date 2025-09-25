@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'elderlypersonclass.dart';
 import 'chatclass.dart';
-import 'demo_data.dart';
 
 
 
@@ -21,17 +20,40 @@ class _ChatPageState extends State<ChatPage> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
-  // Demo chat messages - imported from demo_data
-  List<ChatMessage> messages = List.from(demoChatMessages);
+  // Local chat messages - API implementation to be added later
+  List<ChatMessage> messages = [];
 
   @override
   void initState() {
     super.initState();
-    // Scroll to bottom when page loads
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollToBottom();
-    });
+    // _initializeLocalMessages();
   }
+
+  // void _initializeLocalMessages() {
+  //   // Add some sample messages - you can remove these later
+  //   setState(() {
+  //     messages = [
+  //       ChatMessage(
+  //         message: "สวัสดีค่ะ ยาย ${widget.person.name}",
+  //         isMe: false,
+  //         timestamp: DateTime.now().subtract(const Duration(minutes: 30)),
+  //         senderName: widget.person.name,
+  //       ),
+  //       ChatMessage(
+  //         message: "สวัสดีจ้ะ หลาน",
+  //         isMe: true,
+  //         timestamp: DateTime.now().subtract(const Duration(minutes: 25)),
+  //         senderName: "ฉัน",
+  //       ),
+  //       ChatMessage(
+  //         message: "วันนี้สบายดีมั้ยคะ",
+  //         isMe: false,
+  //         timestamp: DateTime.now().subtract(const Duration(minutes: 20)),
+  //         senderName: widget.person.name,
+  //       ),
+  //     ];
+  //   });
+  // }
 
   void _scrollToBottom() {
     if (_scrollController.hasClients) {
@@ -126,9 +148,9 @@ class _ChatPageState extends State<ChatPage> {
               onBackgroundImageError: (exception, stackTrace) {
                 // Handle image error
               },
-              child: widget.person.imageUrl.startsWith('http') 
-                  ? null 
-                  : const Icon(Icons.person, size: 16),
+              // child: widget.person.imageUrl.startsWith('http') 
+                  // ? null 
+                  // : const Icon(Icons.person, size: 16),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -229,10 +251,5 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  @override
-  void dispose() {
-    _messageController.dispose();
-    _scrollController.dispose();
-    super.dispose();
-  }
+
 }

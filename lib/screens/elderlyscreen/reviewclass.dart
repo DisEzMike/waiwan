@@ -15,6 +15,18 @@ class Review {
     this.reviewerAvatar = '',
   });
 
+  // Factory constructor for creating Review from JSON
+  factory Review.fromJson(Map<String, dynamic> json) {
+    return Review(
+      reviewerName: json['reviewer_name'] ?? '',
+      reviewerAvatar: json['reviewer_avatar'] ?? '',
+      rating: json['rating'] ?? 0,
+      comment: json['comment'] ?? '',
+      reviewDate: DateTime.tryParse(json['review_date'] ?? '') ?? DateTime.now(),
+      reviewId: json['review_id'] ?? '',
+    );
+  }
+
   // Helper method to get formatted date string
   String get formattedDate {
     final now = DateTime.now();
