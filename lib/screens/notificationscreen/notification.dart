@@ -9,15 +9,15 @@ class NotificationScreen extends StatelessWidget {
       body: ListView(
         children: [
           _buildNotificationItem(
-            'บาบี้ที่หนึ่งเท่านั้นได้ตอบรับงานของคุณ',
+            'นายบาบี้ที่หนึ่งเท่านั้นได้ตอบรับงานของคุณ',
             'พับกระดาษ',
             'assets/images/guy_old.png',
             DateTime.now().subtract(const Duration(minutes: 5)),
             isRead: false,
           ),
           _buildNotificationItem(
-            'นายไมค์ตอบรับงานของคุณ',
-            'พับกระดาษ',
+            'ให้คะแนนรีวิว',
+            'นายบาบี้ที่หนึ่งเท่านั้น',
             'assets/images/guy_old.png',
             DateTime.now().subtract(const Duration(hours: 1)),
             isRead: false,
