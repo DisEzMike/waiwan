@@ -5,27 +5,39 @@ import 'chatclass.dart';
 // Demo chat messages - will be replaced with WebSocket data later
 final List<ChatMessage> demoChatMessages = [
   ChatMessage(
-    message: "สวัสดีครับ ผมสนใจงานที่คุณโพสต์ไว้",
-    isMe: false,
-    timestamp: DateTime.now().subtract(const Duration(minutes: 10)),
-    senderName: "คุณ",
-  ),
-  ChatMessage(
-    message: "สวัสดีค่ะ งานอะไรคะ?",
+    message: "สวัสดีครับ/ค่ะ",
     isMe: true,
-    timestamp: DateTime.now().subtract(const Duration(minutes: 9)),
+    timestamp: DateTime.now().subtract(const Duration(minutes: 4)),
     senderName: "ฉัน",
   ),
   ChatMessage(
-    message: "งานพูดกล่องค่ะ ต้องการคนช่วยพูดในงานประชุม",
+    message: "เรื่องการรับจ้างงาน พับกระดาษ\nราคา 400 บาท คุณสนใจไหม",
+    isMe: true,
+    timestamp: DateTime.now().subtract(const Duration(minutes: 4)),
+    senderName: "ฉัน",
+  ),
+  ChatMessage(
+    message: "ต้องทำอะไรบ้างเหรอค่ะ",
     isMe: false,
-    timestamp: DateTime.now().subtract(const Duration(minutes: 8)),
+    timestamp: DateTime.now().subtract(const Duration(minutes: 3)),
     senderName: "คุณ",
   ),
   ChatMessage(
-    message: "เข้าใจแล้วค่ะ ผมมีประสบการณ์เรื่องนี้ ตอนไหนสะดวกคุยรายละเอียดคะ?",
+    message: "ครับ พับกล่องจำนวน 100 ชุด\nเป็นกล่องสำหรับส่งโปรษณีย์",
     isMe: true,
-    timestamp: DateTime.now().subtract(const Duration(minutes: 5)),
+    timestamp: DateTime.now().subtract(const Duration(minutes: 3)),
+    senderName: "ฉัน",
+  ),
+  ChatMessage(
+    message: "โอเคครับ\nแต่ขอเพิ่มราคาได้ไหมครับ\nเป็น 500 บาท",
+    isMe: false,
+    timestamp: DateTime.now().subtract(const Duration(minutes: 1)),
+    senderName: "คุณ",
+  ),
+  ChatMessage(
+    message: "ได้ครับ",
+    isMe: true,
+    timestamp: DateTime.now(),
     senderName: "ฉัน",
   ),
 ];
@@ -76,32 +88,32 @@ final List<ElderlyPerson> demoElderlyPersons = [
   ElderlyPerson(
     name: 'นายบาบี้ที่หนึ่งเท่านั้น',
     distance: '500 m.',
-    ability: 'พับกล่อง ทำอาหารเป็น ถักไหมพรมได้ ทำงานทั่วไปได้',
+    ability: 'พับกล่อง ทำอาหาร ถักไหมพรม อาจารย์สอนวิศวกรรมโยธา ',
     imageUrl: 'assets/images/guy_old.png',
     phoneNumber: 1234567890,
-    chronicDiseases: 'เบาหวาน',
-    workExperience: 'วิศวกรรมศาสตร์โยธา',
+    chronicDiseases: 'ไม่มี',
+    workExperience: 'อาจาร์ยวิศวกรรมศาสตร์โยธา',
     reviews: somchaiReviews,
     isVerified: true,
   ),
   ElderlyPerson(
     name: 'นายกาย',
-    distance: '600 m.',
-    ability: 'พับกล่อง',
+    distance: '1 km.',
+    ability: 'พับกล่อง พูดภาษาอังกฤษ ภาษาญี่ปุ่น',
     imageUrl: 'assets/images/guy_old.png',
     phoneNumber: 1234567890,
     chronicDiseases: 'ความดัน',
-    workExperience: '5 ปี',
+    workExperience: 'ผู้รักษาความปลอดภัย',
     reviews: phasReviews,
   ),
   ElderlyPerson(
     name: 'นายไมค์',
     distance: '500 m.',
-    ability: 'พับกล่อง',
+    ability: 'พับกล่อง ซ่อมเครื่องซักผ้า',
     imageUrl: 'assets/images/guy_old.png',
     phoneNumber: 1234567890,
-    chronicDiseases: 'โรคหัวใจ',
-    workExperience: '8 ปี',
+    chronicDiseases: 'โรคไต',
+    workExperience: 'ซ่อมเครื่องใช้ไฟฟ้า',
     reviews: [
       Review(
         reviewId: 'r6',
@@ -115,11 +127,11 @@ final List<ElderlyPerson> demoElderlyPersons = [
   ElderlyPerson(
     name: 'นางสดใส',
     distance: '450 m.',
-    ability: 'พับกล่อง',
+    ability: 'พับกล่อง สอนการบ้านคณิตศาสตร์ ทำอาหาร',
     imageUrl: 'assets/images/guy_old.png',
     phoneNumber: 1234567890,
     chronicDiseases: 'โรคหอบหืด',
-    workExperience: '3 ปี',
+    workExperience: 'ครูประถม',
     isVerified: true,
     reviews: [
       Review(
@@ -141,11 +153,11 @@ final List<ElderlyPerson> demoElderlyPersons = [
   ElderlyPerson(
     name: 'นายหมายใจ',
     distance: '700 m.',
-    ability: 'พับกล่อง',
+    ability: 'พับกล่อง ทำความสะอาดบ้าน ทำอาหาร ถักไหมพรม',
     imageUrl: 'assets/images/guy_old.png',
     phoneNumber: 1234567890,
     chronicDiseases: 'ไม่มี',
-    workExperience: '1 ปี',
+    workExperience: 'แม่บ้าน',
     reviews: [
       Review(
         reviewId: 'r9',
