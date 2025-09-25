@@ -23,6 +23,23 @@ class ElderlyPerson {
     this.isVerified = false,
   });
 
+  // Factory constructor for creating ElderlyPerson from JSON
+  factory ElderlyPerson.fromJson(Map<String, dynamic> json) {
+    return ElderlyPerson(
+      name: json['name'] ?? '',
+      distance: json['distance'] ?? '',
+      ability: json['ability'] ?? '',
+      imageUrl: json['image_url'] ?? '',
+      phoneNumber: json['phone_number'] ?? 0,
+      chronicDiseases: json['chronic_diseases'] ?? '',
+      workExperience: json['work_experience'] ?? '',
+      reviews: (json['reviews'] as List<dynamic>?)
+          ?.map((reviewJson) => Review.fromJson(reviewJson))
+          .toList() ?? [],
+      isVerified: json['is_verified'] ?? false,
+    );
+  }
+
   // Calculate rating statistics from reviews
   RatingStats get ratingStats => RatingStats.fromReviews(reviews);
   

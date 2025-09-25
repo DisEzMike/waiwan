@@ -106,7 +106,7 @@ class ReviewsPage extends StatelessWidget {
                   review.comment,
                   review.formattedDate,
                 ),
-              )).toList()
+              ))
             else
               Container(
                 width: double.infinity,
