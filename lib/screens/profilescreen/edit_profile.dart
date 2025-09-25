@@ -13,6 +13,7 @@ class EditProfile extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
+
         centerTitle: true,
         title: const Text(
           'แก้ไขข้อมูลส่วนตัว',
@@ -22,6 +23,7 @@ class EditProfile extends StatelessWidget {
           ),
         ),
       ),
+      
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -35,7 +37,7 @@ class EditProfile extends StatelessWidget {
                   borderRadius: BorderRadius.circular(15),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withOpacity(0.2),
                       blurRadius: 10,
                       offset: const Offset(0, 2),
                     ),
@@ -50,7 +52,7 @@ class EditProfile extends StatelessWidget {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withOpacity(0.2),
                             spreadRadius: 1,
                             blurRadius: 1,
                             offset: const Offset(0, 1),
@@ -89,7 +91,8 @@ class EditProfile extends StatelessWidget {
                   ],
                 ),
               ),
-              // Form Fields Section
+
+              // box name, phone, address
               Container(
                 margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 padding: const EdgeInsets.all(16),
@@ -98,7 +101,7 @@ class EditProfile extends StatelessWidget {
                   borderRadius: BorderRadius.circular(15),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withOpacity(0.3),
                       blurRadius: 10,
                       offset: const Offset(0, 2),
                     ),
@@ -112,6 +115,38 @@ class EditProfile extends StatelessWidget {
                     const SizedBox(height: 16),
                     _buildFormField('ที่อยู่', '999/99 ฉลองกรุง 1 แขวงลาดกระบัง เขตลาดกระบัง กรุงเทพมหานคร 10520'),
                   ],
+                ),
+              ),
+              // Save Button
+              Container(
+                margin: const EdgeInsets.all(16),
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // TODO: Implement save functionality
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('บันทึกข้อมูลเรียบร้อย'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromRGBO(110, 183, 21, 95),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    'บันทึก',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ),
             ],

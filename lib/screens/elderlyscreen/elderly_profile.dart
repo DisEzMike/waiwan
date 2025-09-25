@@ -234,7 +234,7 @@ class ElderlyProfilePage extends StatelessWidget {
             ),
             const SizedBox(height: 1),
             
-            // อายุที่ถนัด Section  
+            // อาชีพที่เคยทำ  Section
             Container(
               width: double.infinity,
               color: Colors.white,
@@ -245,7 +245,7 @@ class ElderlyProfilePage extends StatelessWidget {
                   Row(
                     children: [
                       const Text(
-                        'อายุที่ถนัด',
+                        'อาชีพที่เคยทำ',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,

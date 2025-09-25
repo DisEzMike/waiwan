@@ -74,13 +74,13 @@ final List<Review> phasReviews = [
 
 final List<ElderlyPerson> demoElderlyPersons = [
   ElderlyPerson(
-    name: 'นายม่อน',
+    name: 'นายบาบี้ที่หนึ่งเท่านั้น',
     distance: '500 m.',
-    ability: 'พับกล่อง',
+    ability: 'พับกล่อง ทำอาหารเป็น ถักไหมพรมได้ ทำงานทั่วไปได้',
     imageUrl: 'assets/images/guy_old.png',
     phoneNumber: 1234567890,
     chronicDiseases: 'เบาหวาน',
-    workExperience: '10 ปี',
+    workExperience: 'วิศวกรรมศาสตร์โยธา',
     reviews: somchaiReviews,
     isVerified: true,
   ),
