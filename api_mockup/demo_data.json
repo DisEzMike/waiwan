@@ -2,13 +2,13 @@
 
   "elderly_persons": [
     {
-      "name": "นายสมชาย",
+      "name": "นายบาบี้ที่หนึ่งเท่านัั้น",
       "distance": "500 m.",
-      "ability": "พูดกล่อง",
+      "ability": "พับกล่อง สอนหนังสือ ทำอาหาร",
       "image_url": "assets/images/guy_old.png",
       "phone_number": 1234567890,
-      "chronic_diseases": "เบาหวาน",
-      "work_experience": "10 ปี",
+      "chronic_diseases": "ไม่มี",
+      "work_experience": "อาจารย์วิศวกรรมโยธา",
       "is_verified": true,
       "reviews": [
         {
@@ -35,13 +35,13 @@
       ]
     },
     {
-      "name": "นายภาส",
+      "name": "นายกาย",
       "distance": "600 m.",
-      "ability": "พูดกล่อง",
+      "ability": "พับกล่อง ซ่อมแอร์ ",
       "image_url": "assets/images/guy_old.png",
       "phone_number": 1234567890,
       "chronic_diseases": "ความดัน",
-      "work_experience": "5 ปี",
+      "work_experience": "ซ่อมแอร์",
       "is_verified": false,
       "reviews": [
         {
@@ -61,13 +61,13 @@
       ]
     },
     {
-      "name": "นายคันนายน์",
+      "name": "นายม่อน",
       "distance": "500 m.",
-      "ability": "พูดกล่อง",
+      "ability": "พับกล่อง",
       "image_url": "assets/images/guy_old.png",
       "phone_number": 1234567890,
-      "chronic_diseases": "โรคหัวใจ",
-      "work_experience": "8 ปี",
+      "chronic_diseases": "โรคไต",
+      "work_experience": "พนักงานรักษาความปลอดภัย",
       "is_verified": false,
       "reviews": [
         {
@@ -80,13 +80,13 @@
       ]
     },
     {
-      "name": "นางน้อน",
+      "name": "นางแก้ว",
       "distance": "450 m.",
-      "ability": "พูดกล่อง",
+      "ability": "พับกล่อง ดูแลผู้สูงอายุ พูดภาษาอังกฤษ ทำอาหาร",
       "image_url": "assets/images/guy_old.png",
       "phone_number": 1234567890,
       "chronic_diseases": "โรคหอบหืด",
-      "work_experience": "3 ปี",
+      "work_experience": "แม่ครัว",
       "is_verified": true,
       "reviews": [
         {
@@ -108,11 +108,11 @@
     {
       "name": "นายสมปอง",
       "distance": "700 m.",
-      "ability": "พูดกล่อง",
+      "ability": "พับกล่อง",
       "image_url": "assets/images/guy_old.png",
       "phone_number": 1234567890,
       "chronic_diseases": "ไม่มี",
-      "work_experience": "1 ปี",
+      "work_experience": "พนักงานบริษัท",
       "is_verified": false,
       "reviews": [
         {

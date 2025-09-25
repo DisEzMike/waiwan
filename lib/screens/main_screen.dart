@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'elderlyscreen/elderly_screen.dart';
 import 'nav_bar.dart';
 import 'profilescreen/contractor_profile.dart';
+import 'notificationscreen/notification.dart';
 // Make sure the class name in contractor_profile.dart matches 'ContractorProfilePage'
 
 class MyMainPage extends StatelessWidget {
@@ -23,7 +24,7 @@ class MyMainPage extends StatelessWidget {
         ),
         AppNavItem(
           destination: destinations[2],
-          builder: (context) => const _TextPlaceholder('หน้าแจ้งเตือน'),
+          builder: (context) => const NotificationScreen(),
         ),
         AppNavItem(
           destination: destinations[3],
