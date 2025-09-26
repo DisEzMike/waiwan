@@ -92,7 +92,7 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
                 onPointsTap: () {
                   // TODO: Handle points tap
                 },
-                pointsText: '1000 คะแนน',
+                pointsText: '100 คะแนน',
               ),
               const SizedBox(height: 16),
               ElderlyPersonsGrid(

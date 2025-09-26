@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:waiwan/screens/main_screen.dart';
+import 'package:waiwan/screens/start_screen.dart';
 import 'package:waiwan/utils/colors.dart';
 
 void main() {
@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
           textTheme: ButtonTextTheme.primary,
         ),
       ),
-      home: const MyMainPage(),
+      home: const StartScreen(),
     );
   }
 }

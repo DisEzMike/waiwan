@@ -6,6 +6,7 @@ import '../../widgets/map/action_buttons_row.dart';
 import '../../widgets/map/job_completion_dialog.dart';
 import '../../widgets/map/sos_button.dart';
 import '../../widgets/map/location_button.dart';
+import 'review_screen.dart';
 
 class MapPage extends StatefulWidget {
   final String elderlyPersonName;
@@ -154,14 +155,12 @@ class _MapPageState extends State<MapPage> {
       widget.elderlyPersonName,
       () {
         Navigator.of(context).pop(); // Close dialog
-        Navigator.of(context).pop(); // Go back to chat
         
-        // Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('จบงานเรียบร้อยแล้ว'),
-            backgroundColor: Color(0xFF6EB715),
-            duration: Duration(seconds: 2),
+        // Navigate to review screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const ReviewScreen(),
           ),
         );
       },
