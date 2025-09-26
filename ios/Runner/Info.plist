@@ -45,5 +45,8 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Camera usage description required for iOS -->
+	<key>NSCameraUsageDescription</key>
+	<string>แอปต้องการใช้กล้องเพื่อตรวจสอบใบหน้าในการยืนยันตัวตน</string>
 </dict>
 </plist>
