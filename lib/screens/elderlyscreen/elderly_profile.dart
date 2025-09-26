@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'elderlypersonclass.dart';
+import '../../model/elderly_person.dart';
 import 'chat.dart';
 import 'reviews.dart';
 import '../nav_bar.dart';
+import '../../widgets/elderly_profile/profile_card.dart';
+import '../../widgets/elderly_profile/chat_button.dart';
+import '../../widgets/elderly_profile/information_section.dart';
 
 class ElderlyProfilePage extends StatefulWidget {
   final ElderlyPerson person;
@@ -39,283 +42,56 @@ class _ElderlyProfilePageState extends State<ElderlyProfilePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Profile Card with Green Background
-          Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF8BC34A), Color(0xFF7CB342)],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                // Circle profile image
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(40),
-                  child: Image.asset(
-                    widget.person.imageUrl,
-                    height: 80,
-                    width: 80,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        height: 80,
-                        width: 80,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(40),
-                        ),
-                        child: const Icon(
-                          Icons.person,
-                          size: 40,
-                          color: Colors.grey,
-                        ),
-                      );
-                    },
-                  ),
+          ProfileCard(
+            person: widget.person,
+            onRatingTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ReviewsPage(person: widget.person),
                 ),
-                const SizedBox(width: 16),
-                // Name and Rating
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              widget.person.name,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                          if (widget.person.isVerified)
-                            const Icon(
-                              Icons.verified,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      // Rating - Tappable
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ReviewsPage(person: widget.person),
-                            ),
-                          );
-                        },
-                        child: Row(
-                          children: [
-                            Text(
-                              widget.person.rating.toStringAsFixed(1),
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '(${widget.person.reviewCount} รีวิว)',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.white70,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            const Icon(
-                              Icons.chevron_right,
-                              color: Colors.white70,
-                              size: 16,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+              );
+            },
           ),
           const SizedBox(height: 16),
           
           // Chat Button
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ChatPage(person: widget.person),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF8BC34A),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+          ChatButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ChatPage(person: widget.person),
                 ),
-              ),
-              child: const Text(
-                'แชทเพื่อเสนองาน',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+              );
+            },
           ),
           const SizedBox(height: 16),
           
           // มือถือ Section
-          Container(
-            width: double.infinity,
-            color: Colors.white,
-            padding: const EdgeInsets.all(16.0),
-            child: Column( 
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'มือถือ',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '0${widget.person.phoneNumber}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
+          InformationSection(
+            title: 'มือถือ',
+            content: '0${widget.person.phoneNumber}',
           ),
-          const SizedBox(height: 1),
           
           // ความสามารถ Section
-          Container(
-            width: double.infinity,
-            color: Colors.white,
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'ความสามารถ',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  widget.person.ability,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
+          InformationSection(
+            title: 'ความสามารถ',
+            content: widget.person.ability,
           ),
-          const SizedBox(height: 1),
           
-          // อายุที่ถนัด Section  
-          Container(
-            width: double.infinity,
-            color: Colors.white,
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Text(
-                      'อาชีพที่เคยทำ',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    if (widget.person.isVerified)
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.verified,
-                            color: Colors.blue,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '(ได้รับการรับรอง)',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.blue[600],
-                            ),
-                          ),
-                        ],
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  widget.person.workExperience,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
+          // อาชีพที่เคยทำ Section  
+          InformationSection(
+            title: 'อาชีพที่เคยทำ',
+            content: widget.person.workExperience,
+            showVerification: true,
+            isVerified: widget.person.isVerified,
           ),
-          const SizedBox(height: 1),
           
           // โรคประจำตัว Section
-          Container(
-            width: double.infinity,
-            color: Colors.white,
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'โรคประจำตัว',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  widget.person.chronicDiseases,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
+          InformationSection(
+            title: 'โรคประจำตัว',
+            content: widget.person.chronicDiseases,
           ),
         ],
       ),

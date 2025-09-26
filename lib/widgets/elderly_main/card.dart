@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'elderlypersonclass.dart';
+import '../../model/elderly_person.dart';
 
 class ElderlyPersonCard extends StatelessWidget {
   final ElderlyPerson person;
@@ -27,9 +27,16 @@ class ElderlyPersonCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 4,
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 8,
               offset: const Offset(0, 2),
+              spreadRadius: 0,
+            ),
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.16),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+              spreadRadius: 0,
             ),
           ],
         ),

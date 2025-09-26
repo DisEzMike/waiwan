@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
-import 'elderlypersonclass.dart';
-import 'card.dart';
+import '../../model/elderly_person.dart';
 import 'elderly_profile.dart';
+import '../../widgets/elderly_main/custom_search_bar.dart';
+import '../../widgets/elderly_main/points_buttons.dart';
+import '../../widgets/elderly_main/elderly_persons_grid.dart';
 
 class ElderlyScreen extends StatefulWidget {
   const ElderlyScreen({super.key});
@@ -76,153 +78,42 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(25),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: SearchBar(
-                  hintText: 'พบกล่อง',
-                  leading: const Icon(Icons.search, size: 30),
-                  constraints: const BoxConstraints(
-                    maxHeight: 60,
-                    minHeight: 50,
-                  ),
-                  padding: const WidgetStatePropertyAll<EdgeInsets>(
-                    EdgeInsets.symmetric(horizontal: 24.0),
-                  ),
-                  hintStyle: WidgetStatePropertyAll<TextStyle>(
-                    TextStyle(fontSize: 16, color: Colors.grey[600]),
-                  ),
-                  elevation: const WidgetStatePropertyAll<double>(1.0),
-                ),
+              CustomSearchBar(
+                hintText: 'พบกล่อง',
+                onTap: () {
+                  // TODO: Handle search tap
+                },
               ),
               const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: FilledButton.icon(
-                      onPressed: () {},
-                      icon: const Icon(Icons.star),
-                      label: const Text('คะแนนของฉัน'),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: FilledButton.icon(
-                      onPressed: () {},
-                      icon: Image.asset('assets/images/p.png', width: 24, height: 24),
-                      label: const Text(
-                        '1000 คะแนน',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                ],
+              PointsButtons(
+                onCouponTap: () {
+                  // TODO: Handle coupon tap
+                },
+                onPointsTap: () {
+                  // TODO: Handle points tap
+                },
+                pointsText: '1000 คะแนน',
               ),
               const SizedBox(height: 16),
-              _buildElderlyPersonsGrid(),
+              ElderlyPersonsGrid(
+                elderlyPersons: elderlyPersons,
+                isLoading: isLoading,
+                isRefreshing: isRefreshing,
+                errorMessage: errorMessage,
+                onRetry: () => _loadElderlyPersons(isRefresh: false),
+                onPersonTap: (person) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ElderlyProfilePage(person: person),
+                    ),
+                  );
+                },
+              ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildElderlyPersonsGrid() {
-    // Show loading indicator for initial load
-    if (isLoading && !isRefreshing) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(32.0),
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
-    // Show loading indicator during refresh when list is empty
-    if (isRefreshing && elderlyPersons.isEmpty) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(32.0),
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
-    if (errorMessage.isNotEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: Column(
-            children: [
-              const Icon(
-                Icons.cloud_off,
-                size: 64,
-                color: Color(0xFF6EB715),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'ไม่สามารถเชื่อมต่อได้',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้\nกรุณาตรวจสอบการเชื่อมต่อและลองใหม่',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey[600],
-                ),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton.icon(
-                onPressed: () => _loadElderlyPersons(isRefresh: false),
-                icon: const Icon(Icons.refresh),
-                label: const Text('ลองเชื่อมต่อใหม่'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:  Color(0xFF6EB715),
-                  foregroundColor: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    // Don't show "no data found" message, just show empty grid
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.65,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-      ),
-      itemCount: elderlyPersons.length,
-      itemBuilder: (context, index) {
-        final person = elderlyPersons[index];
-        return ElderlyPersonCard(
-          person: person,
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ElderlyProfilePage(person: person),
-              ),
-            );
-          },
-        );
-      },
     );
   }
 }

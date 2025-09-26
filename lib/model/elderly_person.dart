@@ -1,4 +1,4 @@
-import 'reviewclass.dart';
+import 'review_elderly.dart';
 
 class ElderlyPerson {
   final String name;
@@ -8,6 +8,7 @@ class ElderlyPerson {
   final int phoneNumber;
   final String chronicDiseases;
   final String workExperience;
+  final String address;
   final List<Review> reviews;
   final bool isVerified;
 
@@ -19,6 +20,7 @@ class ElderlyPerson {
     required this.phoneNumber,
     required this.chronicDiseases,
     required this.workExperience,
+    required this.address,
     this.reviews = const [],
     this.isVerified = false,
   });
@@ -33,6 +35,7 @@ class ElderlyPerson {
       phoneNumber: json['phone_number'] ?? 0,
       chronicDiseases: json['chronic_diseases'] ?? '',
       workExperience: json['work_experience'] ?? '',
+      address: json['address'] ?? '',
       reviews: (json['reviews'] as List<dynamic>?)
           ?.map((reviewJson) => Review.fromJson(reviewJson))
           .toList() ?? [],
@@ -73,6 +76,7 @@ class ElderlyPerson {
       phoneNumber: phoneNumber,
       chronicDiseases: chronicDiseases,
       workExperience: workExperience,
+      address: address,
       reviews: updatedReviews,
       isVerified: isVerified,
     );

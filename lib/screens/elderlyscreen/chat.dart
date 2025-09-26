@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'elderlypersonclass.dart';
-import 'chatclass.dart';
+import '../../model/elderly_person.dart';
+import '../../model/chat_message.dart';
+import '../../widgets/chat/chat_message_bubble.dart';
+import '../../widgets/chat/attachment_options_sheet.dart';
 
 
 
@@ -23,10 +25,22 @@ class _ChatPageState extends State<ChatPage> {
   // Local chat messages - API implementation to be added later
   List<ChatMessage> messages = [];
 
+  // Preset messages for quick replies
+  final List<String> presetMessages = [
+    'เสนอราคาใหม่',
+  ];
+
   @override
   void initState() {
     super.initState();
     // _initializeLocalMessages();
+  }
+
+  @override
+  void dispose() {
+    _messageController.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   // void _initializeLocalMessages() {
@@ -55,6 +69,8 @@ class _ChatPageState extends State<ChatPage> {
   //   });
   // }
 
+
+  // auto scroll to bottom when new message is added
   void _scrollToBottom() {
     if (_scrollController.hasClients) {
       _scrollController.animateTo(
@@ -65,6 +81,7 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
+  // send message
   void _sendMessage() {
     if (_messageController.text.trim().isEmpty) return;
 
@@ -76,10 +93,7 @@ class _ChatPageState extends State<ChatPage> {
         senderName: "ฉัน",
       ));
     });
-
-    _messageController.clear();
-    
-    // Scroll to bottom after sending message
+    _messageController.clear();    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToBottom();
     });
@@ -88,51 +102,132 @@ class _ChatPageState extends State<ChatPage> {
     // _webSocketService.sendMessage(_messageController.text.trim());
   }
 
-  String _formatTime(DateTime timestamp) {
-    return "${timestamp.hour.toString().padLeft(2, '0')}:${timestamp.minute.toString().padLeft(2, '0')}";
+  void _sendPresetMessage(String message) {
+    // Send regular preset message
+    setState(() {
+      messages.add(ChatMessage(
+        message: message,
+        isMe: true,
+        timestamp: DateTime.now(),
+        senderName: "ฉัน",
+      ));
+    });
+    
+    // Scroll to bottom after sending message
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToBottom();
+    });
+
+    // TODO: Send message via WebSocket
+    // _webSocketService.sendMessage(message);
+  }
+
+
+  // Demo function to simulate elderly person sending payment message
+  void _sendPaymentMessage() {
+
+    final paymentDetails = PaymentDetails(
+      jobTitle: 'จับคู่ผู้สูงอายุ - ${widget.person.name}',
+      payment: '1,200 บาท',
+      workType: 'งานแปรงฟัน, อาบน้ำ, เช็ดตัว',
+      paymentMethod: 'QR Code',
+      code: 'PAY${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+      totalAmount: '1,200 บาท',
+    );
+
+    setState(() {
+      messages.add(ChatMessage(
+        message: 'ได้รับการชำระเงินแล้ว',
+        isMe: false, // This comes from elderly person, not user
+        timestamp: DateTime.now(),
+        senderName: widget.person.name,
+        isPayment: true,
+        paymentDetails: paymentDetails,
+      ));
+    });
+    
+    // Scroll to bottom after sending message
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToBottom();
+    });
+  }
+
+  void _showAttachmentOptions() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => AttachmentOptionsSheet(
+        onCameraPressed: _pickImageFromCamera,
+        onGalleryPressed: _pickImageFromGallery,
+        onFilePressed: _pickFile,
+      ),
+    );
+  }
+
+  void _pickImageFromCamera() {
+    // TODO: Implement camera image picker
+    print('Opening camera...');
+    // _sendSystemMessage('📷 ถ่ายรูปจากกล้อง');
+  }
+
+  void _pickImageFromGallery() {
+    // TODO: Implement gallery image picker
+    print('Opening gallery...');
+    // _sendSystemMessage('🖼️ เลือกภาพจากคลังภาพ');
+  }
+
+  void _pickFile() {
+    // TODO: Implement file picker
+    print('Opening file picker...');
+    // _sendSystemMessage('📁 เลือกไฟล์');
+  }
+
+  // After payment is done, send completion message and map button
+  void _sendPaymentCompletionMessage() {
+    // Add completion message from user
+    setState(() {
+      messages.add(ChatMessage(
+        message: 'คุณชำระเงินเสร็จสิน',
+        isMe: true, // This comes from user
+        timestamp: DateTime.now(),
+        senderName: "ฉัน",
+      ));
+    });
+    
+    // Auto send map button message after a short delay
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      if (mounted) {
+        setState(() {
+          messages.add(ChatMessage(
+            message: 'แผนที่ตำแหน่งของคุณ',
+            isMe: true, // This also comes from user
+            timestamp: DateTime.now(),
+            senderName: "ฉัน",
+            isMap: true,
+          ));
+        });
+        
+        // Scroll to bottom after sending message
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _scrollToBottom();
+        });
+      }
+    });
+    
+    // Scroll to bottom after sending first message
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToBottom();
+    });
   }
 
   Widget _buildMessageBubble(ChatMessage message) {
-    return Align(
-      alignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.7,
-        ),
-        decoration: BoxDecoration(
-          color: message.isMe 
-              ? const Color.fromRGBO(110, 183, 21, 1) 
-              : Colors.grey[200],
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(16),
-            topRight: const Radius.circular(16),
-            bottomLeft: message.isMe ? const Radius.circular(16) : const Radius.circular(4),
-            bottomRight: message.isMe ? const Radius.circular(4) : const Radius.circular(16),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              message.message,
-              style: TextStyle(
-                color: message.isMe ? Colors.white : Colors.black87,
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              _formatTime(message.timestamp),
-              style: TextStyle(
-                color: message.isMe ? Colors.white70 : Colors.grey[600],
-                fontSize: 12,
-              ),
-            ),
-          ],
-        ),
-      ),
+    return ChatMessageBubble(
+      message: message,
+      elderlyPersonName: widget.person.name,
+      address: widget.person.address,
+      onPaymentCompleted: _sendPaymentCompletionMessage,
     );
   }
 
@@ -145,12 +240,6 @@ class _ChatPageState extends State<ChatPage> {
             CircleAvatar(
               radius: 16,
               backgroundImage: AssetImage(widget.person.imageUrl),
-              onBackgroundImageError: (exception, stackTrace) {
-                // Handle image error
-              },
-              // child: widget.person.imageUrl.startsWith('http') 
-                  // ? null 
-                  // : const Icon(Icons.person, size: 16),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -182,6 +271,19 @@ class _ChatPageState extends State<ChatPage> {
         ),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        actions: [
+          // Demo button to simulate elderly person sending payment
+          IconButton(
+            onPressed: () {
+              _sendPaymentMessage();
+            },
+            icon: const Icon(
+              Icons.payment,
+              color: Colors.white,
+            ),
+            tooltip: 'Demo: ผู้สูงอายุส่งการชำระเงิน',
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -196,11 +298,42 @@ class _ChatPageState extends State<ChatPage> {
               },
             ),
           ),
+          // Preset Messages
+          Container(
+            height: 50,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            color: Colors.grey[100],
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: presetMessages.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                  child: ElevatedButton(
+                    onPressed: () => _sendPresetMessage(presetMessages[index]),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey[300],
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      elevation: 2,
+                    ),
+                    child: Text(
+                      presetMessages[index],
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
           // Message Input
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: const Color(0xFF6EB715), // Green background like in image
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.1),
@@ -212,34 +345,76 @@ class _ChatPageState extends State<ChatPage> {
             child: SafeArea(
               child: Row(
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _messageController,
-                      decoration: InputDecoration(
-                        hintText: 'พิมพ์ข้อความ...',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide.none,
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey[100],
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
+                  // Plus button
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: IconButton(
+                      onPressed: _showAttachmentOptions,
+                      icon: const Icon(
+                        Icons.add,
+                        color: Color(0xFF6EB715),
+                        size: 24,
                       ),
-                      maxLines: null,
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: (_) => _sendMessage(),
+                      padding: const EdgeInsets.all(8),
+                      constraints: const BoxConstraints(
+                        minWidth: 40,
+                        minHeight: 40,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
-                  FloatingActionButton.small(
-                    onPressed: _sendMessage,
-                    backgroundColor: const Color.fromRGBO(110, 183, 21, 1),
-                    child: const Icon(
-                      Icons.send,
+                  // Text input field
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: TextField(
+                        controller: _messageController,
+                        decoration: const InputDecoration(
+                          hintText: '',
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          hintStyle: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 16,
+                          ),
+                        ),
+                        maxLines: null,
+                        textInputAction: TextInputAction.send,
+                        onSubmitted: (_) => _sendMessage(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Microphone button
+                  Container(
+                    decoration: BoxDecoration(
                       color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: IconButton(
+                      onPressed: () {
+                        // Handle voice recording
+                        print('Microphone button pressed');
+                      },
+                      icon: const Icon(
+                        Icons.mic,
+                        color: Color(0xFF6EB715),
+                        size: 24,
+                      ),
+                      padding: const EdgeInsets.all(8),
+                      constraints: const BoxConstraints(
+                        minWidth: 40,
+                        minHeight: 40,
+                      ),
                     ),
                   ),
                 ],

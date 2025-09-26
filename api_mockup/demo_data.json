@@ -9,6 +9,7 @@
       "phone_number": 1234567890,
       "chronic_diseases": "ไม่มี",
       "work_experience": "อาจารย์วิศวกรรมโยธา",
+      "address": "ซอยสุขุมวิท 50 วัดสุวรรณาราม กรุงเทพมหานคร",
       "is_verified": true,
       "reviews": [
         {
@@ -42,6 +43,7 @@
       "phone_number": 1234567890,
       "chronic_diseases": "ความดัน",
       "work_experience": "ซ่อมแอร์",
+      "address": "ซอยสุขุมวิท 50 วัดสุวรรณาราม กรุงเทพมหานคร",
       "is_verified": false,
       "reviews": [
         {
@@ -68,6 +70,7 @@
       "phone_number": 1234567890,
       "chronic_diseases": "โรคไต",
       "work_experience": "พนักงานรักษาความปลอดภัย",
+      "address": "ซอยสุขุมวิท 50 วัดสุวรรณาราม กรุงเทพมหานคร",
       "is_verified": false,
       "reviews": [
         {
@@ -87,6 +90,7 @@
       "phone_number": 1234567890,
       "chronic_diseases": "โรคหอบหืด",
       "work_experience": "แม่ครัว",
+      "address": "ซอยสุขุมวิท 52 วัดสุวรรณาราม กรุงเทพมหานคร",
       "is_verified": true,
       "reviews": [
         {
@@ -113,6 +117,7 @@
       "phone_number": 1234567890,
       "chronic_diseases": "ไม่มี",
       "work_experience": "พนักงานบริษัท",
+      "address": "ซอยสุขุมวิท 52 วัดสุวรรณาราม กรุงเทพมหานคร",
       "is_verified": false,
       "reviews": [
         {
@@ -124,5 +129,12 @@
         }
       ]
     }
-  ]
+  ],
+
+  "user_profile": {
+    "name": "นายสมชาย ใจดี",
+    "email": "somchai@example.com",
+    "phone_number": "0812345678",
+    "address": "123 ถนนสุขุมวิท แขวงคลองตัน เขตคลองเตย กรุงเทพมหานคร 10110"
+  }
 }

@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../screens/elderlyscreen/elderlypersonclass.dart';
-import '../screens/elderlyscreen/chatclass.dart';
-import '../screens/elderlyscreen/reviewclass.dart';
+import '../model/elderly_person.dart';
+import '../model/chat_message.dart';
+import '../model/review_elderly.dart';
 
 class ApiService {
   // Use your computer's IP address when running the FastAPI server
-  static const String baseUrl = 'http://192.168.13.81:8000';
+  static const String baseUrl = 'http://192.168.1.130:8000';
   
   // Alternative: Use localhost only when running on web or same device
   // static const String baseUrl = 'http://localhost:8000';

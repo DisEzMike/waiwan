@@ -30,6 +30,7 @@ class ElderlyPerson(BaseModel):
     phone_number: int
     chronic_diseases: str
     work_experience: str
+    address: str
     reviews: List[Review] = []
     is_verified: bool = False
 
