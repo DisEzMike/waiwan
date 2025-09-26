@@ -48,3 +48,14 @@ curl http://192.168.1.130:8000/elderly-persons
 # Test health check
 curl http://192.168.1.130:8000/
 ```
+
+
+## Set api url in app
+
+visit at [here](../lib/services/api_service.dart)
+
+```dart
+  static const String baseUrl = 'http://{change here}:8000';
+```
+
+Replace `change here` with your api
