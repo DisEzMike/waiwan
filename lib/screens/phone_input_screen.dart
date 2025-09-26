@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:waiwan/services/auth_service.dart';
 import 'otp_screen.dart';
 
 class PhoneInputScreen extends StatefulWidget {
@@ -29,6 +30,33 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
         _isPhoneValid = valid;
       });
     }
+  }
+
+  Future<void> _submitPhoneNumber() async {
+    final phoneNumber = phoneController.text;
+
+    try {
+      final res = await AuthService.requestOtp(phoneNumber);
+      SnackBar snackBar = SnackBar(
+        content: Text(res.message),
+        duration: const Duration(seconds: 2),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const OtpScreen()),
+      );
+    } catch (e) {
+      // Show error dialog
+      SnackBar snackBar = SnackBar(
+        content: Text('Error: $e'),
+        duration: const Duration(seconds: 3),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      return;
+    }
+
   }
 
   @override
@@ -103,7 +131,10 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: Color(0xFF6EB715), width: 2),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF6EB715),
+                                width: 2,
+                              ),
                             ),
                             hintText: '0812345678',
                             hintStyle: const TextStyle(color: Colors.black26),
@@ -122,17 +153,7 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed:
-                              _isPhoneValid
-                                  ? () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const OtpScreen(),
-                                      ),
-                                    );
-                                  }
-                                  : null,
+                          onPressed: _isPhoneValid ? _submitPhoneNumber : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF6EB715),
                             foregroundColor: Colors.white,
@@ -204,7 +225,10 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Color(0xFF6EB715), width: 2),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF6EB715),
+                                width: 2,
+                              ),
                             ),
                             hintText: '0812345678',
                             hintStyle: const TextStyle(color: Colors.black26),
@@ -215,7 +239,9 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                             _focusNode.requestFocus();
                           },
                           onChanged: (value) {
-                            print('Phone input changed: $value'); // Debug print
+                            debugPrint(
+                              'Phone input changed: $value',
+                            ); // Debug print
                           },
                         ),
                       ),
@@ -224,16 +250,7 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed:
-                              _isPhoneValid
-                                  ? () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const OtpScreen(),
-                                      ),
-                                    );
-                                  }
-                                  : null,
+                              () => _isPhoneValid ? _submitPhoneNumber() : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF6EB715),
                             foregroundColor: Colors.white,
