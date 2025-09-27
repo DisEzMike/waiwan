@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:waiwan/services/search_service.dart';
-import '../../services/api_service.dart';
 import '../../model/elderly_person.dart';
 import 'elderly_profile.dart';
 import '../../widgets/elderly_main/custom_search_bar.dart';
@@ -21,22 +20,20 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
   bool isLoading = true;
   bool isRefreshing = false;
   String errorMessage = '';
-  Position? _position;
   final String token = localStorage.getItem('token') ?? '';
 
   @override
   void initState() {
     super.initState();
     _loadElderlyPersons();
-    _getCurrentLocation();
   }
 
-  void _getCurrentLocation() async {
-    Position position = await _determinePosition();
-    setState(() {
-      _position = position;
-    });
-  }
+  // void _getCurrentLocation() async {
+  //   Position position = await _determinePosition();
+  //   setState(() {
+  //     _position = position;
+  //   });
+  // }
 
   Future<Position> _determinePosition() async {
     LocationPermission permission;
@@ -67,9 +64,10 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
         });
       }
 
+      Position position = await _determinePosition();
       final persons = await SearchService(
         accessToken: token,
-      ).searchNearby(_position!.latitude, _position!.longitude);
+      ).searchNearby(position.latitude, position.longitude);
       if (mounted) {
         setState(() {
           elderlyPersons = persons;
@@ -105,7 +103,8 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
         elderlyPersons = [];
         errorMessage = '';
       });
-      final persons = await SearchService(accessToken: token).searchByQuery(query, _position!.latitude, _position!.longitude);
+      Position position = await _determinePosition();
+      final persons = await SearchService(accessToken: token).searchByQuery(query, position.latitude, position.longitude);
       setState(() {
         elderlyPersons = persons;
         isLoading = false;
