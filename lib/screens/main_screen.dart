@@ -28,7 +28,7 @@ class MyMainPage extends StatelessWidget {
         ),
         AppNavItem(
           destination: destinations[3],
-          builder: (context) => const ContractorProfile(),
+          builder: (context) => ContractorProfile(),
         ),
       ],
     );
