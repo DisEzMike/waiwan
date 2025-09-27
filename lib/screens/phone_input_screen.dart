@@ -38,14 +38,14 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
     try {
       final res = await AuthService.requestOtp(phoneNumber);
       SnackBar snackBar = SnackBar(
-        content: Text(res.message),
+        content: Text(res['message']),
         duration: const Duration(seconds: 2),
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const OtpScreen()),
+        MaterialPageRoute(builder: (context) => OtpScreen(phoneNumber: phoneNumber)),
       );
     } catch (e) {
       // Show error dialog
@@ -144,9 +144,9 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                           onTap: () {
                             _focusNode.requestFocus();
                           },
-                          onChanged: (value) {
-                            print('Phone input changed: $value'); // Debug print
-                          },
+                          // onChanged: (value) {
+                          //   print('Phone input changed: $value'); // Debug print
+                          // },
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -238,11 +238,11 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                           onTap: () {
                             _focusNode.requestFocus();
                           },
-                          onChanged: (value) {
-                            debugPrint(
-                              'Phone input changed: $value',
-                            ); // Debug print
-                          },
+                          // onChanged: (value) {
+                          //   debugPrint(
+                          //     'Phone input changed: $value',
+                          //   ); // Debug print
+                          // },
                         ),
                       ),
                       const SizedBox(height: 18),
