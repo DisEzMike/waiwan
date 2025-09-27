@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:waiwan/model/form.dart';
 
 class AuthService {
   // Use your computer's IP address when running the FastAPI server
@@ -14,13 +13,15 @@ class AuthService {
   };
 
   // Request OTP
-  static Future<RequestOtpResponse> requestOtp(String phoneNumber) async {
+  static Future requestOtp(String phoneNumber) async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/request-otp'),
-        headers: headers,
-        body: jsonEncode({'phone': phoneNumber}),
-      ).timeout(const Duration(seconds: 5));
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/request-otp'),
+            headers: headers,
+            body: jsonEncode({'phone': phoneNumber}),
+          )
+          .timeout(const Duration(seconds: 5));
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
