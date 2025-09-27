@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:localstorage/localstorage.dart';
+import 'package:waiwan/services/search_service.dart';
 import '../../services/api_service.dart';
 import '../../model/elderly_person.dart';
 import 'elderly_profile.dart';
@@ -18,11 +21,36 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
   bool isLoading = true;
   bool isRefreshing = false;
   String errorMessage = '';
+  Position? _position;
+  final String token = localStorage.getItem('token') ?? '';
 
   @override
   void initState() {
     super.initState();
     _loadElderlyPersons();
+    _getCurrentLocation();
+  }
+
+  void _getCurrentLocation() async {
+    Position position = await _determinePosition();
+    setState(() {
+      _position = position;
+    });
+  }
+
+  Future<Position> _determinePosition() async {
+    LocationPermission permission;
+
+    permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location Permissions are denied');
+      }
+    }
+
+    return await Geolocator.getCurrentPosition();
   }
 
   Future<void> _loadElderlyPersons({bool isRefresh = false}) async {
@@ -39,8 +67,9 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
         });
       }
 
-      final persons = await ApiService.getElderlyPersons();
-      
+      final persons = await SearchService(
+        accessToken: token,
+      ).searchNearby(_position!.latitude, _position!.longitude);
       if (mounted) {
         setState(() {
           elderlyPersons = persons;
@@ -79,7 +108,7 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
           child: Column(
             children: [
               CustomSearchBar(
-                hintText: 'พบกล่อง',
+                hintText: 'ค้นหางาน',
                 onTap: () {
                   // TODO: Handle search tap
                 },

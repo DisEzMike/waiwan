@@ -28,7 +28,6 @@ class _ContractorProfileState extends State<ContractorProfile> {
     if (res != null && mounted) {
       setState(() {
         // Update user state with fetched profile data
-        print(res);
         _user = User.fromJson(res);
       });
     }

@@ -25,7 +25,7 @@ class ProfileCard extends StatelessWidget {
           // Circle profile image
           ClipRRect(
             borderRadius: BorderRadius.circular(40),
-            child: Image.asset(
+            child: Image.network(
               person.imageUrl,
               height: 80,
               width: 80,

@@ -33,7 +33,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    // _initializeLocalMessages();
+    _initializeLocalMessages();
   }
 
   @override
@@ -43,31 +43,31 @@ class _ChatPageState extends State<ChatPage> {
     super.dispose();
   }
 
-  // void _initializeLocalMessages() {
-  //   // Add some sample messages - you can remove these later
-  //   setState(() {
-  //     messages = [
-  //       ChatMessage(
-  //         message: "สวัสดีค่ะ ยาย ${widget.person.name}",
-  //         isMe: false,
-  //         timestamp: DateTime.now().subtract(const Duration(minutes: 30)),
-  //         senderName: widget.person.name,
-  //       ),
-  //       ChatMessage(
-  //         message: "สวัสดีจ้ะ หลาน",
-  //         isMe: true,
-  //         timestamp: DateTime.now().subtract(const Duration(minutes: 25)),
-  //         senderName: "ฉัน",
-  //       ),
-  //       ChatMessage(
-  //         message: "วันนี้สบายดีมั้ยคะ",
-  //         isMe: false,
-  //         timestamp: DateTime.now().subtract(const Duration(minutes: 20)),
-  //         senderName: widget.person.name,
-  //       ),
-  //     ];
-  //   });
-  // }
+  void _initializeLocalMessages() {
+    // Add some sample messages - you can remove these later
+    setState(() {
+      messages = [
+        ChatMessage(
+          message: "สวัสดีค่ะ ยาย ${widget.person.name}",
+          isMe: true,
+          timestamp: DateTime.now().subtract(const Duration(minutes: 30)),
+          senderName: widget.person.name,
+        ),
+        ChatMessage(
+          message: "สวัสดีจ้ะ หลาน",
+          isMe: false,
+          timestamp: DateTime.now().subtract(const Duration(minutes: 25)),
+          senderName: "ฉัน",
+        ),
+        ChatMessage(
+          message: "วันนี้สบายดีมั้ยคะ",
+          isMe: true,
+          timestamp: DateTime.now().subtract(const Duration(minutes: 20)),
+          senderName: widget.person.name,
+        ),
+      ];
+    });
+  }
 
 
   // auto scroll to bottom when new message is added
@@ -239,7 +239,7 @@ class _ChatPageState extends State<ChatPage> {
           children: [
             CircleAvatar(
               radius: 16,
-              backgroundImage: AssetImage(widget.person.imageUrl),
+              backgroundImage: NetworkImage(widget.person.imageUrl),
             ),
             const SizedBox(width: 12),
             Expanded(
