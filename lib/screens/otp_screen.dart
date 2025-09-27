@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'personal_info_screen.dart';
+import 'package:localstorage/localstorage.dart';
+import 'package:waiwan/screens/face_scan.dart';
+import 'package:waiwan/screens/main_screen.dart';
+import 'package:waiwan/services/auth_service.dart';
 
 class OtpScreen extends StatefulWidget {
-  const OtpScreen({super.key});
+  final String phoneNumber;
+
+  const OtpScreen({super.key, required this.phoneNumber});
 
   @override
   State<OtpScreen> createState() => _OtpScreenState();
@@ -28,8 +33,7 @@ class _OtpScreenState extends State<OtpScreen> {
   }
 
   String _maskedPhone(BuildContext context) {
-    final args = ModalRoute.of(context)?.settings.arguments;
-    final phone = (args is String && args.isNotEmpty) ? args : '';
+    final phone = widget.phoneNumber;
     if (phone.isEmpty) return '';
     final digits = phone.replaceAll(RegExp(r'[^0-9]'), '');
     if (digits.length >= 4) {
@@ -48,6 +52,51 @@ class _OtpScreenState extends State<OtpScreen> {
       } else {
         _focusNodes[index].unfocus();
       }
+    }
+  }
+
+  Future<void> _submitOTP() async {
+    final phone = widget.phoneNumber;
+    final otp = _controllers.map((c) => c.text).join();
+    print('Submitted OTP: $otp');
+
+    // // TODO: validate OTP with backend
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder:
+    //         (context) => const PersonalInfoScreen(),
+    //   ),
+    // );
+
+    try {
+      final res = await AuthService.verifyOtp(phone, otp);
+      if (!res['is_new']) {
+        final resp = await AuthService.authentication(res['auth_code'], {});
+        localStorage.setItem('user_data', resp['user_data'].toString());
+        localStorage.setItem('token', resp['access_token'].toString());
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const MyMainPage()),
+          (route) => false,
+        );
+      } else {
+        localStorage.setItem('is_new', "${res['is_new']}");
+        localStorage.setItem("auth_code", res['auth_code']);
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const FaceScanScreen()),
+        );
+      }
+    } catch (e) {
+      print(e);
+      SnackBar snackBar = SnackBar(
+        content: Text('OTP ไม่ถูกต้อง หรือหมดอายุ'),
+        backgroundColor: Colors.red,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
 
@@ -84,12 +133,9 @@ class _OtpScreenState extends State<OtpScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'กรุณากรอกรหัส 4 หลักที่ส่งไปยังโทรศัพท์ของคุณ',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.black54,
-                  ),
+                  style: TextStyle(fontSize: 16, color: Colors.black54),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 20),
@@ -102,10 +148,7 @@ class _OtpScreenState extends State<OtpScreen> {
                 ] else ...[
                   const Text(
                     'ตรวจสอบ SMS ในโทรศัพท์ของคุณ',
-                    style: TextStyle(
-                      color: Colors.black54,
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Colors.black54, fontSize: 14),
                   ),
                   const SizedBox(height: 12),
                 ],
@@ -205,18 +248,7 @@ class _OtpScreenState extends State<OtpScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed:
-                        _isComplete
-                            ? () {
-                              // TODO: validate OTP with backend
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const PersonalInfoScreen(),
-                                ),
-                              );
-                            }
-                            : null,
+                    onPressed: _isComplete ? _submitOTP : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF6EB715),
                       foregroundColor: Colors.white,

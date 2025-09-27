@@ -3,7 +3,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:waiwan/screens/main_screen.dart';
+import 'package:waiwan/screens/idcard_scan_screen.dart';
 // removed google_mlkit_face_detection - using simple file-size heuristic for object detection
 
 class FaceScanScreen extends StatefulWidget {
@@ -130,9 +130,8 @@ class _FaceScanScreenState extends State<FaceScanScreen> {
         // threshold (5 KB) - adjust if needed
         if (fileSize > 5000) {
           // Navigate to main screen and remove all previous routes
-          navigator.pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => const MyMainPage()),
-            (route) => false,
+          navigator.push(
+            MaterialPageRoute(builder: (_) => const IdCardScanScreen()),
           );
         } else {
           messenger.showSnackBar(

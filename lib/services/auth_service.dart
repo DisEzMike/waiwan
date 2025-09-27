@@ -33,4 +33,47 @@ class AuthService {
       throw Exception('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้: $e');
     }
   }
+
+  // Verify OTP
+  static Future verifyOtp(String phoneNumber, String otp) async {
+
+    try {
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/verify-otp'),
+            headers: headers,
+            body: jsonEncode({'phone': phoneNumber, 'otp': otp, 'role': 'user'}),
+          )
+          .timeout(const Duration(seconds: 5));
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Server error: ${response.statusCode}');
+      }
+    }
+     catch (e) {
+      print('Error verifying OTP: $e');
+      throw Exception('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้: $e');
+    }
+  }
+
+  static Future authentication(String auth_code, dynamic data) async {
+    try {
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl?auth_code=$auth_code'),
+            headers: headers,
+            body: jsonEncode(data),
+          )
+          .timeout(const Duration(seconds: 5));
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Server error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error in authentication: $e');
+      throw Exception('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้: $e');
+    }
+  }
 }

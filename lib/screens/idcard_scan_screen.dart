@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'face_scan.dart';
+import 'package:waiwan/screens/personal_info_screen.dart';
 
 class IdCardScanScreen extends StatelessWidget {
   const IdCardScanScreen({super.key});
@@ -113,7 +113,7 @@ class IdCardScanScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const FaceScanScreen(),
+                          builder: (context) => const PersonalInfoScreen(),
                         ),
                       );
                     },

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'idcard_scan_screen.dart';
+import 'package:localstorage/localstorage.dart';
+import 'package:waiwan/screens/main_screen.dart';
+import 'package:waiwan/services/auth_service.dart';
 
 class PersonalInfoScreen extends StatefulWidget {
   // expects arguments: Map<String, String> with parsed id info
@@ -15,14 +17,12 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
   // controllers for fields
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _surnameController = TextEditingController();
+  final TextEditingController _idCardController = TextEditingController();
   final TextEditingController _idAddressController = TextEditingController();
   final TextEditingController _currentAddressController =
       TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _genderController = TextEditingController();
-  final TextEditingController _medicalController = TextEditingController();
-  final TextEditingController _contactNameController = TextEditingController();
-  final TextEditingController _contactPhoneController = TextEditingController();
 
   @override
   void didChangeDependencies() {
@@ -32,6 +32,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
       // fill controllers from parsed id info when available
       _nameController.text = args['name'] ?? '';
       _surnameController.text = args['surname'] ?? '';
+      _idCardController.text = args['id_card'] ?? '';
       _idAddressController.text = args['id_address'] ?? '';
       _currentAddressController.text = args['current_address'] ?? '';
       _phoneController.text = args['phone'] ?? '';
@@ -40,6 +41,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
       // Demo fallback so opening /personal_info directly shows example data
       _nameController.text = 'สมชาย';
       _surnameController.text = 'ใจดี';
+      _idCardController.text = '1-2345-67890-12-3';
       _idAddressController.text =
           '123/45 หมู่ 6 ต.ตัวอย่าง อ.ตัวอย่าง จ.ตัวอย่าง 12345';
       _currentAddressController.text =
@@ -57,21 +59,43 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
     _currentAddressController.dispose();
     _phoneController.dispose();
     _genderController.dispose();
-    _medicalController.dispose();
-    _contactNameController.dispose();
-    _contactPhoneController.dispose();
     super.dispose();
   }
 
-  void _onSubmit() {
+  void _onSubmit() async {
     if (_formKey.currentState?.validate() ?? false) {
-      // proceed to ID card scan step
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const IdCardScanScreen(),
-        ),
-      );
+      final payload = {
+        'first_name': _nameController.text.trim(),
+        'last_name': _surnameController.text.trim(),
+        'id_card': _idCardController.text.trim(),
+        'id_address': _idAddressController.text.trim(),
+        'current_address': _currentAddressController.text.trim(),
+        'phone': _phoneController.text,
+        'gender': _genderController.text,
+      };
+
+      try {
+        // send to backend
+        final auth_code = localStorage.getItem("auth_code");
+        final resp = await AuthService.authentication(auth_code!, payload);
+        localStorage.setItem('user_data', resp['user_data'].toString());
+        localStorage.setItem('token', resp['access_token'].toString());
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const MyMainPage()),
+          (route) => false,
+        );
+
+      } catch (e) {
+        // handle error
+        print('Error submitting personal info: $e');
+      }
+      // Navigator.pushAndRemoveUntil(
+      //   context,
+      //   MaterialPageRoute(builder: (_) => const PersonalInfoScreen()),
+      //   (route) => false,
+      // );
     }
   }
 
@@ -122,6 +146,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
               children: [
                 _buildField('ชื่อ', _nameController),
                 _buildField('นามสกุล', _surnameController),
+                _buildField('เลขบัตรประชาชน', _idCardController),
                 _buildField(
                   'ที่อยู่ตามบัตรประชาชน',
                   _idAddressController,
@@ -134,9 +159,6 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                 ),
                 _buildField('เบอร์โทร', _phoneController),
                 _buildField('เพศ', _genderController),
-                _buildField('โรคประจำตัว', _medicalController),
-                _buildField('ชื่อผู้ที่ติดต่อได้', _contactNameController),
-                _buildField('เบอร์ผู้ที่ติดต่อได้', _contactPhoneController),
                 const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
@@ -145,9 +167,14 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF6EB715),
                       foregroundColor: Colors.white,
-                      textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      textStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
                     ),
                     child: const Text('ยืนยัน'),
                   ),
