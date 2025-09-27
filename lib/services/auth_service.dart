@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:waiwan/utils/config.dart';
 
 class AuthService {
   // Use your computer's IP address when running the FastAPI server
-  static const String baseUrl = 'http://192.168.0.39:8001/auth';
+  static const String baseUrl = '$API_URL/auth';
 
   // Alternative: Use localhost only when running on web or same device
   // static const String baseUrl = 'http://localhost:8001/auth';
@@ -57,11 +58,11 @@ class AuthService {
     }
   }
 
-  static Future authentication(String auth_code, dynamic data) async {
+  static Future authentication(String authCode, dynamic data) async {
     try {
       final response = await http
           .post(
-            Uri.parse('$baseUrl?auth_code=$auth_code'),
+            Uri.parse('$baseUrl?auth_code=$authCode'),
             headers: headers,
             body: jsonEncode(data),
           )
