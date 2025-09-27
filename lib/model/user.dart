@@ -44,6 +44,11 @@ class UserProfile {
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
+    if (json['image_url'] != null) {
+      json['image_url'] = API_URL + json['image_url'];
+    } else {
+      json['image_url'] = 'https://placehold.co/600x400.png';
+    }
     return UserProfile(
       id: json['id'] ?? '',
       firstName: json['first_name'] ?? '',
@@ -53,7 +58,7 @@ class UserProfile {
       current_address: json['current_address'] ?? '',
       phone: json['phone'] ?? '',
       gender: json['gender'] ?? '',
-      imageUrl: json['image_url'].toString().isNotEmpty ? API_URL + json['image_url'] : null,
+      imageUrl: json['image_url'],
     );
   }
 }
