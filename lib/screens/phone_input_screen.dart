@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:localstorage/localstorage.dart';
+import 'package:waiwan/screens/main_screen.dart';
 import 'package:waiwan/services/auth_service.dart';
 import 'otp_screen.dart';
 
@@ -18,6 +20,18 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
   @override
   void initState() {
     super.initState();
+    final token = localStorage.getItem('token') ?? '';
+    if (token.isNotEmpty) {
+      // User is already logged in, navigate to main screen
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const MyMainPage()),
+          (route) => false,
+        );
+      });
+    }
+
     phoneController.addListener(_onPhoneChanged);
   }
 
