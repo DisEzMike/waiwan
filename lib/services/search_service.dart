@@ -20,8 +20,7 @@ class SearchService {
   };
 
   // get senior nearby
-  // <List<ElderlyPerson>>
-  Future searchNearby(double lat, double lon) async {
+  Future<List<ElderlyPerson>> searchNearby(double lat, double lon) async {
     try {
       final response = await http
           .get(
@@ -32,13 +31,35 @@ class SearchService {
       if (response.statusCode == 200) {
         final dynamic data = jsonDecode(response.body);
         final List<dynamic> jsonList = data['list'];
-        print(jsonList);
         return jsonList.map((json) => ElderlyPerson.fromJson(json)).toList();
       } else {
         throw Exception('Server error: ${response.statusCode}');
       }
     } catch (e) {
       print('Error searching nearby: $e');
+      throw Exception('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้: $e');
+    }
+  }
+
+  // get senior by search query
+  Future<List<ElderlyPerson>> searchByQuery(
+    String query,
+    double lat,
+    double lng,
+  ) async {
+    try {
+      final response = await http
+          .get(Uri.parse('$baseUrl?q=$query&lat=$lat&lng=$lng'), headers: headers)
+          .timeout(const Duration(seconds: 5));
+      if (response.statusCode == 200) {
+        final dynamic data = jsonDecode(response.body);
+        final List<dynamic> jsonList = data['list'];
+        return jsonList.map((json) => ElderlyPerson.fromJson(json)).toList();
+      } else {
+        throw Exception('Server error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error searching by query: $e');
       throw Exception('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้: $e');
     }
   }

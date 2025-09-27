@@ -4,12 +4,14 @@ class CustomSearchBar extends StatelessWidget {
   final String hintText;
   final VoidCallback? onTap;
   final Function(String)? onChanged;
+  final Function(String)? onSubmitted;
 
   const CustomSearchBar({
     super.key,
     this.hintText = 'พบกล่อง',
     this.onTap,
     this.onChanged,
+    this.onSubmitted,
   });
 
   @override
@@ -43,6 +45,7 @@ class CustomSearchBar extends StatelessWidget {
         elevation: const WidgetStatePropertyAll<double>(1.0),
         onTap: onTap,
         onChanged: onChanged,
+        onSubmitted: onSubmitted,
       ),
     );
   }

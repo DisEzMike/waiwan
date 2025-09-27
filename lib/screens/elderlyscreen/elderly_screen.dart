@@ -97,6 +97,30 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
     await _loadElderlyPersons(isRefresh: true);
   }
 
+  void _onSearch(String query) async {
+    // Implement search functionality here
+    try {
+      setState(() {
+        isLoading = true;
+        elderlyPersons = [];
+        errorMessage = '';
+      });
+      final persons = await SearchService(accessToken: token).searchByQuery(query, _position!.latitude, _position!.longitude);
+      setState(() {
+        elderlyPersons = persons;
+        isLoading = false;
+        errorMessage = '';
+      });
+    } catch (e) {
+      print('Error searching elderly persons: $e');
+      setState(() {
+        isLoading = false;
+        errorMessage = e.toString();
+        elderlyPersons = [];
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
@@ -112,6 +136,10 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
                 onTap: () {
                   // TODO: Handle search tap
                 },
+                onChanged: (value) {
+                  // TODO: Handle search input change
+                },
+                onSubmitted: _onSearch,
               ),
               const SizedBox(height: 16),
               PointsButtons(
