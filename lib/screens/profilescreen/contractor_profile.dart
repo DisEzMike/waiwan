@@ -44,6 +44,9 @@ class _ContractorProfileState extends State<ContractorProfile> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).primaryTextTheme.bodyLarge?.color,
+              ),
               child: const Text('ยกเลิก'),
             ),
             TextButton(
