@@ -120,7 +120,7 @@ class _ContractorProfileState extends State<ContractorProfile> {
                     ProfileHeader(
                       name: '${_user?.displayName}',
                       subtitle: 'แก้ไขข้อมูลส่วนตัว',
-                      imageAsset: 'assets/images/guy.png',
+                      imageAsset: _user?.profile.imageUrl ?? 'https://placehold.co/600x400.png',
                       onEditPressed: () {
                         Navigator.push(
                           context,

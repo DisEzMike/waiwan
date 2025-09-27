@@ -84,7 +84,8 @@ class _EditProfileState extends State<EditProfile> {
             children: [
               // Profile Image Section
               EditProfileImage(
-                imageAsset: 'assets/images/guy.png',
+                imageAsset: widget.user.profile.imageUrl ??
+                    'https://placehold.co/600x400.png',
                 onEditPressed: () {
                   // TODO: Implement image selection
                   print('Edit profile image pressed');

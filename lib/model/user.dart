@@ -1,3 +1,5 @@
+import 'package:waiwan/utils/config.dart';
+
 class User {
   final String id;
   final String displayName;
@@ -27,6 +29,7 @@ class UserProfile {
   final String current_address;
   final String phone;
   final String gender;
+  final String? imageUrl;
 
   UserProfile({
     required this.id,
@@ -37,6 +40,7 @@ class UserProfile {
     required this.current_address,
     required this.phone,
     required this.gender,
+    required this.imageUrl,
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
@@ -49,6 +53,7 @@ class UserProfile {
       current_address: json['current_address'] ?? '',
       phone: json['phone'] ?? '',
       gender: json['gender'] ?? '',
+      imageUrl: json['image_url'].toString().isNotEmpty ? API_URL + json['image_url'] : null,
     );
   }
 }

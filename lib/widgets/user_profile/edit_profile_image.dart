@@ -43,7 +43,7 @@ class EditProfileImage extends StatelessWidget {
               ],
             ),
             child: ClipOval(
-              child: Image.asset(
+              child: Image.network(
                 imageAsset,
                 fit: BoxFit.cover,
               ),

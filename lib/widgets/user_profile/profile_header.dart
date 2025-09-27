@@ -47,7 +47,7 @@ class ProfileHeader extends StatelessWidget {
               ],
             ),
             child: ClipOval(
-              child: Image.asset(
+              child: Image.network(
                 imageAsset,
                 width: 60,
                 height: 60,
