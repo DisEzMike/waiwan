@@ -4,6 +4,7 @@ import 'package:localstorage/localstorage.dart';
 import 'package:waiwan/screens/face_scan.dart';
 import 'package:waiwan/screens/main_screen.dart';
 import 'package:waiwan/services/auth_service.dart';
+import 'package:waiwan/utils/font_size_helper.dart';
 
 class OtpScreen extends StatefulWidget {
   final String phoneNumber;
@@ -112,9 +113,14 @@ class _OtpScreenState extends State<OtpScreen> {
         backgroundColor: cardColor,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black87),
-        title: const Text(
+        title: Text(
           'ยืนยันเบอร์โทรศัพท์',
-          style: TextStyle(color: Colors.black87),
+          style: FontSizeHelper.createTextStyle(
+            context,
+            fontSize: 18,
+            color: Colors.black87,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       body: SafeArea(
@@ -124,9 +130,10 @@ class _OtpScreenState extends State<OtpScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
+                Text(
                   'ป้อนรหัส OTP',
-                  style: TextStyle(
+                  style: FontSizeHelper.createTextStyle(
+                    context,
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
@@ -135,20 +142,32 @@ class _OtpScreenState extends State<OtpScreen> {
                 const SizedBox(height: 8),
                 Text(
                   'กรุณากรอกรหัส 4 หลักที่ส่งไปยังโทรศัพท์ของคุณ',
-                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                  style: FontSizeHelper.createTextStyle(
+                    context,
+                    fontSize: 16, 
+                    color: Colors.black54,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 20),
                 if (masked.isNotEmpty) ...[
                   Text(
                     'รหัสถูกส่งไปยัง $masked',
-                    style: const TextStyle(color: Colors.black87),
+                    style: FontSizeHelper.createTextStyle(
+                      context,
+                      fontSize: 16,
+                      color: Colors.black87,
+                    ),
                   ),
                   const SizedBox(height: 12),
                 ] else ...[
-                  const Text(
+                  Text(
                     'ตรวจสอบ SMS ในโทรศัพท์ของคุณ',
-                    style: TextStyle(color: Colors.black54, fontSize: 14),
+                    style: FontSizeHelper.createTextStyle(
+                      context,
+                      fontSize: 14,
+                      color: Colors.black54,
+                    ),
                   ),
                   const SizedBox(height: 12),
                 ],
@@ -182,6 +201,10 @@ class _OtpScreenState extends State<OtpScreen> {
                             LengthLimitingTextInputFormatter(1),
                             FilteringTextInputFormatter.digitsOnly,
                           ],
+                          style: TextStyle(
+                            fontSize: 24,
+                            color: Colors.black87,
+                          ),
                           decoration: InputDecoration(
                             filled: true,
                             fillColor: Colors.white,
@@ -239,9 +262,13 @@ class _OtpScreenState extends State<OtpScreen> {
                       const SnackBar(content: Text('ส่งรหัสใหม่ (จำลอง)')),
                     );
                   },
-                  child: const Text(
+                  child: Text(
                     'ส่งรหัสยืนยันอีกครั้ง',
-                    style: TextStyle(color: Colors.green),
+                    style: FontSizeHelper.createTextStyle(
+                      context,
+                      fontSize: 16,
+                      color: Colors.green,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -257,7 +284,14 @@ class _OtpScreenState extends State<OtpScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text('ยืนยัน'),
+                    child: Text(
+                      'ยืนยัน',
+                      style: FontSizeHelper.createTextStyle(
+                        context,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
               ],

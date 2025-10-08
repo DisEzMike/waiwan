@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:waiwan/screens/idcard_scan_screen.dart';
-// removed google_mlkit_face_detection - using simple file-size heuristic for object detection
+import 'package:waiwan/utils/font_size_helper.dart';
 
 class FaceScanScreen extends StatefulWidget {
   const FaceScanScreen({super.key});
@@ -166,7 +166,15 @@ class _FaceScanScreenState extends State<FaceScanScreen> {
       backgroundColor: const Color(0xFFF3FDEC),
       appBar: AppBar(
         backgroundColor: const Color(0xFF6EB715),
-        title: const Text('ตรวจสอบใบหน้า'),
+        title: Text(
+          'ตรวจสอบใบหน้า',
+          style: FontSizeHelper.createTextStyle(
+            context,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
         elevation: 0,
       ),
       body: SafeArea(

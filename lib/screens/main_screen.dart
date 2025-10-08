@@ -3,6 +3,7 @@ import 'elderlyscreen/elderly_screen.dart';
 import 'nav_bar.dart';
 import 'profilescreen/contractor_profile.dart';
 import 'notificationscreen/notification.dart';
+import 'package:waiwan/utils/font_size_helper.dart';
 // Make sure the class name in contractor_profile.dart matches 'ContractorProfilePage'
 
 class MyMainPage extends StatelessWidget {
@@ -45,7 +46,10 @@ class _TextPlaceholder extends StatelessWidget {
     return Center(
       child: Text(
         text,
-        style: const TextStyle(fontSize: 18),
+        style: FontSizeHelper.createTextStyle(
+          context,
+          fontSize: 18,
+        ),
       ),
     );
   }

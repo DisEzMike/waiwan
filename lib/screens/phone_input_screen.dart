@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:localstorage/localstorage.dart';
+import 'package:provider/provider.dart';
+import 'package:waiwan/providers/font_size_provider.dart';
 import 'package:waiwan/screens/main_screen.dart';
 import 'package:waiwan/services/auth_service.dart';
+import 'package:waiwan/utils/font_size_helper.dart';
 import 'otp_screen.dart';
 
 class PhoneInputScreen extends StatefulWidget {
@@ -103,18 +106,23 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'เข้าสู่ระบบ',
-                        style: TextStyle(
+                        style: FontSizeHelper.createTextStyle(
+                          context,
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: Colors.black87,
                         ),
                       ),
                       const SizedBox(height: 16),
-                      const Text(
+                      Text(
                         'เบอร์โทร',
-                        style: TextStyle(fontSize: 14, color: Colors.black54),
+                        style: FontSizeHelper.createTextStyle(
+                          context,
+                          fontSize: 14, 
+                          color: Colors.black54,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       GestureDetector(
@@ -132,6 +140,11 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                             FilteringTextInputFormatter.digitsOnly,
                             LengthLimitingTextInputFormatter(10),
                           ],
+                          style: FontSizeHelper.createTextStyle(
+                            context,
+                            fontSize: 16,
+                            color: Colors.black87,
+                          ),
                           decoration: InputDecoration(
                             filled: true,
                             fillColor: Colors.white,
@@ -158,9 +171,6 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                           onTap: () {
                             _focusNode.requestFocus();
                           },
-                          // onChanged: (value) {
-                          //   print('Phone input changed: $value'); // Debug print
-                          // },
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -176,7 +186,14 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          child: const Text('ต่อไป'),
+                          child: Text(
+                            'ต่อไป',
+                            style: FontSizeHelper.createTextStyle(
+                              context,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -198,17 +215,22 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'เข้าสู่ระบบ',
-                        style: TextStyle(
+                        style: FontSizeHelper.createTextStyle(
+                          context,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: 18),
-                      const Text(
+                      Text(
                         'เบอร์โทร',
-                        style: TextStyle(fontSize: 14, color: Colors.black54),
+                        style: FontSizeHelper.createTextStyle(
+                          context,
+                          fontSize: 14, 
+                          color: Colors.black54,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       GestureDetector(
@@ -245,7 +267,11 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                               ),
                             ),
                             hintText: '0812345678',
-                            hintStyle: const TextStyle(color: Colors.black26),
+                            hintStyle: FontSizeHelper.createTextStyle(
+                              context,
+                              fontSize: 16,
+                              color: Colors.black26,
+                            ),
                             prefixIcon: const Icon(Icons.phone),
                             counterText: '',
                           ),
@@ -273,7 +299,14 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          child: const Text('ต่อไป'),
+                          child: Text(
+                            'ต่อไป',
+                            style: FontSizeHelper.createTextStyle(
+                              context,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ),
                     ],

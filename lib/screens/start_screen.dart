@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'phone_input_screen.dart';
+import '../providers/font_size_provider.dart';
 
 class StartScreen extends StatelessWidget {
   const StartScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final fontProvider = Provider.of<FontSizeProvider>(context);
+    
     return Scaffold(
       backgroundColor: const Color(0xFF6EB715),
       body: SafeArea(
@@ -69,10 +73,10 @@ class StartScreen extends StatelessWidget {
                       MaterialPageRoute(builder: (context) => const PhoneInputScreen()),
                     );
                   },
-                  child: const Text(
+                  child: Text(
                     "เริ่มต้นใช้งาน",
                     style: TextStyle(
-                      fontSize: 40,
+                      fontSize: fontProvider.getScaledFontSize(40),
                       fontWeight: FontWeight.bold,
                     ),
                   ),

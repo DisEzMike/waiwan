@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:waiwan/screens/main_screen.dart';
 import 'package:waiwan/services/auth_service.dart';
+import 'package:waiwan/utils/font_size_helper.dart';
 
 class PersonalInfoScreen extends StatefulWidget {
   // expects arguments: Map<String, String> with parsed id info
@@ -107,7 +108,14 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text(
+          label, 
+          style: FontSizeHelper.createTextStyle(
+            context,
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         const SizedBox(height: 6),
         TextFormField(
           controller: controller,
@@ -134,7 +142,15 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
       backgroundColor: const Color(0xFFF3FDEC),
       appBar: AppBar(
         backgroundColor: const Color(0xFF6EB715),
-        title: const Text('ข้อมูลส่วนตัว'),
+        title: Text(
+          'ข้อมูลส่วนตัว',
+          style: FontSizeHelper.createTextStyle(
+            context,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -167,16 +183,19 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF6EB715),
                       foregroundColor: Colors.white,
-                      textStyle: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(24),
                       ),
                     ),
-                    child: const Text('ยืนยัน'),
+                    child: Text(
+                      'ยืนยัน',
+                      style: FontSizeHelper.createTextStyle(
+                        context,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
               ],
