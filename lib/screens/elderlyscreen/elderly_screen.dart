@@ -132,12 +132,6 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
             children: [
               CustomSearchBar(
                 hintText: 'ค้นหางาน',
-                onTap: () {
-                  // TODO: Handle search tap
-                },
-                onChanged: (value) {
-                  // TODO: Handle search input change
-                },
                 onSubmitted: _onSearch,
               ),
               const SizedBox(height: 16),

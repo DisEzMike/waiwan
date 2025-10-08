@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:waiwan/providers/font_size_provider.dart';
+import 'package:waiwan/utils/font_size_helper.dart';
 
 class PointsButtons extends StatelessWidget {
   final VoidCallback? onCouponTap;
@@ -32,12 +35,16 @@ class PointsButtons extends StatelessWidget {
             ),
             child: FilledButton.icon(
               onPressed: onCouponTap,
-              icon: Image.asset('assets/images/coupon.png', width: 24, height: 24),
-              label: const Text(
+              icon: Image.asset(
+                'assets/images/coupon.png',
+                width: 24,
+                height: 24,
+              ),
+              label: Text(
                 'คะแนนของฉัน',
                 style: TextStyle(
-                  fontWeight: FontWeight.bold,
                   fontSize: 18,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
               style: FilledButton.styleFrom(
@@ -66,7 +73,11 @@ class PointsButtons extends StatelessWidget {
             ),
             child: FilledButton.icon(
               onPressed: onPointsTap,
-              icon: Image.asset('assets/images/p.png', width: 24, height: 24),
+              icon: Image.asset(
+                'assets/images/p.png',
+                width: 24,
+                height: 24,
+              ),
               label: Text(
                 pointsText,
                 style: const TextStyle(

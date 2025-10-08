@@ -8,20 +8,73 @@ class FontSizeHelper {
     return FontSizeProvider.instance.getScaledFontSize(fontSize);
   }
 
-  // Helper method to create text style with scaled font size using global instance
+  // static TextStyle createTextStyle({
+  //   required double fontSize,
+  //   // get all other TextStyle properties from args
+  //   TextStyle? args,
+  // }) {
+  //   return TextStyle(
+  //     fontSize: FontSizeProvider.instance.getScaledFontSize(fontSize),
+
+  //   );
+  // }
+
+  // make a helper method to create text style with all parameter like TextStyle
   static TextStyle createTextStyle({
+bool inherit = true,
     required double fontSize,
-    FontWeight? fontWeight,
     Color? color,
+    Color? backgroundColor,
+    FontWeight? fontWeight,
+    FontStyle? fontStyle,
+    double? letterSpacing,
+    double? wordSpacing,
+    TextBaseline? textBaseline,
     double? height,
+    TextLeadingDistribution? leadingDistribution,
+    Locale? locale,
+    Paint? foreground,
+    Paint? background,
+    List<Shadow>? shadows,
+    List<FontFeature>? fontFeatures,
+    List<FontVariation>? fontVariations,
     TextDecoration? decoration,
+    Color? decorationColor,
+    TextDecorationStyle? decorationStyle,
+    double? decorationThickness,
+    String? debugLabel,
+    String? fontFamily,
+    List<String>? fontFamilyFallback,
+    String? package,
+    TextOverflow? overflow,
   }) {
     return TextStyle(
+      inherit: inherit,
       fontSize: FontSizeProvider.instance.getScaledFontSize(fontSize),
-      fontWeight: fontWeight,
       color: color,
+      backgroundColor: backgroundColor,
+      fontWeight: fontWeight,
+      fontStyle: fontStyle,
+      letterSpacing: letterSpacing,
+      wordSpacing: wordSpacing,
+      textBaseline: textBaseline,
       height: height,
+      leadingDistribution: leadingDistribution,
+      locale: locale,
+      foreground: foreground,
+      background: background,
+      shadows: shadows,
+      fontFeatures: fontFeatures,
+      fontVariations: fontVariations,
       decoration: decoration,
+      decorationColor: decorationColor,
+      decorationStyle: decorationStyle,
+      decorationThickness: decorationThickness,
+      debugLabel: debugLabel,
+      fontFamily: fontFamily,
+      fontFamilyFallback: fontFamilyFallback,
+      package: package,
+      overflow: overflow,
     );
   }
 
