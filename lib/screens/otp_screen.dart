@@ -116,7 +116,6 @@ class _OtpScreenState extends State<OtpScreen> {
         title: Text(
           'ยืนยันเบอร์โทรศัพท์',
           style: FontSizeHelper.createTextStyle(
-            context,
             fontSize: 18,
             color: Colors.black87,
             fontWeight: FontWeight.w600,
@@ -133,7 +132,6 @@ class _OtpScreenState extends State<OtpScreen> {
                 Text(
                   'ป้อนรหัส OTP',
                   style: FontSizeHelper.createTextStyle(
-                    context,
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
@@ -143,7 +141,6 @@ class _OtpScreenState extends State<OtpScreen> {
                 Text(
                   'กรุณากรอกรหัส 4 หลักที่ส่งไปยังโทรศัพท์ของคุณ',
                   style: FontSizeHelper.createTextStyle(
-                    context,
                     fontSize: 16, 
                     color: Colors.black54,
                   ),
@@ -154,7 +151,6 @@ class _OtpScreenState extends State<OtpScreen> {
                   Text(
                     'รหัสถูกส่งไปยัง $masked',
                     style: FontSizeHelper.createTextStyle(
-                      context,
                       fontSize: 16,
                       color: Colors.black87,
                     ),
@@ -164,7 +160,6 @@ class _OtpScreenState extends State<OtpScreen> {
                   Text(
                     'ตรวจสอบ SMS ในโทรศัพท์ของคุณ',
                     style: FontSizeHelper.createTextStyle(
-                      context,
                       fontSize: 14,
                       color: Colors.black54,
                     ),
@@ -265,7 +260,6 @@ class _OtpScreenState extends State<OtpScreen> {
                   child: Text(
                     'ส่งรหัสยืนยันอีกครั้ง',
                     style: FontSizeHelper.createTextStyle(
-                      context,
                       fontSize: 16,
                       color: Colors.green,
                     ),
@@ -287,7 +281,6 @@ class _OtpScreenState extends State<OtpScreen> {
                     child: Text(
                       'ยืนยัน',
                       style: FontSizeHelper.createTextStyle(
-                        context,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),

@@ -5,11 +5,24 @@ class FontSizeProvider extends ChangeNotifier {
   static const String _fontSizeKey = 'font_size_scale';
   double _fontSizeScale = 1.0;
 
-  double get fontSizeScale => _fontSizeScale;
+  // Singleton instance
+  static FontSizeProvider? _instance;
+  static FontSizeProvider get instance {
+    _instance ??= FontSizeProvider._internal();
+    return _instance!;
+  }
 
+  // Private constructor for singleton
+  FontSizeProvider._internal() {
+    _loadFontSize();
+  }
+
+  // Public constructor for Provider (optional)
   FontSizeProvider() {
     _loadFontSize();
   }
+
+  double get fontSizeScale => _fontSizeScale;
 
   // Load font size from localStorage
   void _loadFontSize() {

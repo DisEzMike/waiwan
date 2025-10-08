@@ -47,7 +47,6 @@ class _TextPlaceholder extends StatelessWidget {
       child: Text(
         text,
         style: FontSizeHelper.createTextStyle(
-          context,
           fontSize: 18,
         ),
       ),

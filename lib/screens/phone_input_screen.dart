@@ -109,7 +109,6 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                       Text(
                         'เข้าสู่ระบบ',
                         style: FontSizeHelper.createTextStyle(
-                          context,
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: Colors.black87,
@@ -119,7 +118,6 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                       Text(
                         'เบอร์โทร',
                         style: FontSizeHelper.createTextStyle(
-                          context,
                           fontSize: 14, 
                           color: Colors.black54,
                         ),
@@ -141,7 +139,6 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                             LengthLimitingTextInputFormatter(10),
                           ],
                           style: FontSizeHelper.createTextStyle(
-                            context,
                             fontSize: 16,
                             color: Colors.black87,
                           ),
@@ -189,7 +186,6 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                           child: Text(
                             'ต่อไป',
                             style: FontSizeHelper.createTextStyle(
-                              context,
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),
@@ -218,7 +214,6 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                       Text(
                         'เข้าสู่ระบบ',
                         style: FontSizeHelper.createTextStyle(
-                          context,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -227,7 +222,6 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                       Text(
                         'เบอร์โทร',
                         style: FontSizeHelper.createTextStyle(
-                          context,
                           fontSize: 14, 
                           color: Colors.black54,
                         ),
@@ -268,7 +262,6 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                             ),
                             hintText: '0812345678',
                             hintStyle: FontSizeHelper.createTextStyle(
-                              context,
                               fontSize: 16,
                               color: Colors.black26,
                             ),
@@ -302,7 +295,6 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                           child: Text(
                             'ต่อไป',
                             style: FontSizeHelper.createTextStyle(
-                              context,
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),

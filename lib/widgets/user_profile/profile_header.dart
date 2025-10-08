@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:waiwan/providers/font_size_provider.dart';
-import 'package:waiwan/utils/font_size_helper.dart';
+import 'package:waiwan/widgets/responsive_text.dart';
 
 class ProfileHeader extends StatelessWidget {
   final String name;
@@ -19,14 +17,12 @@ class ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<FontSizeProvider>(
-      builder: (context, fontProvider, child) {
-        return Container(
-          margin: const EdgeInsets.all(16),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(15),
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -69,22 +65,16 @@ class ProfileHeader extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    ResponsiveText(
                       name,
-                      style: FontSizeHelper.createTextStyle(
-                        context,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green,
-                      ),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
                     ),
-                    Text(
+                    ResponsiveText(
                       subtitle,
-                      style: FontSizeHelper.createTextStyle(
-                        context,
-                        fontSize: 14,
-                        color: Colors.black54,
-                      ),
+                      fontSize: 14,
+                      color: Colors.black54,
                     ),
                   ],
                 ),
@@ -100,8 +90,6 @@ class ProfileHeader extends StatelessWidget {
           ),
         ],
       ),
-        );
-      },
     );
   }
 }

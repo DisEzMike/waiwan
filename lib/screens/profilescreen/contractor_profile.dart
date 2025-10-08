@@ -45,14 +45,13 @@ class _ContractorProfileState extends State<ContractorProfile> {
           title: Text(
             'ออกจากระบบ',
             style: FontSizeHelper.createTextStyle(
-              context,
               fontSize: 18,
               fontWeight: FontWeight.w600,
             ),
           ),
           content: Text(
             'คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ?',
-            style: FontSizeHelper.createTextStyle(context, fontSize: 16),
+            style: FontSizeHelper.createTextStyle(fontSize: 16),
           ),
           actions: [
             TextButton(
@@ -63,7 +62,7 @@ class _ContractorProfileState extends State<ContractorProfile> {
               ),
               child: Text(
                 'ยกเลิก',
-                style: FontSizeHelper.createTextStyle(context, fontSize: 16),
+                style: FontSizeHelper.createTextStyle(fontSize: 16),
               ),
             ),
             TextButton(
@@ -72,7 +71,6 @@ class _ContractorProfileState extends State<ContractorProfile> {
               child: Text(
                 'ออกจากระบบ',
                 style: FontSizeHelper.createTextStyle(
-                  context,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
@@ -121,86 +119,79 @@ class _ContractorProfileState extends State<ContractorProfile> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<FontSizeProvider>(
-      builder: (context, fontProvider, child) {
-        return Scaffold(
-          backgroundColor: const Color(0xFFF2FEE7),
-          body: SafeArea(
-            child: Column(
-              children: [
-                // Profile card
-                Expanded(
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF2FEE7),
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30),
-                        topRight: Radius.circular(30),
-                      ),
+    return Scaffold(
+      backgroundColor: const Color(0xFFF2FEE7),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Profile card
+            Expanded(
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF2FEE7),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    // Profile info section
+                    ProfileHeader(
+                      name: '${_user?.displayName}',
+                      subtitle: 'แก้ไขข้อมูลส่วนตัว',
+                      imageAsset:
+                          _user?.profile.imageUrl ??
+                          'https://placehold.co/600x400.png',
+                      onEditPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EditProfile(user: _user!),
+                          ),
+                        );
+                      },
                     ),
-                    child: Column(
-                      children: [
-                        // Profile info section
-                        ProfileHeader(
-                          name: '${_user?.displayName}',
-                          subtitle: 'แก้ไขข้อมูลส่วนตัว',
-                          imageAsset:
-                              _user?.profile.imageUrl ??
-                              'https://placehold.co/600x400.png',
-                          onEditPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => EditProfile(user: _user!),
-                              ),
-                            );
-                          },
-                        ),
-                        // Menu Items
-                        const MenuItems(),
-                        const SizedBox(height: 20),
+                    // Menu Items
+                    const MenuItems(),
+                    const SizedBox(height: 20),
 
-                        // Logout button
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: OutlinedButton.icon(
-                              onPressed: _logout,
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.red,
-                                side: const BorderSide(
-                                  color: Colors.red,
-                                  width: 1.5,
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              icon: const Icon(Icons.logout, size: 20),
-                              label: Text(
-                                'ออกจากระบบ',
-                                style: FontSizeHelper.createTextStyle(
-                                  context,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
+                    // Logout button
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: _logout,
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.red,
+                            side: const BorderSide(
+                              color: Colors.red,
+                              width: 1.5,
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          icon: const Icon(Icons.logout, size: 20),
+                          label: Text(
+                            'ออกจากระบบ',
+                            style: FontSizeHelper.createTextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
-                      ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
   }
 }

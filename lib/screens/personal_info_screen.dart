@@ -111,7 +111,6 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
         Text(
           label, 
           style: FontSizeHelper.createTextStyle(
-            context,
             fontSize: 14,
             fontWeight: FontWeight.bold,
           ),
@@ -145,7 +144,6 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
         title: Text(
           'ข้อมูลส่วนตัว',
           style: FontSizeHelper.createTextStyle(
-            context,
             fontSize: 18,
             fontWeight: FontWeight.w600,
             color: Colors.white,
@@ -191,7 +189,6 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                     child: Text(
                       'ยืนยัน',
                       style: FontSizeHelper.createTextStyle(
-                        context,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),

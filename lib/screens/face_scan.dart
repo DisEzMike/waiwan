@@ -169,7 +169,6 @@ class _FaceScanScreenState extends State<FaceScanScreen> {
         title: Text(
           'ตรวจสอบใบหน้า',
           style: FontSizeHelper.createTextStyle(
-            context,
             fontSize: 18,
             fontWeight: FontWeight.w600,
             color: Colors.white,

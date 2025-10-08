@@ -217,7 +217,6 @@ class _NavBarWrapperState extends State<NavBarWrapper> {
       title: Text(
         currentItem.title,
         style: FontSizeHelper.createTextStyle(
-          context,
           fontSize: 18,
           fontWeight: FontWeight.w600,
         ),
