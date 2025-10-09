@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:provider/provider.dart';
 import 'package:waiwan/model/user.dart';
-import 'package:waiwan/providers/font_size_provider.dart';
 import 'package:waiwan/services/user_service.dart';
 import 'package:waiwan/utils/font_size_helper.dart';
 import 'edit_profile.dart';

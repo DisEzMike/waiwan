@@ -1,3 +1,5 @@
+import 'package:waiwan/utils/config.dart';
+
 import 'review_elderly.dart';
 
 class ElderlyPerson {
@@ -33,12 +35,18 @@ class ElderlyPerson {
 
   // Factory constructor for creating ElderlyPerson from JSON
   factory ElderlyPerson.fromJson(Map<String, dynamic> json) {
+    print(json['image_url']);
+    if (json['image_url'] != null) {
+      json['image_url'] = API_URL + json['image_url'];
+    } else {
+      json['image_url'] = 'https://placehold.co/600x400.png';
+    }
     return ElderlyPerson(
       name: json['name']?.toString() ?? '',
       type: json['type']?.toString() ?? '',
       distance: '${json['distance']?.toString() ?? '0'} เมตร',
       ability: json['other_ability']?.toString() ?? '',
-      imageUrl: json['image_url']?.toString() ?? '',
+      imageUrl: json['image_url'],
       phoneNumber: _parseToInt(json['phone']),
       chronicDiseases: json['chronic_diseases']?.toString() ?? '',
       workExperience: json['work_experience']?.toString() ?? '',

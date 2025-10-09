@@ -17,6 +17,7 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_11.toString()
+        freeCompilerArgs += listOf("-Xlint:-options")
     }
 
     defaultConfig {
@@ -41,4 +42,16 @@ android {
 
 flutter {
     source = "../.."
+}
+
+// Suppress Java compilation warnings
+tasks.withType<JavaCompile> {
+    options.compilerArgs.addAll(listOf("-Xlint:-options"))
+}
+
+// Suppress warnings for all compile tasks
+gradle.projectsEvaluated {
+    tasks.withType<JavaCompile> {
+        options.compilerArgs.add("-Xlint:-options")
+    }
 }

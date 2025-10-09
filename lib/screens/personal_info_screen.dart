@@ -66,13 +66,15 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
   void _onSubmit() async {
     if (_formKey.currentState?.validate() ?? false) {
       final payload = {
-        'first_name': _nameController.text.trim(),
-        'last_name': _surnameController.text.trim(),
-        'id_card': _idCardController.text.trim(),
-        'id_address': _idAddressController.text.trim(),
-        'current_address': _currentAddressController.text.trim(),
-        'phone': _phoneController.text,
-        'gender': _genderController.text,
+        'profile': {
+          'first_name': _nameController.text.trim(),
+          'last_name': _surnameController.text.trim(),
+          'id_card': _idCardController.text.trim(),
+          'id_address': _idAddressController.text.trim(),
+          'current_address': _currentAddressController.text.trim(),
+          'phone': _phoneController.text,
+          'gender': _genderController.text,
+        }
       };
 
       try {
