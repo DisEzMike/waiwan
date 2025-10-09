@@ -3,6 +3,7 @@ import 'package:localstorage/localstorage.dart';
 import 'package:waiwan/screens/main_screen.dart';
 import 'package:waiwan/services/auth_service.dart';
 import 'package:waiwan/utils/font_size_helper.dart';
+import 'package:waiwan/widgets/input_field.dart';
 
 class PersonalInfoScreen extends StatefulWidget {
   // expects arguments: Map<String, String> with parsed id info
@@ -102,41 +103,6 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
     }
   }
 
-  Widget _buildField(
-    String label,
-    TextEditingController controller, {
-    int maxLines = 1,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label, 
-          style: FontSizeHelper.createTextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 6),
-        TextFormField(
-          controller: controller,
-          maxLines: maxLines,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide.none,
-            ),
-          ),
-          validator:
-              (v) => (v == null || v.trim().isEmpty) ? 'กรุณาใส่ข้อมูล' : null,
-        ),
-        const SizedBox(height: 12),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -160,21 +126,21 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildField('ชื่อ', _nameController),
-                _buildField('นามสกุล', _surnameController),
-                _buildField('เลขบัตรประชาชน', _idCardController),
-                _buildField(
+                buildField('ชื่อ', _nameController),
+                buildField('นามสกุล', _surnameController),
+                buildField('เลขบัตรประชาชน', _idCardController),
+                buildField(
                   'ที่อยู่ตามบัตรประชาชน',
                   _idAddressController,
                   maxLines: 4,
                 ),
-                _buildField(
+                buildField(
                   'ที่อยู่ปัจจุบัน',
                   _currentAddressController,
                   maxLines: 4,
                 ),
-                _buildField('เบอร์โทร', _phoneController),
-                _buildField('เพศ', _genderController),
+                buildField('เบอร์โทร', _phoneController),
+                buildField('เพศ', _genderController),
                 const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
