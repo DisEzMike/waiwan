@@ -3,74 +3,44 @@ import 'package:waiwan/utils/config.dart';
 import 'review_elderly.dart';
 
 class ElderlyPerson {
-  final String name;
-  final String type;
-  final String distance;
-  final String ability;
-  final String imageUrl;
-  final int phoneNumber;
-  final String chronicDiseases;
-  final String workExperience;
-  final String address;
+  final String id;
+  final String displayName;
+  final SeniorProfile profile;
+  final SeniorAbility ability;
   final List<Review> reviews;
   final bool isVerified;
-  final bool vehicle;
-  final bool offsiteWork;
+  final String? distance;
 
   ElderlyPerson({
-    required this.name,
-    required this.type,
-    required this.distance,
+    required this.id,
+    required this.displayName,
+    required this.profile,
     required this.ability,
-    required this.imageUrl,
-    required this.phoneNumber,
-    required this.chronicDiseases,
-    required this.workExperience,
-    required this.address,
     this.reviews = const [],
     this.isVerified = false,
-    this.vehicle = false,
-    this.offsiteWork = false,
+    this.distance,
   });
 
   // Factory constructor for creating ElderlyPerson from JSON
   factory ElderlyPerson.fromJson(Map<String, dynamic> json) {
-    print(json['image_url']);
     if (json['image_url'] != null) {
       json['image_url'] = API_URL + json['image_url'];
     } else {
       json['image_url'] = 'https://placehold.co/600x400.png';
     }
     return ElderlyPerson(
-      name: json['name']?.toString() ?? '',
-      type: json['type']?.toString() ?? '',
-      distance: '${json['distance']?.toString() ?? '0'} เมตร',
-      ability: json['other_ability']?.toString() ?? '',
-      imageUrl: json['image_url'],
-      phoneNumber: _parseToInt(json['phone']),
-      chronicDiseases: json['chronic_diseases']?.toString() ?? '',
-      workExperience: json['work_experience']?.toString() ?? '',
-      address: json['current_address']?.toString() ?? '',
+      id: json['user']['id']?.toString() ?? '',
+      displayName: json['user']['displayname']?.toString() ?? '',
+      profile: SeniorProfile.fromJson(json['profile'] ?? {}),
+      ability: SeniorAbility.fromJson(json['ability'] ?? {}),
       reviews:
           (json['reviews'] as List<dynamic>?)
               ?.map((reviewJson) => Review.fromJson(reviewJson))
               .toList() ??
           [],
       isVerified: json['is_verified'] == true,
-      vehicle: json['vehicle'] == true,
-      offsiteWork: json['offsite_work'] == true,
+      distance: json['distance'],
     );
-  }
-
-  // Helper method to safely parse various types to int
-  static int _parseToInt(dynamic value) {
-    if (value == null) return 0;
-    if (value is int) return value;
-    if (value is double) return value.toInt();
-    if (value is String) {
-      return int.tryParse(value) ?? 0;
-    }
-    return 0;
   }
 
   // Calculate rating statistics from reviews
@@ -99,19 +69,93 @@ class ElderlyPerson {
   ElderlyPerson addReview(Review review) {
     final updatedReviews = List<Review>.from(reviews)..add(review);
     return ElderlyPerson(
-      name: name,
-      type: type,
-      distance: distance,
+      id: id,
+      displayName: displayName,
+      profile: profile,
       ability: ability,
-      imageUrl: imageUrl,
-      phoneNumber: phoneNumber,
-      chronicDiseases: chronicDiseases,
-      workExperience: workExperience,
-      address: address,
       reviews: updatedReviews,
       isVerified: isVerified,
-      vehicle: vehicle,
-      offsiteWork: offsiteWork,
+    );
+  }
+}
+
+class SeniorProfile {
+  final String id;
+  final String firstName;
+  final String lastName;
+  final String idCard;
+  final String iDaddress;
+  final String currentAddress;
+  final String chronicDiseases;
+  final String contactPerson;
+  final String contactPhone;
+  final String phone;
+  final String gender;
+  final String imageUrl;
+
+  SeniorProfile({
+    required this.id,
+    required this.firstName,
+    required this.lastName,
+    required this.idCard,
+    required this.iDaddress,
+    required this.currentAddress,
+    required this.chronicDiseases,
+    required this.contactPerson,
+    required this.contactPhone,
+    required this.phone,
+    required this.gender,
+    required this.imageUrl,
+  });
+
+  factory SeniorProfile.fromJson(Map<String, dynamic> json) {
+    if (json['image_url'] != null) {
+      json['image_url'] = API_URL + json['image_url'];
+    } else {
+      json['image_url'] = 'https://placehold.co/600x400.png';
+    }
+    return SeniorProfile(
+      id: json['id'] ?? '',
+      firstName: json['first_name'] ?? '',
+      lastName: json['last_name'] ?? '',
+      idCard: json['id_card'] ?? '',
+      iDaddress: json['id_address'] ?? '',
+      currentAddress: json['current_address'] ?? '',
+      chronicDiseases: json['chronic_diseases'] ?? '',
+      contactPerson: json['contact_person'] ?? '',
+      contactPhone: json['contact_phone'] ?? '',
+      phone: json['phone'] ?? '',
+      gender: json['gender'] ?? '',
+      imageUrl: json['image_url'],
+    );
+  }
+}
+
+class SeniorAbility {
+  final String id;
+  final String type;
+  final String workExperience;
+  final String otherAbility;
+  final bool vehicle;
+  final bool offsiteWork;
+
+  SeniorAbility({
+    required this.id,
+    required this.type,
+    required this.workExperience,
+    required this.otherAbility,
+    required this.vehicle,
+    required this.offsiteWork,
+  });
+
+  factory SeniorAbility.fromJson(Map<String, dynamic> json) {
+    return SeniorAbility(
+      id: json['id'] ?? '',
+      type: json['type'] ?? '',
+      workExperience: json['work_experience'] ?? '',
+      otherAbility: json['other_ability'] ?? '',
+      vehicle: json['vehicle'] == true,
+      offsiteWork: json['offsite_work'] == true,
     );
   }
 }

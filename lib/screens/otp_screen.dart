@@ -74,7 +74,7 @@ class _OtpScreenState extends State<OtpScreen> {
       final res = await AuthService.verifyOtp(phone, otp);
       if (!res['is_new']) {
         final resp = await AuthService.authentication(res['auth_code'], {});
-        localStorage.setItem('user_data', resp['user_data'].toString());
+        localStorage.setItem('userId', resp['user_id'].toString());
         localStorage.setItem('token', resp['access_token'].toString());
 
         Navigator.pushAndRemoveUntil(

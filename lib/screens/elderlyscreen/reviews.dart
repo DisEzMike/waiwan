@@ -34,7 +34,7 @@ class ReviewsPage extends StatelessWidget {
           children: [
             // Rating Summary Card
             RatingSummaryCard(
-              name: person.name,
+              name: person.displayName,
               rating: person.rating,
               reviewCount: person.reviewCount,
             ),

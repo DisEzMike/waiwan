@@ -126,21 +126,21 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                buildField('ชื่อ', _nameController),
-                buildField('นามสกุล', _surnameController),
-                buildField('เลขบัตรประชาชน', _idCardController),
-                buildField(
+                buildTextField('ชื่อ', _nameController),
+                buildTextField('นามสกุล', _surnameController),
+                buildTextField('เลขบัตรประชาชน', _idCardController),
+                buildTextField(
                   'ที่อยู่ตามบัตรประชาชน',
                   _idAddressController,
                   maxLines: 4,
                 ),
-                buildField(
+                buildTextField(
                   'ที่อยู่ปัจจุบัน',
                   _currentAddressController,
                   maxLines: 4,
                 ),
-                buildField('เบอร์โทร', _phoneController),
-                buildField('เพศ', _genderController),
+                buildTextField('เบอร์โทร', _phoneController),
+                buildTextField('เพศ', _genderController),
                 const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,

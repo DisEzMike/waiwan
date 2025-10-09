@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:provider/provider.dart';
 import 'package:waiwan/providers/font_size_provider.dart';
+import 'package:waiwan/providers/chat_provider.dart';
 import 'package:waiwan/screens/start_screen.dart';
 import 'package:waiwan/utils/colors.dart';
 
@@ -18,8 +19,11 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: FontSizeProvider.instance,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: FontSizeProvider.instance),
+        ChangeNotifierProvider(create: (_) => ChatProvider()),
+      ],
       child: MaterialApp(
         title: 'Waiwan',
         theme: ThemeData(

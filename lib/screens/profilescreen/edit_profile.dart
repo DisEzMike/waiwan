@@ -13,8 +13,6 @@ class EditProfile extends StatefulWidget {
 }
 
 class _EditProfileState extends State<EditProfile> {
-  final _formKey = GlobalKey<FormState>();
-
   // controllers for fields
   final TextEditingController _firstnameController = TextEditingController();
   final TextEditingController _lastnameController = TextEditingController();
@@ -46,8 +44,8 @@ class _EditProfileState extends State<EditProfile> {
 
     // _idCardController.text = profile.idCard ?? '';
     // _idAddressController.text = profile.idAddress ?? '';
-    _currentAddressController.text = profile.current_address ?? '';
-    _phoneController.text = profile.phone ?? '';
+    _currentAddressController.text = profile.current_address;
+    _phoneController.text = profile.phone;
     // _genderController.text
   }
 

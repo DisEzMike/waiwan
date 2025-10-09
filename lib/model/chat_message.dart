@@ -1,36 +1,94 @@
 class ChatMessage {
+  final String id;
+  final String roomId;
+  final String senderId;
+  final String sender_type;
   final String message;
-  final bool isMe;
-  final DateTime timestamp;
-  final String senderName;
+  final bool is_read;
+  final DateTime createdAt;
+  bool isMe;
+  
+  // Additional properties for UI features
   final bool isPayment;
   final PaymentDetails? paymentDetails;
   final bool isMap;
 
   ChatMessage({
+    required this.id,
+    required this.roomId,
+    required this.senderId,
+    required this.sender_type,
     required this.message,
-    required this.isMe,
-    required this.timestamp,
-    required this.senderName,
+    required this.is_read,
+    required this.createdAt,
+    this.isMe = false,
     this.isPayment = false,
     this.paymentDetails,
     this.isMap = false,
   });
 
-  // Factory constructor for creating ChatMessage from JSON
+  // Factory constructor for creating ChatMessage from JSON (WebSocket format)
   factory ChatMessage.fromJson(Map<String, dynamic> json) {
     return ChatMessage(
+      id: json['id'] ?? '',
+      roomId: json['room_id'] ?? '',
+      senderId: json['sender_id'] ?? '',
+      sender_type: json['sender_type'] ?? '',
       message: json['message'] ?? '',
-      isMe: json['is_me'] ?? false,
-      timestamp: DateTime.tryParse(json['timestamp'] ?? '') ?? DateTime.now(),
-      senderName: json['sender_name'] ?? '',
+      is_read: json['is_read'] ?? false,
+      createdAt: DateTime.parse(
+        json['created_at'] ?? DateTime.now().toIso8601String(),
+      ),
+      isMe: json['isMe'] ?? false,
       isPayment: json['is_payment'] ?? false,
-      paymentDetails: json['payment_details'] != null 
+      paymentDetails: json['payment_details'] != null
           ? PaymentDetails.fromJson(json['payment_details'])
           : null,
       isMap: json['is_map'] ?? false,
     );
   }
+
+  // Convert to JSON for sending via WebSocket
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'room_id': roomId,
+      'sender_id': senderId,
+      'sender_type': sender_type,
+      'message': message,
+      'is_read': is_read,
+      'created_at': createdAt.toIso8601String(),
+      'isMe': isMe,
+    };
+  }
+
+  // Create a copy with different values
+  // ChatMessage copyWith({
+  //   String? id,
+  //   String? roomId,
+  //   String? senderId,
+  //   String? message,
+  //   bool? isMe,
+  //   DateTime? timestamp,
+  //   String? senderName,
+  //   String? senderRole,
+  //   String? messageType,
+  //   bool? isPayment,
+  //   PaymentDetails? paymentDetails,
+  //   bool? isMap,
+  //   bool? isRead,
+  //   Map<String, dynamic>? metadata,
+  // }) {
+  //   return ChatMessage(
+  //     id: id ?? this.id,
+  //     roomId: roomId ?? this.roomId,
+  //     senderId: senderId ?? this.senderId,
+  //     sender_type: sender_type,
+  //     message: message ?? this.message,
+  //     is_read: isRead ?? this.is_read,
+  //     createdAt: timestamp ?? this.createdAt,
+  //   );
+  // }
 }
 
 class PaymentDetails {
@@ -59,5 +117,16 @@ class PaymentDetails {
       code: json['code'] ?? '',
       totalAmount: json['total_amount'] ?? '',
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'job_title': jobTitle,
+      'payment': payment,
+      'work_type': workType,
+      'payment_method': paymentMethod,
+      'code': code,
+      'total_amount': totalAmount,
+    };
   }
 }

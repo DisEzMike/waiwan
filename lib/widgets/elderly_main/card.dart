@@ -51,7 +51,7 @@ class ElderlyPersonCard extends StatelessWidget {
                   ),
                   child: Image.network(
                     // child: Image.network(  <-- if use api use this
-                    person.imageUrl,
+                    person.profile.imageUrl,
                     height: 174,
                     width: 248,
                     fit: BoxFit.cover,
@@ -79,7 +79,7 @@ class ElderlyPersonCard extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              person.name,
+                              person.displayName,
                               style: cardTextStyle.copyWith(
                                 fontWeight: FontWeight.w600,
                               ),
@@ -104,7 +104,7 @@ class ElderlyPersonCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            person.distance,
+                            person.distance!,
                             style: cardTextStyle,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -118,7 +118,7 @@ class ElderlyPersonCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        person.ability,
+                        person.ability.otherAbility,
                         style: cardTextStyle,
                         maxLines: 2,
                         overflow: TextOverflow.visible,

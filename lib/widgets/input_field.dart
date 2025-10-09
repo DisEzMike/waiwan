@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:waiwan/utils/font_size_helper.dart';
 
-Widget buildField(
+Widget buildTextField(
   String label,
   TextEditingController controller, {
   int maxLines = 1,
+  TextInputType keyboardType = TextInputType.text,
 }) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -20,6 +21,7 @@ Widget buildField(
       TextFormField(
         controller: controller,
         maxLines: maxLines,
+        keyboardType: keyboardType,
         decoration: InputDecoration(
           filled: true,
           fillColor: Colors.white,
@@ -35,3 +37,4 @@ Widget buildField(
     ],
   );
 }
+

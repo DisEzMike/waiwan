@@ -15,7 +15,6 @@ class ContractorProfile extends StatefulWidget {
 }
 
 class _ContractorProfileState extends State<ContractorProfile> {
-  final String _token = localStorage.getItem('token') ?? '';
   User? _user = null;
 
   @override
@@ -25,11 +24,12 @@ class _ContractorProfileState extends State<ContractorProfile> {
   }
 
   void _loadProfile() async {
-    final res = await UserService(accessToken: _token).getProfile();
+    final res = await UserService().getProfile();
     if (res != null && mounted) {
       setState(() {
         // Update user state with fetched profile data
         _user = User.fromJson(res);
+        localStorage.setItem('userId', _user!.id);
       });
     }
   }
