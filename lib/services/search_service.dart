@@ -36,8 +36,7 @@ class SearchService {
         throw Exception('Server error: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error searching nearby: $e');
-      throw Exception('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้: $e');
+      throw Exception('Error searching nearby: $e');
     }
   }
 
@@ -49,7 +48,10 @@ class SearchService {
   ) async {
     try {
       final response = await http
-          .get(Uri.parse('$baseUrl?q=$query&lat=$lat&lng=$lng'), headers: headers)
+          .get(
+            Uri.parse('$baseUrl?q=$query&lat=$lat&lng=$lng'),
+            headers: headers,
+          )
           .timeout(const Duration(seconds: 5));
       if (response.statusCode == 200) {
         final dynamic data = jsonDecode(response.body);

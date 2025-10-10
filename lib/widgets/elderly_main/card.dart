@@ -104,7 +104,7 @@ class ElderlyPersonCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            person.distance!,
+                            person.distance ?? 'ไม่ระบุ',
                             style: cardTextStyle,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

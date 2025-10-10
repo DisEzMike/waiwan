@@ -23,10 +23,10 @@ class ElderlyPerson {
 
   // Factory constructor for creating ElderlyPerson from JSON
   factory ElderlyPerson.fromJson(Map<String, dynamic> json) {
-    if (json['image_url'] != null) {
-      json['image_url'] = API_URL + json['image_url'];
-    } else {
-      json['image_url'] = 'https://placehold.co/600x400.png';
+    if (json['distance'] != null) {
+      final distanceOrig = json['distance'];
+      final distance = distanceOrig / 1000;
+      json['distance'] = distance > 1 ? "${distance.toStringAsFixed(2)} กิโลเมตร" : "${(distance * 1000).toStringAsFixed(0)} เมตร";
     }
     return ElderlyPerson(
       id: json['user']['id']?.toString() ?? '',
