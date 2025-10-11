@@ -4,6 +4,7 @@ import 'package:localstorage/localstorage.dart';
 import 'package:waiwan/screens/main_screen.dart';
 import 'package:waiwan/services/auth_service.dart';
 import 'package:waiwan/utils/font_size_helper.dart';
+import 'package:waiwan/utils/helper.dart';
 import 'otp_screen.dart';
 
 class PhoneInputScreen extends StatefulWidget {
@@ -65,13 +66,8 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
         ),
       );
     } catch (e) {
-      // Show error dialog
-      SnackBar snackBar = SnackBar(
-        content: Text('Error: $e'),
-        duration: const Duration(seconds: 3),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      return;
+      debugPrint(e.toString());
+      snackBarErrorMessage(context, e.toString());
     }
   }
 

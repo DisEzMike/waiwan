@@ -3,6 +3,7 @@ import 'package:localstorage/localstorage.dart';
 import 'package:waiwan/screens/main_screen.dart';
 import 'package:waiwan/services/auth_service.dart';
 import 'package:waiwan/utils/font_size_helper.dart';
+import 'package:waiwan/utils/helper.dart';
 import 'package:waiwan/widgets/input_field.dart';
 
 class PersonalInfoScreen extends StatefulWidget {
@@ -29,28 +30,16 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final args = ModalRoute.of(context)?.settings.arguments;
-    if (args is Map<String, String>) {
-      // fill controllers from parsed id info when available
-      _nameController.text = args['name'] ?? '';
-      _surnameController.text = args['surname'] ?? '';
-      _idCardController.text = args['id_card'] ?? '';
-      _idAddressController.text = args['id_address'] ?? '';
-      _currentAddressController.text = args['current_address'] ?? '';
-      _phoneController.text = args['phone'] ?? '';
-      _genderController.text = args['gender'] ?? '';
-    } else {
-      // Demo fallback so opening /personal_info directly shows example data
-      _nameController.text = 'สมชาย';
-      _surnameController.text = 'ใจดี';
-      _idCardController.text = '1-2345-67890-12-3';
-      _idAddressController.text =
-          '123/45 หมู่ 6 ต.ตัวอย่าง อ.ตัวอย่าง จ.ตัวอย่าง 12345';
-      _currentAddressController.text =
-          '456 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพมหานคร 10110';
-      _phoneController.text = '0812345678';
-      _genderController.text = 'ชาย';
-    }
+    final phone = localStorage.getItem('phone') ?? '';
+    // _nameController.text = 'สมชาย';
+    // _surnameController.text = 'ใจดี';
+    _idCardController.text = '1-2345-67890-12-3';
+    _idAddressController.text =
+        '123/45 หมู่ 6 ต.ตัวอย่าง อ.ตัวอย่าง จ.ตัวอย่าง 12345';
+    _currentAddressController.text =
+        '456 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพมหานคร 10110';
+    _phoneController.text = phone;
+    _genderController.text = 'ชาย';
   }
 
   @override
@@ -75,7 +64,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
           'current_address': _currentAddressController.text.trim(),
           'phone': _phoneController.text,
           'gender': _genderController.text,
-        }
+        },
       };
 
       try {
@@ -85,21 +74,18 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
         localStorage.setItem('user_data', resp['user_data'].toString());
         localStorage.setItem('token', resp['access_token'].toString());
 
+        localStorage.removeItem('phone');
+        localStorage.removeItem('is_new');
+        localStorage.removeItem('auth_code');
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (_) => const MyMainPage()),
           (route) => false,
         );
-
       } catch (e) {
-        // handle error
-        print('Error submitting personal info: $e');
+        debugPrint(e.toString());
+        snackBarErrorMessage(context, e.toString());
       }
-      // Navigator.pushAndRemoveUntil(
-      //   context,
-      //   MaterialPageRoute(builder: (_) => const PersonalInfoScreen()),
-      //   (route) => false,
-      // );
     }
   }
 
