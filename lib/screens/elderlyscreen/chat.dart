@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:provider/provider.dart';
 import 'package:waiwan/services/chat_service.dart';
+import 'package:waiwan/utils/helper.dart';
 import 'dart:async';
 import '../../model/elderly_person.dart';
 import '../../model/chat_message.dart';
@@ -49,7 +50,7 @@ class _ChatScreenState extends State<ChatScreen> {
     super.didChangeDependencies();
     // เก็บ reference ของ ChatProvider ไว้ใช้ใน dispose()
     final newChatProvider = Provider.of<ChatProvider>(context, listen: false);
-    
+
     // Add listener only once when ChatProvider changes
     if (_chatProvider != newChatProvider) {
       _chatProvider?.removeListener(_onMessagesChanged);
@@ -76,11 +77,8 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _initializeWebSocket() async {
-    // สร้าง ChatRoom จาก ElderlyPerson data
-    _chatRoom = await ChatService.getChatRoom(widget.chatroomId);
-
     try {
-      // เชื่อมต่อ WebSocket ผ่าน ChatProvider
+      _chatRoom = await ChatService.getChatRoom(widget.chatroomId);
       if (_chatProvider != null) {
         await _chatProvider!.connectToRoom(_chatRoom!);
 
@@ -94,7 +92,8 @@ class _ChatScreenState extends State<ChatScreen> {
         });
       }
     } catch (e) {
-      print('Error initializing WebSocket: $e');
+      debugPrint(e.toString());
+      snackBarErrorMessage(context, e.toString());
     }
   }
 

@@ -3,6 +3,7 @@ import 'package:localstorage/localstorage.dart';
 import 'package:waiwan/model/user.dart';
 import 'package:waiwan/services/user_service.dart';
 import 'package:waiwan/utils/font_size_helper.dart';
+import 'package:waiwan/utils/helper.dart';
 import 'edit_profile.dart';
 import '../../widgets/user_profile/profile_header.dart';
 import '../../widgets/user_profile/menu_items.dart';
@@ -24,13 +25,18 @@ class _ContractorProfileState extends State<ContractorProfile> {
   }
 
   void _loadProfile() async {
-    final res = await UserService().getProfile();
-    if (res != null && mounted) {
-      setState(() {
-        // Update user state with fetched profile data
-        _user = User.fromJson(res);
-        localStorage.setItem('userId', _user!.id);
-      });
+    try {
+      final res = await UserService().getProfile();
+      if (res != null && mounted) {
+        setState(() {
+          // Update user state with fetched profile data
+          _user = User.fromJson(res);
+          localStorage.setItem('userId', _user!.id);
+        });
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      snackBarErrorMessage(context, e.toString());
     }
   }
 

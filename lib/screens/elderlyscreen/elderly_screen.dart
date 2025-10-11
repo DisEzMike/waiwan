@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:waiwan/services/search_service.dart';
+import 'package:waiwan/utils/helper.dart';
 import '../../model/elderly_person.dart';
 import 'elderly_profile.dart';
 import '../../widgets/elderly_main/custom_search_bar.dart';
@@ -87,7 +88,8 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
           }
         });
       }
-      print('Error loading elderly persons: $e');
+      debugPrint('Error loading elderly persons: $e');
+      snackBarErrorMessage(context, e.toString());
     }
   }
 
@@ -104,7 +106,9 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
         errorMessage = '';
       });
       Position position = await _determinePosition();
-      final persons = await SearchService(accessToken: token).searchByQuery(query, position.latitude, position.longitude);
+      final persons = await SearchService(
+        accessToken: token,
+      ).searchByQuery(query, position.latitude, position.longitude);
       setState(() {
         elderlyPersons = persons;
         isLoading = false;
@@ -130,10 +134,7 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              CustomSearchBar(
-                hintText: 'ค้นหางาน',
-                onSubmitted: _onSearch,
-              ),
+              CustomSearchBar(hintText: 'ค้นหางาน', onSubmitted: _onSearch),
               const SizedBox(height: 16),
               PointsButtons(
                 onCouponTap: () {
