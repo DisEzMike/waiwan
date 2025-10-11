@@ -15,7 +15,7 @@ class ContractorProfile extends StatefulWidget {
 }
 
 class _ContractorProfileState extends State<ContractorProfile> {
-  User? _user = null;
+  User? _user;
 
   @override
   void initState() {
