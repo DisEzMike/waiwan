@@ -35,6 +35,7 @@ class ChatMessageBubble extends StatelessWidget {
   }
 
   Widget _buildTextMessage(BuildContext context) {
+    print(message.isMe);
     return Align(
       alignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(

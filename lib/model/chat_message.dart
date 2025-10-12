@@ -2,12 +2,13 @@ class ChatMessage {
   final String id;
   final String roomId;
   final String senderId;
-  final String sender_type;
+  final String senderType;
+  final String? senderName;
   final String message;
-  final bool is_read;
+  final bool isRead;
   final DateTime createdAt;
   bool isMe;
-  
+
   // Additional properties for UI features
   final bool isPayment;
   final PaymentDetails? paymentDetails;
@@ -17,9 +18,10 @@ class ChatMessage {
     required this.id,
     required this.roomId,
     required this.senderId,
-    required this.sender_type,
+    required this.senderType,
+    this.senderName,
     required this.message,
-    required this.is_read,
+    this.isRead = false,
     required this.createdAt,
     this.isMe = false,
     this.isPayment = false,
@@ -27,38 +29,42 @@ class ChatMessage {
     this.isMap = false,
   });
 
-  // Factory constructor for creating ChatMessage from JSON (WebSocket format)
+  // Factory constructor for creating ChatMessage from JSON (API format)
   factory ChatMessage.fromJson(Map<String, dynamic> json) {
     return ChatMessage(
-      id: json['id'] ?? '',
-      roomId: json['room_id'] ?? '',
-      senderId: json['sender_id'] ?? '',
-      sender_type: json['sender_type'] ?? '',
-      message: json['message'] ?? '',
-      is_read: json['is_read'] ?? false,
-      createdAt: DateTime.parse(
-        json['created_at'] ?? DateTime.now().toIso8601String(),
-      ),
+      id: json['id']?.toString() ?? '',
+      roomId: json['room_id']?.toString() ?? '',
+      senderId: json['sender_id']?.toString() ?? '',
+      senderType: json['sender_type']?.toString() ?? '',
+      senderName: json['sender_name']?.toString(),
+      message: json['message']?.toString() ?? '',
+      isRead: json['is_read'] ?? false,
+      createdAt: DateTime.tryParse(json['created_at']?.toString() ?? '') ?? DateTime.now(),
       isMe: json['isMe'] ?? false,
       isPayment: json['is_payment'] ?? false,
-      paymentDetails: json['payment_details'] != null
-          ? PaymentDetails.fromJson(json['payment_details'])
-          : null,
+      paymentDetails:
+          json['payment_details'] != null
+              ? PaymentDetails.fromJson(json['payment_details'])
+              : null,
       isMap: json['is_map'] ?? false,
     );
   }
 
-  // Convert to JSON for sending via WebSocket
+  // Convert to JSON for sending
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'room_id': roomId,
       'sender_id': senderId,
-      'sender_type': sender_type,
+      'sender_type': senderType,
+      'sender_name': senderName,
       'message': message,
-      'is_read': is_read,
+      'is_read': isRead,
       'created_at': createdAt.toIso8601String(),
       'isMe': isMe,
+      if (isPayment) 'is_payment': isPayment,
+      if (paymentDetails != null) 'payment_details': paymentDetails!.toJson(),
+      if (isMap) 'is_map': isMap,
     };
   }
 

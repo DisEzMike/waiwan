@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'dart:async';
 import 'dart:developer';
+import 'package:localstorage/localstorage.dart';
 
 import '../model/chat_message.dart';
 import '../model/chat_room.dart';
@@ -95,44 +96,67 @@ class ChatProvider with ChangeNotifier {
     );
   }
 
-  Future<void> connectToRoom(ChatRoom room) async {
-    if (_currentRoom?.id == room.id && _isConnected) {
-      return; // Already connected to this room
-    }
-
+  Future<void> connectToRoom(String roomId) async {
     try {
+      log('ChatProvider.connectToRoom called for room: $roomId');
       _setLoading(true);
       _clearError();
 
-      // Disconnect from current room if any
-      if (_currentRoom != null) {
+      // Get room details first
+      log('Loading room details...');
+      final room = await ChatService.getChatRoom(roomId);
+      log('Room loaded: ${room.id}');
+      
+      // Disconnect from current room if different
+      if (_currentRoom?.id != roomId && _isConnected) {
+        log('Disconnecting from current room...');
         await _webSocketService.disconnect();
       }
 
       _currentRoom = room;
-      _messages.clear();
 
-      // Load initial messages from API
+      // Load messages from the room data
       try {
-        final initialMessages = await ChatService.getRoomMessages(room.id);
-        _messages.addAll(initialMessages);
+        log('Loading room messages...');
+        _messages = await ChatService.getRoomMessages(roomId);
         _messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-
-        log(
-          'Loaded ${initialMessages.length} initial messages for room: ${room.id}',
-        );
+        log('Loaded ${_messages.length} messages');
       } catch (e) {
-        log('Error loading initial messages: $e');
-        // Continue with WebSocket connection even if loading messages fails
+        log('Error loading messages: $e');
+        _messages = [];
       }
 
       // Connect to WebSocket for real-time updates
-      await _webSocketService.connect(room.id);
+      log('Connecting to WebSocket...');
+      await _webSocketService.connect(roomId);
 
-      log('Connected to chat room: ${room.id}');
+      log('Successfully connected to chat room: $roomId');
     } catch (e) {
       log('Error connecting to room: $e');
       _setError('Failed to connect to chat room: $e');
+      rethrow; // Re-throw so the UI can handle it
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> loadChatRooms() async {
+    try {
+      _setLoading(true);
+      _clearError();
+      
+      final rooms = await ChatService.getChatRooms();
+      _chatRooms = rooms;
+      
+      log('Loaded ${_chatRooms.length} chat rooms');
+      
+      // Use addPostFrameCallback to avoid calling notifyListeners during build
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+      });
+    } catch (e) {
+      log('Error loading chat rooms: $e');
+      _setError('Failed to load chat rooms: $e');
     } finally {
       _setLoading(false);
     }
@@ -142,21 +166,70 @@ class ChatProvider with ChangeNotifier {
     String content, {
     String messageType = 'text',
   }) async {
-    if (!_isConnected || _currentRoom == null) {
-      _setError('Not connected to chat room');
-      return;
-    }
-
     if (content.trim().isEmpty) {
       return;
     }
 
+    if (_currentRoom == null) {
+      _setError('Not connected to chat room');
+      return;
+    }
+
+    final userId = localStorage.getItem('userId') ?? '';
+    final currentUser = userId.startsWith('S') ? 'senior_user' : 'user';
+    
+    // Create a temporary message to show immediately in UI
+    final tempMessage = ChatMessage(
+      id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
+      roomId: _currentRoom!.id,
+      senderId: userId,
+      senderType: currentUser,
+      message: content.trim(),
+      isRead: false,
+      createdAt: DateTime.now(),
+      isMe: true,
+    );
+
+    // Add temporary message to UI immediately
+    _addMessage(tempMessage);
+    log('Added temporary message to UI: ${tempMessage.id}');
+
     try {
-      // Send message via WebSocket
-      _webSocketService.sendMessage(content, messageType);
+      // Try WebSocket first if connected
+      if (_isConnected) {
+        log('Sending message via WebSocket');
+        _webSocketService.sendMessage(content, messageType: messageType);
+        
+        // Remove temp message after successful WebSocket send
+        // (real message will come back via WebSocket stream)
+        _removeMessage(tempMessage.id);
+      } else {
+        log('WebSocket not connected, using HTTP API');
+        // Fallback to HTTP API
+        final message = await ChatService.sendMessage(_currentRoom!.id, content, messageType: messageType);
+        
+        // Replace temp message with real message from API
+        _removeMessage(tempMessage.id);
+        _addMessage(message);
+      }
     } catch (e) {
       log('Error sending message: $e');
-      _setError('Failed to send message: $e');
+      
+      // Try HTTP API as fallback
+      try {
+        log('Trying HTTP API as fallback');
+        final message = await ChatService.sendMessage(_currentRoom!.id, content, messageType: messageType);
+        
+        // Replace temp message with real message from API
+        _removeMessage(tempMessage.id);
+        _addMessage(message);
+      } catch (fallbackError) {
+        log('Fallback send message failed: $fallbackError');
+        
+        // Remove temp message and show error
+        _removeMessage(tempMessage.id);
+        _setError('Failed to send message: $fallbackError');
+      }
     }
   }
 
@@ -195,32 +268,45 @@ class ChatProvider with ChangeNotifier {
   }
 
   void _addMessage(ChatMessage message) {
+    log('Adding message: ${message.id} - ${message.message}');
+    
     // Check if message already exists (avoid duplicates)
     final existingIndex = _messages.indexWhere((msg) => msg.id == message.id);
     if (existingIndex != -1) {
       // Update existing message if needed
       _messages[existingIndex] = message;
+      log('Updated existing message at index: $existingIndex');
     } else {
       // Add new message
       _messages.add(message);
+      log('Added new message, total messages: ${_messages.length}');
     }
 
     // Sort messages by timestamp
     _messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
 
-    // Update room's last message
+    // Update room's last message in chat rooms list
     if (_currentRoom != null) {
-      _currentRoom = _currentRoom!.copyWith(
-        lastMessageAt: message.createdAt,
-        lastMessageContent: message.message,
-        lastMessageSenderId: message.senderId,
-      );
+      final roomIndex = _chatRooms.indexWhere((room) => room.id == _currentRoom!.id);
+      if (roomIndex != -1) {
+        _chatRooms[roomIndex] = _chatRooms[roomIndex].copyWith(
+          lastMessage: message,
+        );
+      }
     }
 
-    // Use addPostFrameCallback to avoid calling notifyListeners during build
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    // Notify listeners immediately for real-time updates
+    notifyListeners();
+    log('Message added and UI notified');
+  }
+
+  void _removeMessage(String messageId) {
+    final index = _messages.indexWhere((msg) => msg.id == messageId);
+    if (index != -1) {
+      _messages.removeAt(index);
       notifyListeners();
-    });
+      log('Removed message: $messageId');
+    }
   }
 
   // Add mock message for demo purposes (bypasses WebSocket)
@@ -230,7 +316,7 @@ class ChatProvider with ChangeNotifier {
 
   void _handleUserStatusUpdate(Map<String, dynamic> statusData) {
     final type = statusData['type'];
-    final userId = statusData['user_id'];
+    final userId = statusData['userId'];
     final roomId = _currentRoom?.id;
 
     if (roomId == null || userId == null) return;
