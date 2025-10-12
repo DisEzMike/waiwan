@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:waiwan/providers/font_size_provider.dart';
 import 'package:waiwan/utils/font_size_helper.dart';
+import 'notificationscreen/notification.dart';
 
 // โครงสร้างข้อมูลสำหรับแต่ละปุ่มในแถบนำทางด้านล่าง
 class NavDestination {
@@ -30,9 +31,9 @@ class AppDestinations {
       label: 'ข้อความ',
     ),
     NavDestination(
-      icon: Icons.notifications_outlined,
-      iconSelected: Icons.notifications,
-      label: 'แจ้งเตือน',
+      icon: Icons.work_outline,
+      iconSelected: Icons.work,
+      label: 'งาน',
     ),
     NavDestination(
       icon: Icons.person_outlined,
@@ -225,6 +226,18 @@ class _NavBarWrapperState extends State<NavBarWrapper> {
       backgroundColor: widget.backgroundColor ?? theme.colorScheme.primary,
       foregroundColor: theme.colorScheme.onPrimary,
       automaticallyImplyLeading: false,
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.notifications_none),
+          tooltip: 'แจ้งเตือน',
+          onPressed: () {
+            // Open notifications screen (push) so bell always opens notifications
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (c) => const NotificationScreen()),
+            );
+          },
+        ),
+      ],
     );
   }
 

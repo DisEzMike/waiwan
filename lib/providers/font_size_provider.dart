@@ -48,8 +48,10 @@ class FontSizeProvider extends ChangeNotifier {
 
   // Update font size scale
   void updateFontSize(double scale) {
-    if (scale >= 0.8 && scale <= 1.6) {
-      _fontSizeScale = scale;
+    // Clamp scale to safe range to avoid layout distortion
+    final clamped = scale.clamp(0.8, 1.4);
+    if (clamped != _fontSizeScale) {
+      _fontSizeScale = clamped;
       notifyListeners();
       _saveFontSize();
     }
@@ -57,7 +59,7 @@ class FontSizeProvider extends ChangeNotifier {
 
   // Increase font size
   void increaseFontSize() {
-    if (_fontSizeScale < 1.6) {
+    if (_fontSizeScale < 1.4) {
       updateFontSize(_fontSizeScale + 0.1);
     }
   }

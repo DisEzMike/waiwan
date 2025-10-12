@@ -5,12 +5,23 @@ import 'package:provider/provider.dart';
 import 'package:waiwan/providers/font_size_provider.dart';
 import 'package:waiwan/providers/chat_provider.dart';
 import 'package:waiwan/screens/start_screen.dart';
+import 'package:waiwan/screens/profile_upload_screen.dart';
+import 'package:waiwan/screens/main_screen.dart';
 import 'package:waiwan/utils/colors.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initLocalStorage();
-  runApp(const MyApp());
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: FontSizeProvider.instance),
+        ChangeNotifierProvider(create: (_) => ChatProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -19,37 +30,55 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider.value(value: FontSizeProvider.instance),
-        ChangeNotifierProvider(create: (_) => ChatProvider()),
-      ],
-      child: MaterialApp(
-        title: 'Waiwan',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF6EB715),
-            primary: myPrimaryColor,
-            secondary: mySecondaryColor,
-            surface: myBackgroundColor,
+    // Use Consumer so MaterialApp rebuilds when font size changes
+    return Consumer<FontSizeProvider>(
+      builder: (context, fontProvider, child) {
+        return MaterialApp(
+          title: 'Waiwan',
+          // Ensure textScaleFactor follows the app-wide font scale
+          builder: (context, child) {
+            final media = MediaQuery.of(context);
+            return MediaQuery(
+              data: media.copyWith(textScaleFactor: fontProvider.fontSizeScale),
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color(0xFF6EB715),
+              primary: myPrimaryColor,
+              secondary: mySecondaryColor,
+              surface: myBackgroundColor,
+            ),
+            primaryTextTheme: TextTheme(
+              bodyLarge: TextStyle(color: myTextColor),
+              bodyMedium: TextStyle(color: myTextColor),
+              bodySmall: TextStyle(color: myTextColor),
+            ),
+            textTheme: GoogleFonts.kanitTextTheme(
+              Theme.of(context).textTheme.apply(
+                bodyColor: myTextColor,
+                displayColor: myTextColor,
+              ),
+            ),
+            buttonTheme: ButtonThemeData(
+              buttonColor: myTextButtonColor,
+              textTheme: ButtonTextTheme.primary,
+            ),
           ),
-          primaryTextTheme: TextTheme(
-            bodyLarge: TextStyle(color: myTextColor),
-            bodyMedium: TextStyle(color: myTextColor),
-            bodySmall: TextStyle(color: myTextColor),
-          ),
-          textTheme: GoogleFonts.kanitTextTheme(
-            Theme.of(
-              context,
-            ).textTheme.apply(bodyColor: myTextColor, displayColor: myTextColor),
-          ),
-          buttonTheme: ButtonThemeData(
-            buttonColor: myTextButtonColor,
-            textTheme: ButtonTextTheme.primary,
-          ),
-        ),
-        home: const StartScreen(),
-      ),
+          home: const StartScreen(),
+          routes: {
+            '/profile-upload': (context) => const ProfileUploadScreen(),
+            '/main': (context) {
+              final args = ModalRoute.of(context)?.settings.arguments;
+              int idx = 0;
+              if (args is Map && args['initialIndex'] is int)
+                idx = args['initialIndex'] as int;
+              return MyMainPage(initialIndex: idx);
+            },
+          },
+        );
+      },
     );
   }
 }
