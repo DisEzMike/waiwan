@@ -82,6 +82,82 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
     );
   }
 
+  Widget _buildProcessRow() {
+    // 4 steps: person, money, timer, check
+    const totalSteps = 4;
+    final activeCount =
+        1 + (_isConfirmed ? 1 : 0) + (_isPaid ? 1 : 0) + (_isCompleted ? 1 : 0);
+    // fraction previously used for proportional progress; not needed with discrete step spacing
+
+    final scale = FontSizeProvider.instance.fontSizeScale.clamp(0.8, 1.6);
+    final radius = (18 * scale).clamp(12.0, 40.0);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableWidth = (constraints.maxWidth - (radius * 2)).clamp(
+          0.0,
+          constraints.maxWidth,
+        );
+        final stepSpacing =
+            totalSteps > 1
+                ? (availableWidth / (totalSteps - 1))
+                : availableWidth;
+        final progressWidth = stepSpacing * (activeCount - 1);
+
+        return SizedBox(
+          height: radius * 2 + 8,
+          child: Stack(
+            children: [
+              // base track starting at first icon center and ending at last icon center
+              Positioned(
+                left: radius.toDouble(),
+                right: radius.toDouble(),
+                top: (radius.toDouble() + 8) / 2 - 2,
+                child: Container(height: 4, color: Colors.grey[200]),
+              ),
+              // progress fill from first icon center
+              if (progressWidth > 0)
+                Positioned(
+                  left: radius.toDouble(),
+                  top: (radius.toDouble() + 8) / 2 - 2,
+                  child: Container(
+                    height: 4,
+                    width: progressWidth.toDouble(),
+                    color: const Color(0xFF6EB715),
+                  ),
+                ),
+              // positioned icons
+              for (var i = 0; i < totalSteps; i++)
+                Positioned(
+                  left:
+                      (radius + stepSpacing * i).toDouble() - radius.toDouble(),
+                  top: 0,
+                  width: radius.toDouble() * 2,
+                  child: Center(
+                    child: _buildStepIcon(
+                      i == 0
+                          ? Icons.person
+                          : i == 1
+                          ? Icons.attach_money
+                          : i == 2
+                          ? Icons.timer
+                          : Icons.check,
+                      active:
+                          i == 0
+                              ? true
+                              : (i == 1
+                                  ? _isConfirmed
+                                  : (i == 2 ? _isPaid : _isCompleted)),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final job = widget.job;
@@ -116,15 +192,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
               Text(_currentStatusText(), style: const TextStyle(fontSize: 16)),
               const SizedBox(height: 16),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildStepIcon(Icons.person, active: true),
-                  _buildStepIcon(Icons.attach_money, active: _isConfirmed),
-                  _buildStepIcon(Icons.timer, active: _isPaid),
-                  _buildStepIcon(Icons.check, active: _isCompleted),
-                ],
-              ),
+              _buildProcessRow(),
               const Divider(height: 24),
 
               const Text(
