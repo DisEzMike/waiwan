@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:waiwan/model/elderly_person.dart';
@@ -157,6 +159,9 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
 
   Future<Widget> _buildChatRoomTile(ChatRoom chatRoom) async {
     try {
+      if (chatRoom.seniorId.isEmpty) {
+        throw Exception('Invalid senior ID');
+      }
       final res = await UserService().getSenior(chatRoom.seniorId);
       final senior = ElderlyPerson.fromJson(res);
       return ListTile(
