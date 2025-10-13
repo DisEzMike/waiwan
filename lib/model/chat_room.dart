@@ -1,30 +1,26 @@
+import 'package:waiwan/model/chat_message.dart';
+
 class ChatRoom {
   final String id;
-  final String jobId;
+  final int jobId;
   final String? jobTitle;
   final String userId;
-  final String userName;
-  final String seniorId;
-  final String seniorName;
-  final DateTime createdAt;
-  final DateTime? lastMessageAt;
-  final String? lastMessageContent;
-  final String? lastMessageSenderId;
-  final int unreadCount;
+  final String? userName;
+  final List<SeniorInfo> seniors;
   final bool isActive;
+  final DateTime createdAt;
+  final int unreadCount;
+  final ChatMessage? lastMessage;
 
   ChatRoom({
     required this.id,
     required this.jobId,
     this.jobTitle,
     required this.userId,
-    required this.userName,
-    required this.seniorId,
-    required this.seniorName,
+    this.userName,
+    required this.seniors,
     required this.createdAt,
-    this.lastMessageAt,
-    this.lastMessageContent,
-    this.lastMessageSenderId,
+    this.lastMessage,
     this.unreadCount = 0,
     this.isActive = true,
   });
@@ -32,18 +28,19 @@ class ChatRoom {
   factory ChatRoom.fromJson(Map<String, dynamic> json) {
     return ChatRoom(
       id: json['id']?.toString() ?? '',
-      jobId: json['job_id']?.toString() ?? '',
-      jobTitle: json['job_title'],
+      jobId: json['job_id'] ?? 0,
+      jobTitle: json['job_title']?.toString(),
       userId: json['user_id']?.toString() ?? '',
-      userName: json['user_name']?.toString() ?? '',
-      seniorId: json['senior_id']?.toString() ?? '',
-      seniorName: json['senior_name']?.toString() ?? '',
-      createdAt: DateTime.tryParse(json['created_at']?.toString() ?? '') ?? DateTime.now(),
-      lastMessageAt: json['last_message_at'] != null 
-          ? DateTime.tryParse(json['last_message_at'].toString()) 
+      userName: json['user_name']?.toString(),
+      seniors: (json['seniors'] as List<dynamic>?)
+          ?.map((seniorJson) => SeniorInfo.fromJson(seniorJson as Map<String, dynamic>))
+          .toList() ?? [],
+      createdAt:
+          DateTime.tryParse(json['created_at']?.toString() ?? '') ??
+          DateTime.now(),
+      lastMessage: json['last_message'] != null
+          ? ChatMessage.fromJson(json['last_message'] as Map<String, dynamic>)
           : null,
-      lastMessageContent: json['last_message_content'],
-      lastMessageSenderId: json['last_message_sender_id'],
       unreadCount: json['unread_count'] ?? 0,
       isActive: json['is_active'] ?? true,
     );
@@ -56,31 +53,30 @@ class ChatRoom {
       'job_title': jobTitle,
       'user_id': userId,
       'user_name': userName,
-      'senior_id': seniorId,
-      'senior_name': seniorName,
+      'seniors': seniors.map((s) => s.toJson()).toList(),
       'created_at': createdAt.toIso8601String(),
-      'last_message_at': lastMessageAt?.toIso8601String(),
-      'last_message_content': lastMessageContent,
-      'last_message_sender_id': lastMessageSenderId,
+      'last_message': lastMessage?.toJson(),
       'unread_count': unreadCount,
       'is_active': isActive,
     };
   }
 
+  // Helper getters
+  String? get lastMessageContent => lastMessage?.message;
+  DateTime? get lastMessageAt => lastMessage?.createdAt;
+  String? get lastMessageSenderId => lastMessage?.senderId;
+
   ChatRoom copyWith({
     String? id,
-    String? jobId,
+    int? jobId,
     String? jobTitle,
     String? userId,
     String? userName,
-    String? seniorId,
-    String? seniorName,
-    DateTime? createdAt,
-    DateTime? lastMessageAt,
-    String? lastMessageContent,
-    String? lastMessageSenderId,
-    int? unreadCount,
+    List<SeniorInfo>? seniors,
     bool? isActive,
+    DateTime? createdAt,
+    int? unreadCount,
+    ChatMessage? lastMessage,
   }) {
     return ChatRoom(
       id: id ?? this.id,
@@ -88,34 +84,40 @@ class ChatRoom {
       jobTitle: jobTitle ?? this.jobTitle,
       userId: userId ?? this.userId,
       userName: userName ?? this.userName,
-      seniorId: seniorId ?? this.seniorId,
-      seniorName: seniorName ?? this.seniorName,
-      createdAt: createdAt ?? this.createdAt,
-      lastMessageAt: lastMessageAt ?? this.lastMessageAt,
-      lastMessageContent: lastMessageContent ?? this.lastMessageContent,
-      lastMessageSenderId: lastMessageSenderId ?? this.lastMessageSenderId,
-      unreadCount: unreadCount ?? this.unreadCount,
+      seniors: seniors ?? this.seniors,
       isActive: isActive ?? this.isActive,
+      createdAt: createdAt ?? this.createdAt,
+      unreadCount: unreadCount ?? this.unreadCount,
+      lastMessage: lastMessage ?? this.lastMessage,
+    );
+  }
+}
+
+// Senior info structure as returned by the API
+class SeniorInfo {
+  final String id;
+  final String displayname;
+  final String? profileId;
+
+  SeniorInfo({
+    required this.id,
+    required this.displayname,
+    this.profileId,
+  });
+
+  factory SeniorInfo.fromJson(Map<String, dynamic> json) {
+    return SeniorInfo(
+      id: json['id']?.toString() ?? '',
+      displayname: json['displayname']?.toString() ?? '',
+      profileId: json['profile_id']?.toString(),
     );
   }
 
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is ChatRoom &&
-        other.id == id &&
-        other.jobId == jobId &&
-        other.userId == userId &&
-        other.seniorId == seniorId;
-  }
-
-  @override
-  int get hashCode {
-    return id.hashCode ^ jobId.hashCode ^ userId.hashCode ^ seniorId.hashCode;
-  }
-
-  @override
-  String toString() {
-    return 'ChatRoom(id: $id, jobId: $jobId, jobTitle: $jobTitle, userId: $userId, userName: $userName, seniorId: $seniorId, seniorName: $seniorName)';
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'displayname': displayname,
+      'profile_id': profileId,
+    };
   }
 }

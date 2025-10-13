@@ -5,6 +5,7 @@ import 'package:waiwan/screens/face_scan.dart';
 import 'package:waiwan/screens/main_screen.dart';
 import 'package:waiwan/services/auth_service.dart';
 import 'package:waiwan/utils/font_size_helper.dart';
+import 'package:waiwan/utils/helper.dart';
 
 class OtpScreen extends StatefulWidget {
   final String phoneNumber;
@@ -59,17 +60,6 @@ class _OtpScreenState extends State<OtpScreen> {
   Future<void> _submitOTP() async {
     final phone = widget.phoneNumber;
     final otp = _controllers.map((c) => c.text).join();
-    print('Submitted OTP: $otp');
-
-    // // TODO: validate OTP with backend
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder:
-    //         (context) => const PersonalInfoScreen(),
-    //   ),
-    // );
-
     try {
       final res = await AuthService.verifyOtp(phone, otp);
       if (!res['is_new']) {
@@ -85,6 +75,7 @@ class _OtpScreenState extends State<OtpScreen> {
       } else {
         localStorage.setItem('is_new', "${res['is_new']}");
         localStorage.setItem("auth_code", res['auth_code']);
+        localStorage.setItem('phone', phone);
 
         Navigator.push(
           context,
@@ -92,12 +83,8 @@ class _OtpScreenState extends State<OtpScreen> {
         );
       }
     } catch (e) {
-      print(e);
-      SnackBar snackBar = SnackBar(
-        content: Text('OTP ไม่ถูกต้อง หรือหมดอายุ'),
-        backgroundColor: Colors.red,
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      debugPrint(e.toString());
+      snackBarErrorMessage(context, e.toString());
     }
   }
 
@@ -141,7 +128,7 @@ class _OtpScreenState extends State<OtpScreen> {
                 Text(
                   'กรุณากรอกรหัส 4 หลักที่ส่งไปยังโทรศัพท์ของคุณ',
                   style: FontSizeHelper.createTextStyle(
-                    fontSize: 16, 
+                    fontSize: 16,
                     color: Colors.black54,
                   ),
                   textAlign: TextAlign.center,
@@ -196,10 +183,7 @@ class _OtpScreenState extends State<OtpScreen> {
                             LengthLimitingTextInputFormatter(1),
                             FilteringTextInputFormatter.digitsOnly,
                           ],
-                          style: TextStyle(
-                            fontSize: 24,
-                            color: Colors.black87,
-                          ),
+                          style: TextStyle(fontSize: 24, color: Colors.black87),
                           decoration: InputDecoration(
                             filled: true,
                             fillColor: Colors.white,

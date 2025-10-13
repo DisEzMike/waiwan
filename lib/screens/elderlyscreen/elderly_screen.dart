@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:waiwan/services/search_service.dart';
+import 'package:waiwan/utils/helper.dart';
 import '../../model/elderly_person.dart';
 import 'elderly_profile.dart';
 import '../../widgets/elderly_main/custom_search_bar.dart';
@@ -88,7 +89,8 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
           }
         });
       }
-      print('Error loading elderly persons: $e');
+      debugPrint('Error loading elderly persons: $e');
+      snackBarErrorMessage(context, e.toString());
     }
   }
 

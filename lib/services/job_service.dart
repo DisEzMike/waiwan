@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:waiwan/utils/config.dart';
+import 'package:waiwan/utils/helper.dart';
 
 class JobService {
   static const String baseUrl = '$API_URL/job';
@@ -17,11 +18,14 @@ class JobService {
 
   Future createJob(Map<String, dynamic> payload) async {
     final response = await http.post(
-      Uri.parse('$baseUrl'),
+      Uri.parse(baseUrl),
       headers: headers,
       body: jsonEncode(payload),
     );
-    return jsonDecode(response.body);
-    
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw errorHandler(response, 'createJob');
+    }
   }
 }

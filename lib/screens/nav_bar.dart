@@ -252,18 +252,20 @@ class _NavBarWrapperState extends State<NavBarWrapper> {
               widget.scaffoldBackgroundColor ??
               Theme.of(context).scaffoldBackgroundColor,
           appBar: _buildAppBar(context),
-          body: IndexedStack(
-            index: _currentIndex,
-            children: List.generate(widget.items.length, (index) {
-              final item = widget.items[index];
-
-              return KeyedSubtree(
-                key: PageStorageKey<String>(
-                  'nav-item-${item.destination.label}-$index',
-                ),
-                child: Builder(builder: item.builder),
-              );
-            }),
+          body: SafeArea(
+            child: IndexedStack(
+              index: _currentIndex,
+              children: List.generate(widget.items.length, (index) {
+                final item = widget.items[index];
+            
+                return KeyedSubtree(
+                  key: PageStorageKey<String>(
+                    'nav-item-${item.destination.label}-$index',
+                  ),
+                  child: Builder(builder: item.builder),
+                );
+              }),
+            ),
           ),
           bottomNavigationBar: AppNavigationBar(
             destinations: destinations,

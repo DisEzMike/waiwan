@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import '../../model/chat_message.dart';
 import '../../screens/elderlyscreen/payment_page.dart';
@@ -37,6 +35,7 @@ class ChatMessageBubble extends StatelessWidget {
   }
 
   Widget _buildTextMessage(BuildContext context) {
+    print(message.isMe);
     return Align(
       alignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(

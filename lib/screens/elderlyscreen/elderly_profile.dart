@@ -44,7 +44,7 @@ class _ElderlyProfilePageState extends State<ElderlyProfilePage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ChatScreen(person: widget.person, chatroomId: chatroomId),
+            builder: (context) => ChatScreen(chatroomId: chatroomId),
           ),
         );
       }

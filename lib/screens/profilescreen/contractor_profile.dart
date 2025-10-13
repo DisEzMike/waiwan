@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:waiwan/model/user.dart';
 import 'package:waiwan/services/user_service.dart';
 import 'package:waiwan/utils/font_size_helper.dart';
+import 'package:waiwan/utils/helper.dart';
 import 'edit_profile.dart';
 import '../../widgets/user_profile/profile_header.dart';
 import '../../widgets/user_profile/menu_items.dart';
@@ -15,7 +17,7 @@ class ContractorProfile extends StatefulWidget {
 }
 
 class _ContractorProfileState extends State<ContractorProfile> {
-  User? _user = null;
+  User? _user;
 
   @override
   void initState() {
@@ -24,13 +26,20 @@ class _ContractorProfileState extends State<ContractorProfile> {
   }
 
   void _loadProfile() async {
-    final res = await UserService().getProfile();
-    if (res != null && mounted) {
-      setState(() {
-        // Update user state with fetched profile data
-        _user = User.fromJson(res);
-        localStorage.setItem('userId', _user!.id);
-      });
+    try {
+      final res = await UserService().getProfile();
+      if (res != null && mounted) {
+        setState(() {
+          // Update user state with fetched profile data
+          _user = User.fromJson(res);
+          localStorage.setItem('userId', _user!.id);
+        });
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      if (mounted) {
+        snackBarErrorMessage(context, e.toString());
+      }
     }
   }
 
@@ -88,12 +97,16 @@ class _ContractorProfileState extends State<ContractorProfile> {
 
         // Show success message
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('ออกจากระบบเรียบร้อยแล้ว'),
-              backgroundColor: Colors.green,
-            ),
-          );
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('ออกจากระบบเรียบร้อยแล้ว'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            }
+          });
 
           // Navigate back to login/start screen and clear navigation stack
           Navigator.of(context).pushNamedAndRemoveUntil(
@@ -104,12 +117,16 @@ class _ContractorProfileState extends State<ContractorProfile> {
       } catch (e) {
         // Handle logout error
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('เกิดข้อผิดพลาด: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('เกิดข้อผิดพลาด: $e'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          });
         }
       }
     }
