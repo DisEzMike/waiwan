@@ -38,7 +38,7 @@ class _ContractorProfileState extends State<ContractorProfile> {
     } catch (e) {
       debugPrint(e.toString());
       if (mounted) {
-        snackBarErrorMessage(context, e.toString());
+        showErrorSnackBar(context, e.toString());
       }
     }
   }

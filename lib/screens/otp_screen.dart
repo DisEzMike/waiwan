@@ -84,7 +84,7 @@ class _OtpScreenState extends State<OtpScreen> {
       }
     } catch (e) {
       debugPrint(e.toString());
-      snackBarErrorMessage(context, e.toString());
+      showErrorSnackBar(context, e.toString());
     }
   }
 

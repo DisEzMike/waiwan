@@ -86,7 +86,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
         );
       } catch (e) {
         debugPrint(e.toString());
-        snackBarErrorMessage(context, e.toString());
+        showErrorSnackBar(context, e.toString());
       }
     }
   }
