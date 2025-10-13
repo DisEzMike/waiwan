@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:localstorage/localstorage.dart';
+import 'package:waiwan/screens/main_screen.dart';
+import 'package:waiwan/screens/profile_upload_screen.dart';
+import 'package:waiwan/services/auth_service.dart';
 // confirmation flow removed — keep this screen purely for editing/display
 import 'package:waiwan/utils/font_size_helper.dart';
 import 'package:waiwan/utils/helper.dart';
@@ -77,7 +81,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
         localStorage.removeItem('auth_code');
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (_) => const MyMainPage()),
+          MaterialPageRoute(builder: (_) => const ProfileUploadScreen()),
           (route) => false,
         );
       } catch (e) {
@@ -131,9 +135,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                   child: SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/profile-upload');
-                      },
+                      onPressed: () => _onSubmit(),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF6EB715),
                         foregroundColor: Colors.white,
