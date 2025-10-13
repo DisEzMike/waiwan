@@ -3,11 +3,13 @@ import 'package:waiwan/screens/chat_rooms_screen.dart';
 import 'elderlyscreen/elderly_screen.dart';
 import 'nav_bar.dart';
 import 'profilescreen/contractor_profile.dart';
-import 'notificationscreen/notification.dart';
+import 'jobs_screen.dart';
 // Make sure the class name in contractor_profile.dart matches 'ContractorProfilePage'
 
 class MyMainPage extends StatelessWidget {
-  const MyMainPage({super.key});
+  final int initialIndex;
+
+  const MyMainPage({super.key, this.initialIndex = 0});
 
   @override
   Widget build(BuildContext context) {
@@ -25,13 +27,15 @@ class MyMainPage extends StatelessWidget {
         ),
         AppNavItem(
           destination: destinations[2],
-          builder: (context) => const NotificationScreen(),
+          // Jobs tab: show JobsScreen (status + job list). Keeps same destination slot.
+          builder: (context) => const JobsScreen(),
         ),
         AppNavItem(
           destination: destinations[3],
           builder: (context) => ContractorProfile(),
         ),
       ],
+      initialIndex: initialIndex,
     );
   }
 }

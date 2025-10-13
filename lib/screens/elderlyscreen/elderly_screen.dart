@@ -8,6 +8,7 @@ import 'elderly_profile.dart';
 import '../../widgets/elderly_main/custom_search_bar.dart';
 import '../../widgets/elderly_main/points_buttons.dart';
 import '../../widgets/elderly_main/elderly_persons_grid.dart';
+import '../group_job_form.dart';
 
 class ElderlyScreen extends StatefulWidget {
   const ElderlyScreen({super.key});
@@ -144,6 +145,36 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
                   // TODO: Handle points tap
                 },
                 pointsText: '100 คะแนน',
+              ),
+              const SizedBox(height: 16),
+              // Group job button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const GroupJobFormPage(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0EA1F0),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'จ้างงานแบบกลุ่ม',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(height: 16),
               ElderlyPersonsGrid(

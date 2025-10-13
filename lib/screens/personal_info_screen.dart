@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:localstorage/localstorage.dart';
-import 'package:waiwan/screens/main_screen.dart';
-import 'package:waiwan/services/auth_service.dart';
+// confirmation flow removed — keep this screen purely for editing/display
 import 'package:waiwan/utils/font_size_helper.dart';
 import 'package:waiwan/utils/helper.dart';
 import 'package:waiwan/widgets/input_field.dart';
@@ -128,27 +126,28 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                 buildTextField('เบอร์โทร', _phoneController),
                 buildTextField('เพศ', _genderController),
                 const SizedBox(height: 8),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _onSubmit,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6EB715),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/profile-upload');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF6EB715),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      'ยืนยัน',
-                      style: FontSizeHelper.createTextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      child: const Text('ยืนยัน'),
                     ),
                   ),
                 ),
+                // Note: confirmation button intentionally removed —
+                // user may upload profile photo independently.
               ],
             ),
           ),
