@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
+import 'package:waiwan/model/user.dart';
 import 'package:waiwan/utils/config.dart';
 import 'package:waiwan/utils/helper.dart';
 import 'dart:io';
@@ -21,12 +22,12 @@ class UserService {
   };
 
   // get user profile
-  Future getProfile() async {
+  Future<User> getProfile() async {
     final response = await http
         .get(Uri.parse('$baseUrl/me'), headers: headers)
         .timeout(const Duration(seconds: 5));
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      return User.fromJson(jsonDecode(response.body));
     } else {
       if (response.statusCode == 404) {
         localStorage.clear();

@@ -53,6 +53,9 @@ class _ProfileUploadScreenState extends State<ProfileUploadScreen> {
         sourcePath: imageFile.path,
         compressQuality: 100,
         aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+        uiSettings: [
+          WebUiSettings(context: context)
+        ]
       );
       if (croppedImg == null) {
         return null;
