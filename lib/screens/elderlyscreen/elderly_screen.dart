@@ -90,7 +90,7 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
         });
       }
       debugPrint('Error loading elderly persons: $e');
-      snackBarErrorMessage(context, e.toString());
+      showErrorSnackBar(context, e.toString());
     }
   }
 

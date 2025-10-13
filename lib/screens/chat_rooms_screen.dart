@@ -37,7 +37,7 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
         setState(() {
           _error = e.toString();
         });
-        snackBarErrorMessage(context, e.toString());
+        showErrorSnackBar(context, e.toString());
       }
     } finally {
       if (mounted) {
@@ -247,7 +247,7 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
       );
     } catch (e) {
       debugPrint(e.toString());
-      snackBarErrorMessage(context, e.toString());
+      showErrorSnackBar(context, e.toString());
       return ListTile(title: Text('Error loading user: ${e.toString()}'));
     }
   }

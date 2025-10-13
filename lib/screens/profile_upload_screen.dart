@@ -1,8 +1,13 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-import '../utils/image_size_helper.dart';
+import 'package:waiwan/screens/main_screen.dart';
+import 'package:waiwan/services/user_service.dart';
+import 'package:waiwan/utils/helper.dart';
+import 'package:waiwan/utils/image_size_helper.dart';
 
 class ProfileUploadScreen extends StatefulWidget {
   const ProfileUploadScreen({Key? key}) : super(key: key);
@@ -14,17 +19,20 @@ class ProfileUploadScreen extends StatefulWidget {
 class _ProfileUploadScreenState extends State<ProfileUploadScreen> {
   final ImagePicker _picker = ImagePicker();
   XFile? _pickedImage;
+  File? _cropedImage;
   Uint8List? _pickedBytes;
-  bool _isUploading = false;
+  final bool _isUploading = false;
 
   Future<void> _pickFromGallery() async {
     try {
       final XFile? photo = await _picker.pickImage(source: ImageSource.gallery);
-      if (photo != null) {
-        final bytes = await photo.readAsBytes();
+      final croppedFile = await _cropImage(imageFile: File(photo!.path));
+      if (croppedFile != null) {
+        final bytes = await croppedFile.readAsBytes();
         setState(() {
           _pickedImage = photo;
           _pickedBytes = bytes;
+          _cropedImage = croppedFile;
         });
       }
     } catch (e) {
@@ -37,18 +45,47 @@ class _ProfileUploadScreenState extends State<ProfileUploadScreen> {
     }
   }
 
+  Future<File?> _cropImage({required File imageFile}) async {
+    try {
+      CroppedFile? croppedImg = await ImageCropper().cropImage(
+        maxWidth: 512,
+        maxHeight: 512,
+        sourcePath: imageFile.path,
+        compressQuality: 100,
+        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+      );
+      if (croppedImg == null) {
+        return null;
+      } else {
+        return File(croppedImg.path);
+      }
+    } catch (e) {
+      print(e);
+    }
+    return null;
+  }
+
   Future<void> _onConfirm() async {
-    if (_pickedImage == null) {
+    if (_cropedImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('กรุณาเลือกรูปก่อนกดยืนยัน')),
       );
       return;
     }
-    // Skip upload and return to home so user can continue working.
+
+    final File file = File(_cropedImage!.path);
+    UserService().uploadProfileImage(file).catchError((e) {
+      if (mounted) {
+        showErrorSnackBar(context, 'อัพโหลดรูปไม่สำเร็จ');
+      }
+      debugPrint('Context is not mounted. Cannot show error SnackBar.');
+    });
+
     if (mounted) {
-      Navigator.of(
-        context,
-      ).pushReplacementNamed('/main', arguments: {'initialIndex': 0});
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => MyMainPage()),
+        (route) => false,
+      );
     }
   }
 
