@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
+import 'package:waiwan/model/user.dart';
 import 'package:waiwan/utils/config.dart';
 import 'package:waiwan/utils/helper.dart';
 import 'dart:io';
-import 'dart:typed_data';
+import 'package:http_parser/http_parser.dart'; // 
 
 class UserService {
   // Use your computer's IP address when running the FastAPI server
@@ -21,12 +22,12 @@ class UserService {
   };
 
   // get user profile
-  Future getProfile() async {
+  Future<User> getProfile() async {
     final response = await http
         .get(Uri.parse('$baseUrl/me'), headers: headers)
         .timeout(const Duration(seconds: 5));
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      return User.fromJson(jsonDecode(response.body));
     } else {
       if (response.statusCode == 404) {
         localStorage.clear();
@@ -70,33 +71,52 @@ class UserService {
     }
   }
 
-  // Upload avatar from bytes (useful for web where file path is not available)
-  Future uploadAvatarBytes(Uint8List bytes, String filename) async {
-    try {
-      final uri = Uri.parse('$baseUrl/me/avatar');
-      final request = http.MultipartRequest('POST', uri)
-        ..headers.addAll({'Authorization': 'Bearer $accessToken'});
+  Future uploadProfileImage(File imageFile) async {
+    final request = http.MultipartRequest(
+      'POST',
+      Uri.parse('$API_URL/files/upload?is_profile_image=true'),
+    );
+    request.headers.addAll({'Authorization': 'Bearer $accessToken'});
 
-      final multipartFile = http.MultipartFile.fromBytes(
-        'avatar',
-        bytes,
-        filename: filename,
-        // contentType: MediaType('image', 'jpeg'), // optional
-      );
-      request.files.add(multipartFile);
+    // Get the file extension to determine MIME type
+    String fileName = imageFile.path.split('/').last;
+    String? mimeType;
 
-      final streamed = await request.send().timeout(
-        const Duration(seconds: 20),
+    if (fileName.toLowerCase().endsWith('.jpg') ||
+        fileName.toLowerCase().endsWith('.jpeg')) {
+      mimeType = 'image/jpeg';
+    } else if (fileName.toLowerCase().endsWith('.png')) {
+      mimeType = 'image/png';
+    } else if (fileName.toLowerCase().endsWith('.gif')) {
+      mimeType = 'image/gif';
+    } else if (fileName.toLowerCase().endsWith('.webp')) {
+      mimeType = 'image/webp';
+    }
+
+    // Add the file with proper MIME type
+    if (mimeType != null) {
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'file',
+          await imageFile.readAsBytes(),
+          filename: fileName,
+          contentType: MediaType.parse(mimeType),
+        ),
       );
-      final response = await http.Response.fromStream(streamed);
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        throw Exception('Server error: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error uploading avatar bytes: $e');
-      throw Exception('ไม่สามารถอัปโหลดรูปได้: $e');
+    } else {
+      // Fallback to original method if MIME type can't be determined
+      request.files.add(
+        await http.MultipartFile.fromPath('file', imageFile.path),
+      );
+    }
+
+    final response = await request.send().timeout(const Duration(seconds: 10));
+    if (response.statusCode == 200) {
+      final respStr = await response.stream.bytesToString();
+      return jsonDecode(respStr);
+    } else {
+      final errorBody = await response.stream.bytesToString();
+      throw streamErrorHandler(response, errorBody, 'uploadProfileImage');
     }
   }
 }

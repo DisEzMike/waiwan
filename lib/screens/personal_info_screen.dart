@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:waiwan/screens/main_screen.dart';
 import 'package:waiwan/screens/profile_upload_screen.dart';
 import 'package:waiwan/services/auth_service.dart';
 // confirmation flow removed — keep this screen purely for editing/display
@@ -86,7 +85,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
         );
       } catch (e) {
         debugPrint(e.toString());
-        snackBarErrorMessage(context, e.toString());
+        showErrorSnackBar(context, e.toString());
       }
     }
   }

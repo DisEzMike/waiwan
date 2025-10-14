@@ -42,10 +42,10 @@ class EditProfileImage extends StatelessWidget {
                 ),
               ],
             ),
-            child: ClipOval(
-              child: Image.network(
-                imageAsset,
-                fit: BoxFit.cover,
+            child: InkWell(
+              onTap: onEditPressed,
+              child: ClipOval(
+                child: Image.network(imageAsset, fit: BoxFit.cover),
               ),
             ),
           ),
@@ -65,11 +65,7 @@ class EditProfileImage extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 4),
-                  Icon(
-                    Icons.edit,
-                    color: Colors.grey,
-                    size: 18,
-                  ),
+                  Icon(Icons.edit, color: Colors.grey, size: 18),
                 ],
               ),
             ),
