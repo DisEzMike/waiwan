@@ -99,7 +99,9 @@ class _JobsScreenState extends State<JobsScreen> {
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 16),
+          // add extra bottom padding so cards are taller and won't overflow
+          // when a floating green button or other overlay is present
+          padding: const EdgeInsets.fromLTRB(14.0, 12.0, 14.0, 44.0),
           child: Row(
             children: [
               Container(
