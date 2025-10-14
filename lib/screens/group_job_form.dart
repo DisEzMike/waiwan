@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'group_search_results.dart';
-import '../model/group_job.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:localstorage/localstorage.dart';
+import 'package:waiwan/services/job_service.dart';
+import 'package:waiwan/utils/helper.dart';
+import 'map_picker_screen.dart';
 // Pin button intentionally left as a no-op (visible but does nothing)
 
 class GroupJobFormPage extends StatefulWidget {
@@ -22,6 +25,12 @@ class _GroupJobFormPageState extends State<GroupJobFormPage> {
   final TextEditingController _maxSeniorsController = TextEditingController();
   final TextEditingController _pricePerPersonController =
       TextEditingController();
+  final TextEditingController _noteController = TextEditingController();
+  final String userId = localStorage.getItem("userId") ?? "";
+
+  // Location data
+  LatLng? _selectedLocation;
+  String _selectedAddress = '';
 
   @override
   void dispose() {
@@ -33,45 +42,110 @@ class _GroupJobFormPageState extends State<GroupJobFormPage> {
     _locationController.dispose();
     _maxSeniorsController.dispose();
     _pricePerPersonController.dispose();
+    _noteController.dispose();
     super.dispose();
   }
 
-  void _onSubmit() {
+  void _onSubmit() async {
     if (_formKey.currentState?.validate() ?? false) {
-      // We keep the raw date text in the controller; no local parsing required here.
+      try {
+        // Validate date range format
+        if (!_dateController.text.contains(' - ')) {
+          showErrorSnackBar(context, 'กรุณาเลือกช่วงวันที่ให้ถูกต้อง');
+          return;
+        }
 
-      // We intentionally do not send payload here. Navigation to
-      // GroupSearchResultsPage will let the user choose seniors first.
+        final dateParts = _dateController.text.split(' - ');
+        if (dateParts.length != 2) {
+          showErrorSnackBar(context, 'รูปแบบวันที่ไม่ถูกต้อง');
+          return;
+        }
 
-      // Per requirement: push the GroupSearchResultsPage so users can select seniors.
-      final query =
-          (_titleController.text.trim().isNotEmpty)
-              ? _titleController.text.trim()
-              : _descriptionController.text.trim();
+        // Parse and validate datetime
+        final startDateTime = DateTime.parse(
+          '${dateParts[0]} ${_timeFromController.text}:00',
+        );
+        final endDateTime = DateTime.parse(
+          '${dateParts[1]} ${_timeToController.text}:00',
+        );
 
-      final job = GroupJobDetails(
-        title: _titleController.text.trim(),
-        description: _descriptionController.text.trim(),
-        dateRange: _dateController.text.trim(),
-        timeFrom: _timeFromController.text.trim(),
-        timeTo: _timeToController.text.trim(),
-        location: _locationController.text.trim(),
-        maxSeniors: int.tryParse(_maxSeniorsController.text) ?? 0,
-        pricePerPerson: int.tryParse(_pricePerPersonController.text) ?? 0,
-      );
+        // Validate that end time is after start time
+        if (endDateTime.isBefore(startDateTime)) {
+          showErrorSnackBar(context, 'เวลาสิ้นสุดต้องมาหลังเวลาเริ่มต้น');
+          return;
+        }
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => GroupSearchResultsPage(query: query, job: job),
-        ),
-      );
-    }
-    else {
+        final jobPayLoad = {
+          "title": _titleController.text.trim(),
+          "description": _descriptionController.text.trim(),
+          "price": int.parse(_pricePerPersonController.text.trim()),
+          "work_type": "group",
+          "vehicle": false,
+          "max_seniors": int.parse(_maxSeniorsController.text.trim()),
+          "started_at": startDateTime.toIso8601String(),
+          "ended_at": endDateTime.toIso8601String(),
+          "location": {
+            "address":
+                _selectedAddress.isNotEmpty
+                    ? _selectedAddress
+                    : _locationController.text.trim(),
+            "lat": _selectedLocation?.latitude,
+            "lng": _selectedLocation?.longitude,
+            "note": _noteController.text.trim(),
+          },
+        };
+
+
+        final res = await JobService().createJob(jobPayLoad);
+      } catch (e) {
+        print('Error creating job: $e');
+        if (mounted) {
+          String errorMessage = 'เกิดข้อผิดพลาดในการสร้างงาน';
+
+          // Try to extract meaningful error message
+          if (e.toString().contains('FormatException')) {
+            errorMessage =
+                'เกิดข้อผิดพลาดในการประมวลผลข้อมูล กรุณาลองใหม่อีกครั้ง';
+          } else if (e.toString().contains('TimeoutException')) {
+            errorMessage =
+                'การเชื่อมต่อหมดเวลา กรุณาตรวจสอบอินเทอร์เน็ตและลองใหม่';
+          } else if (e.toString().contains('SocketException')) {
+            errorMessage =
+                'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาตรวจสอบการเชื่อมต่อ';
+          } else if (e.toString().contains('DateTime')) {
+            errorMessage =
+                'รูปแบบวันที่หรือเวลาไม่ถูกต้อง กรุณาตรวจสอบและลองใหม่';
+          }
+
+          showErrorSnackBar(context, errorMessage);
+        }
+      }
+    } else {
       // Show a helpful message when validation fails
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('กรุณากรอกข้อมูลให้ครบถ้วน')),
       );
+    }
+  }
+
+  Future<void> _openMapPicker() async {
+    final result = await Navigator.push<Map<String, dynamic>>(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) => MapPickerScreen(
+              initialLocation: _selectedLocation,
+              initialAddress: _selectedAddress,
+            ),
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedLocation = result['location'] as LatLng?;
+        _selectedAddress = result['address'] as String? ?? '';
+        _locationController.text = _selectedAddress;
+      });
     }
   }
 
@@ -169,10 +243,11 @@ class _GroupJobFormPageState extends State<GroupJobFormPage> {
                                       if (picked != null) {
                                         setState2(() {
                                           start = picked;
-                                          if (end.isBefore(start))
+                                          if (end.isBefore(start)) {
                                             end = start.add(
                                               const Duration(days: 1),
                                             );
+                                          }
                                         });
                                       }
                                     },
@@ -190,10 +265,11 @@ class _GroupJobFormPageState extends State<GroupJobFormPage> {
                                       if (picked != null) {
                                         setState2(() {
                                           end = picked;
-                                          if (end.isBefore(start))
+                                          if (end.isBefore(start)) {
                                             start = end.subtract(
                                               const Duration(days: 1),
                                             );
+                                          }
                                         });
                                       }
                                     },
@@ -310,9 +386,13 @@ class _GroupJobFormPageState extends State<GroupJobFormPage> {
                 const Text('สถานที่'),
                 const SizedBox(height: 8),
                 FormField<String>(
-                  initialValue: _locationController.text,
+                  initialValue:
+                      _selectedAddress.isNotEmpty
+                          ? _selectedAddress
+                          : _locationController.text,
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty) {
+                    if (_selectedAddress.isEmpty &&
+                        (v == null || v.trim().isEmpty)) {
                       return 'กรุณาระบุสถานที่';
                     }
                     return null;
@@ -321,52 +401,81 @@ class _GroupJobFormPageState extends State<GroupJobFormPage> {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Show selected address if available
+                        if (_selectedAddress.isNotEmpty)
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(12),
+                            margin: const EdgeInsets.only(bottom: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.green[50],
+                              border: Border.all(color: Colors.green),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.location_on,
+                                  color: Colors.green,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    _selectedAddress,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.green,
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      _selectedAddress = '';
+                                      _selectedLocation = null;
+                                      _locationController.clear();
+                                    });
+                                  },
+                                  icon: const Icon(
+                                    Icons.close,
+                                    color: Colors.red,
+                                    size: 18,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        // Map picker button
                         SizedBox(
                           width: double.infinity,
                           child: OutlinedButton.icon(
-                            onPressed: () async {
-                              final controller =
-                                  TextEditingController(text: _locationController.text);
-                              final result = await showDialog<bool?>(
-                                context: context,
-                                builder: (ctx) {
-                                  return AlertDialog(
-                                    title: const Text('สถานที่'),
-                                    content: TextField(
-                                      controller: controller,
-                                      decoration: const InputDecoration(
-                                        hintText: 'ระบุสถานที่',
-                                      ),
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.of(ctx).pop(false),
-                                        child: const Text('ยกเลิก'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () => Navigator.of(ctx).pop(true),
-                                        child: const Text('ตกลง'),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-
-                              if (result == true) {
-                                setState(() {
-                                  _locationController.text = controller.text.trim();
-                                });
-                                state.didChange(controller.text.trim());
-                              }
-                            },
+                            onPressed: _openMapPicker,
                             icon: const Icon(Icons.location_on_outlined),
                             label: Text(
-                              _locationController.text.isEmpty
-                                  ? 'ปักหมุดสถานที่'
-                                  : _locationController.text,
+                              _selectedAddress.isNotEmpty
+                                  ? 'เปลี่ยนสถานที่'
+                                  : 'ปักหมุดสถานที่',
                             ),
                           ),
                         ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'ที่อยู่ (เพิ่มเติม)',
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                        const SizedBox(height: 4),
+                        TextFormField(
+                          controller: _noteController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText:
+                                'เพิ่มเติม เช่น ใกล้ MRT, หมายเลขห้อง, ชั้น ฯลฯ',
+                            filled: true,
+                            fillColor: Colors.white,
+                          ),
+                        ),
+                        // Manual text input (optional)
                         if (state.hasError)
                           Padding(
                             padding: const EdgeInsets.only(top: 8.0, left: 4.0),
@@ -452,7 +561,7 @@ class _GroupJobFormPageState extends State<GroupJobFormPage> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                     onPressed: _onSubmit,
-                    child: const Text('ค้นหา'),
+                    child: const Text('สร้างงาน'),
                   ),
                 ),
               ],

@@ -83,17 +83,34 @@ class JobService {
 
   // Create job
   Future createJob(Map<String, dynamic> jobData) async {
-    final response = await http
-        .post(
-          Uri.parse('$baseUrl/'),
-          headers: headers,
-          body: jsonEncode(jobData),
-        )
-        .timeout(const Duration(seconds: 5));
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw errorHandler(response, 'createJob');
+    try {
+      final response = await http
+          .post(
+            Uri.parse(baseUrl),
+            headers: headers,
+            body: jsonEncode(jobData),
+          )
+          .timeout(const Duration(seconds: 10)); // Increased timeout
+      
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // Check if response body is empty
+        if (response.body.isEmpty) {
+          return {'message': 'Job created successfully', 'success': true};
+        }
+        
+        try {
+          return jsonDecode(response.body);
+        } catch (e) {
+          // If JSON parsing fails but status is success, return success message
+          return {'message': 'Job created successfully', 'success': true, 'raw_response': response.body};
+        }
+      } else {
+        print('HTTP error: ${response.statusCode} - ${response.body}');
+        throw errorHandler(response, 'createJob');
+      }
+    } catch (e) {
+      print('Create job error: $e');
+      rethrow;
     }
   }
 
