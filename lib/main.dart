@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:provider/provider.dart';
 import 'package:waiwan/providers/font_size_provider.dart';
@@ -12,7 +13,7 @@ import 'package:waiwan/utils/colors.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initLocalStorage();
-
+  await initializeDateFormatting('th', null);
   runApp(
     MultiProvider(
       providers: [

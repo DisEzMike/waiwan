@@ -15,7 +15,6 @@ class JobDialog extends StatefulWidget {
 }
 
 class _JobDialogState extends State<JobDialog> {
-  final String _token = localStorage.getItem('token') ?? '';
   final TextEditingController _jobController = TextEditingController();
   final TextEditingController _detailsController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
@@ -51,11 +50,12 @@ class _JobDialogState extends State<JobDialog> {
       "vehicle": true,
     };
 
-    final jobService = JobService(accessToken: _token);
+    final jobService = JobService();
     try {
       final response = await jobService.createJob(payload);
       final chatroomId = response['chatroom_id'];
-      Navigator.pop(context, chatroomId); // Close dialog and return response
+      final jobId = response['id'];
+      Navigator.pop(context, {chatroomId, jobId}); // Close dialog and return response
     } catch (e) {
       // Handle error (e.g., show a snackbar)
       print('Error submitting job: $e');

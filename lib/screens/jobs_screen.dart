@@ -1,213 +1,541 @@
 import 'package:flutter/material.dart';
-import 'job_detail.dart';
+import 'package:provider/provider.dart';
+import 'package:waiwan/model/job.dart';
+import 'package:waiwan/providers/font_size_provider.dart';
+import 'package:waiwan/screens/job_detail.dart';
+import 'package:waiwan/services/job_service.dart';
+import 'package:waiwan/utils/format_time.dart';
+import 'package:waiwan/utils/helper.dart';
 
-class JobsScreen extends StatefulWidget {
-  const JobsScreen({super.key});
+class JobScreen extends StatefulWidget {
+  const JobScreen({super.key});
 
   @override
-  State<JobsScreen> createState() => _JobsScreenState();
+  State<JobScreen> createState() => _JobScreenState();
 }
 
-class _JobsScreenState extends State<JobsScreen> {
-  final List<String> _tabs = [
-    'เสนอ / รอยืนยัน',
-    'รอชำระ',
-    'ชำระแล้ว / กำลังดำเนินการ',
-    'เสร็จสิ้น',
-    'ยกเลิก',
-  ];
+class _JobScreenState extends State<JobScreen> {
+  int _selectedIndex = 0;
+  // 0 = คำขอจ้างงาน, 1 = กำลังดำเนินงาน, 2 = ประวัติการจ้าง, 3 = ยกเลิก/ปฏิเสธ
 
-  int _selectedTab = 0;
+  final _jobs_completed = <MyJob>[];
+  final _jobs_pending = <MyJob>[];
+  final _jobs_accepted = <MyJob>[];
+  final _jobs_ongoing = <MyJob>[];
+  final _jobs_delined = <MyJob>[];
+  final _jobs_cancelled = <MyJob>[];
 
-  Widget _buildStatusTabs() {
-    return SizedBox(
-      height: 64,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        itemCount: _tabs.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
-        itemBuilder: (context, index) {
-          final selected = index == _selectedTab;
-          return GestureDetector(
-            onTap: () => setState(() => _selectedTab = index),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-              decoration: BoxDecoration(
-                color: selected ? const Color(0xFF6EB715) : const Color(0xFFF0F0F0),
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(
-                  color: selected ? Colors.transparent : const Color(0xFFE9E9E9),
-                  width: 1.0,
-                ),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                _tabs[index],
-                style: TextStyle(
-                  color: selected ? Colors.white : Colors.grey[700],
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          );
-        },
+  @override
+  void initState() {
+    super.initState();
+    _loadJobs();
+  }
+
+  @override
+  void didUpdateWidget(covariant JobScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _loadJobs();
+  }
+
+  void _loadJobs() {
+    JobService()
+        .getMyJobs()
+        .then((jobs) {
+          final pendingJobs = <MyJob>[];
+          final acceptedJobs = <MyJob>[];
+          final ongoingJobs = <MyJob>[];
+          final declinedJobs = <MyJob>[];
+          final cancelledJobs = <MyJob>[];
+          final completedJobs = <MyJob>[];
+          debugPrint('Jobs loaded: ${jobs.length}');
+          for (var job in jobs) {
+            if (job.status == 'proposed') {
+              pendingJobs.add(job);
+            } else if (job.status == 'accepted' ||
+                job.status == 'payment_pending') {
+              acceptedJobs.add(job);
+            } else if (job.status == 'in_progress') {
+              ongoingJobs.add(job);
+            } else if (job.status == 'completed') {
+              completedJobs.add(job);
+            } else if (job.status == 'cancelled') {
+              cancelledJobs.add(job);
+            }
+
+            setState(() {
+              _jobs_completed.clear();
+              _jobs_completed.addAll(completedJobs);
+              _jobs_accepted.clear();
+              _jobs_accepted.addAll(acceptedJobs);
+              _jobs_pending.clear();
+              _jobs_pending.addAll(pendingJobs);
+              _jobs_delined.clear();
+              _jobs_delined.addAll(declinedJobs);
+              _jobs_cancelled.clear();
+              _jobs_cancelled.addAll(cancelledJobs);
+              _jobs_ongoing.clear();
+              _jobs_ongoing.addAll(ongoingJobs);
+            });
+          }
+        })
+        .catchError((e) {
+          debugPrint('eee : ${e.toString()}');
+          showErrorSnackBar(context, e.toString());
+        });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<FontSizeProvider>(
+      builder: (context, fontProvider, child) {
+        return Column(
+          children: [
+            // ปุ่มแท็บใต้ Top App Bar
+            _buildTabButtons(fontProvider),
+            // เนื้อหาตามแท็บที่เลือก
+            Expanded(child: _buildTabContent(fontProvider)),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildTabButtons(FontSizeProvider fontProvider) {
+    final tabs = [
+      'เสนอ / รอยืนยัน',
+      'ยืนยันแล้ว / รอชำระ',
+      'กำลังดำเนินการ',
+      'เสร็จสิ้น',
+      'ยกเลิก',
+    ];
+
+    return Container(
+      margin: const EdgeInsets.all(16),
+      height: fontProvider.getScaledFontSize(50), // Make height responsive
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal, // เลื่อนแนวนอน
+        child: Row(
+          children:
+              tabs.asMap().entries.map((entry) {
+                int index = entry.key;
+                String title = entry.value;
+                return Padding(
+                  padding: EdgeInsets.only(
+                    right:
+                        index < tabs.length - 1
+                            ? 8.0
+                            : 0, // เว้นระยะระหว่างปุ่ม
+                  ),
+                  child: _buildTabButton(index, title, fontProvider),
+                );
+              }).toList(),
+        ),
       ),
     );
   }
 
-  Widget _buildJobCard([Map<String, dynamic>? job]) {
-    final j =
-        job ??
-        {
-          'title': 'จัดสถานที่',
-          'date': '20/02/2568',
-          'time': '09:00 - 14:00',
-          'price_per_person': '400',
-          'total': '800',
-          'location': '88/1 แขวงลาดกระบัง ...',
-          'description': 'รายละเอียดงาน',
-        };
+  Widget _buildTabButton(
+    int index,
+    String title,
+    FontSizeProvider fontProvider,
+  ) {
+    final isSelected = _selectedIndex == index;
 
     return GestureDetector(
-      onTap: () {
-        Navigator.of(
-          context,
-        ).push(MaterialPageRoute(builder: (c) => JobDetailScreen(job: j)));
-      },
+      onTap: () => setState(() => _selectedIndex = index),
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          // use a white border so it stays crisp and doesn't blend with the glow
-          border: Border.all(color: Colors.white, width: 1),
-          boxShadow: [
-            // reduced green glow so it doesn't blur the border edge
-            BoxShadow(
-              color: const Color(0xFF6EB715).withOpacity(0.06),
-              blurRadius: 18,
-              spreadRadius: 3,
-              offset: const Offset(0, 2),
-            ),
-            // subtle dark drop shadow for depth
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
-            ),
-          ],
+        padding: EdgeInsets.symmetric(
+          vertical: fontProvider.getScaledFontSize(12),
+          horizontal: fontProvider.getScaledFontSize(20),
         ),
-        child: Padding(
-          // add extra bottom padding so cards are taller and won't overflow
-          // when a floating green button or other overlay is present
-          padding: const EdgeInsets.fromLTRB(14.0, 12.0, 14.0, 44.0),
-          child: Row(
-            children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF6EB715),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(Icons.work, color: Colors.white, size: 28),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${j['date'] ?? ''}, ${j['time'] ?? ''}',
-                      style: TextStyle(
-                        color: Colors.grey[500],
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                j['title'] ?? '',
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                    color: const Color.fromARGB(255, 142, 142, 142)),
-                              ),
-                              const SizedBox(height: 6),
-                              RichText(
-                                text: TextSpan(
-                                  style: DefaultTextStyle.of(context).style,
-                                  children: [
-                                    TextSpan(
-                                      text: 'ผู้จ้าง ',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          color:  const Color.fromARGB(255, 142, 142, 142)),
-                                    ),
-                                    TextSpan(
-                                      text: j['employer'] ?? 'น้องกาย',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w800,
-                                          color: const Color.fromARGB(255, 0, 0, 0)),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              '${j['price_per_person'] ?? ''}.00 บาท',
-                              style: TextStyle(
-                                color: const Color.fromRGBO(46, 125, 50, 1),
-                                fontWeight: FontWeight.w800,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
+        decoration: BoxDecoration(
+          color:
+              isSelected
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.grey[200],
+          borderRadius: BorderRadius.circular(25),
+          border: Border.all(
+            color:
+                isSelected
+                    ? Theme.of(context).colorScheme.primary
+                    : Colors.grey[300]!,
+            width: 1,
+          ),
+        ),
+        child: Text(
+          title,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: fontProvider.getScaledFontSize(14),
+            fontWeight: FontWeight.w600,
+            color: isSelected ? Colors.white : Colors.grey[600],
           ),
         ),
       ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF6FCEB),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Title area handled by NavBarWrapper AppBar
-            _buildStatusTabs(),
-            Expanded(
-              child: ListView.builder(
-                itemCount: 6,
-                itemBuilder: (context, index) => _buildJobCard(),
+  Widget _buildTabContent(FontSizeProvider fontProvider) {
+    switch (_selectedIndex) {
+      case 0:
+        return _buildJobRequestsContent(fontProvider);
+      case 1:
+        return _buildAcceptedJobsContent();
+      case 2:
+        return _buildOngoingJobsContent();
+      case 3:
+        return _buildJobHistoryContent();
+      case 4:
+        return _buildCancelledJobsContent();
+      default:
+        return _buildJobRequestsContent(fontProvider);
+    }
+  }
+
+  Widget _buildJobCard(MyJob job, IconData icon) {
+    return Consumer<FontSizeProvider>(
+      builder: (context, fontProvider, child) {
+        return GestureDetector(
+          onTap: () async {
+            debugPrint('Card tapped: ${job.id}'); // Debug print
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => JobDetailScreen(jobId: job.id),
+              ),
+            );
+
+            // ถ้ากดปุ่ม "ไม่สนใจ" จะได้ result = 3
+            if (result == 3) {
+              setState(() {
+                _selectedIndex = 3; // เปลี่ยนไปที่ tab ยกเลิก/ปฏิเสธ
+              });
+            }
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 5,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  // ไอคอนกระเป๋าสีเขียว
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(icon, color: Colors.white, size: 32),
+                  ),
+                  const SizedBox(width: 16),
+                  // ข้อมูลงาน
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // วันที่และเวลา
+                        Text(
+                          start2EndDateTime(job.startedAt, job.endedAt),
+                          style: TextStyle(
+                            fontSize: fontProvider.getScaledFontSize(14),
+                            color: Colors.grey[500],
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          job.title,
+                          style: TextStyle(
+                            fontSize: fontProvider.getScaledFontSize(14),
+                            color: Colors.grey[500],
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 8),
+                        // การยืนยัน
+                        Row(
+                          children: [
+                            Flexible(
+                              flex: 2,
+                              child: Text(
+                                'ยืนยันแล้ว',
+                                style: TextStyle(
+                                  fontSize: fontProvider.getScaledFontSize(14),
+                                  color: Colors.grey[500],
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              flex: 3,
+                              child: Text(
+                                "${job.AcceptedSeniorsCount} / ${job.maxSeniors} คน",
+                                style: TextStyle(
+                                  fontSize: fontProvider.getScaledFontSize(14),
+                                  color: Colors.grey[500],
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.end,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(width: 8),
+                        // ราคาต่อคน
+                        Row(
+                          children: [
+                            Flexible(
+                              flex: 2,
+                              child: Text(
+                                'ค่าจ้าง',
+                                style: TextStyle(
+                                  fontSize: fontProvider.getScaledFontSize(14),
+                                  color: Colors.grey[500],
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              flex: 3,
+                              child: Text(
+                                "฿${job.price} / คน",
+                                style: TextStyle(
+                                  fontSize: fontProvider.getScaledFontSize(14),
+                                  color: Colors.grey[500],
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.end,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(width: 8),
+                        // ค่าจ้าง
+                        if (job.AcceptedSeniorsCount > 0) ...[
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  'รวม ฿${(job.price * job.AcceptedSeniorsCount).toStringAsFixed(2)}',
+                                  style: TextStyle(
+                                    fontSize: fontProvider.getScaledFontSize(
+                                      16,
+                                    ),
+                                    fontWeight: FontWeight.w700,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.end,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ]
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildJobRequestsContent(FontSizeProvider fontProvider) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child:
+          _jobs_pending.isNotEmpty
+              ? Column(
+                children: [
+                  Column(
+                    children:
+                        _jobs_pending.map((job) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: _buildJobCard(job, Icons.mail),
+                          );
+                        }).toList(),
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              )
+              : _buildNodataContent(
+                Icons.mail_outline,
+                'ไม่มีคำขอจ้างงาน',
+                'คุณยังไม่มีคำขอจ้างงานในขณะนี้',
+              ),
+    );
+  }
+
+  Widget _buildAcceptedJobsContent() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child:
+          _jobs_accepted.isNotEmpty
+              ? Column(
+                children:
+                    _jobs_accepted.map((job) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16.0),
+                        child: _buildJobCard(
+                          job,
+                          Icons.access_time_filled_outlined,
+                        ),
+                      );
+                    }).toList(),
+              )
+              : _buildNodataContent(
+                Icons.access_time,
+                'ไม่มีงานที่รอเริ่ม',
+                'คุณยังไม่มีงานที่รอเริ่มในขณะนี้',
+              ),
+    );
+  }
+
+  Widget _buildOngoingJobsContent() {
+    return Consumer<FontSizeProvider>(
+      builder: (context, fontProvider, child) {
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child:
+              _jobs_ongoing.isNotEmpty
+                  ? Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Column(
+                      children:
+                          _jobs_ongoing.map((job) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 16.0),
+                              child: _buildJobCard(job, Icons.work),
+                            );
+                          }).toList(),
+                    ),
+                  )
+                  : _buildNodataContent(
+                    Icons.work,
+                    'ไม่มีงานที่กำลังดำเนินการ',
+                    'คุณยังไม่มีงานที่กำลังดำเนินการในขณะนี้',
+                  ),
+        );
+      },
+    );
+  }
+
+  Widget _buildJobHistoryContent() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child:
+          _jobs_completed.isNotEmpty
+              ? Column(
+                children: [
+                  Column(
+                    children:
+                        _jobs_completed.map((job) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: _buildJobCard(job, Icons.history),
+                          );
+                        }).toList(),
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              )
+              : _buildNodataContent(
+                Icons.history,
+                'ไม่มีประวัติการจ้างงาน',
+                'คุณยังไม่มีประวัติการจ้างงานในขณะนี้',
+              ),
+    );
+  }
+
+  Widget _buildCancelledJobsContent() {
+    return Consumer<FontSizeProvider>(
+      builder: (context, fontProvider, child) {
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child:
+              _jobs_cancelled.isNotEmpty
+                  ? Column(
+                    children:
+                        _jobs_cancelled.map((job) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: _buildJobCard(job, Icons.cancel),
+                          );
+                        }).toList(),
+                  )
+                  : _buildNodataContent(
+                    Icons.cancel_outlined,
+                    'ไม่มีงานที่ยกเลิก',
+                    'คุณยังไม่มีงานที่ยกเลิกในขณะนี้',
+                  ),
+        );
+      },
+    );
+  }
+
+  Widget _buildNodataContent(IconData icon, String title, String description) {
+    return Consumer<FontSizeProvider>(
+      builder: (context, fontProvider, child) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: fontProvider.getScaledFontSize(64),
+                color: Colors.grey,
+              ),
+              SizedBox(height: fontProvider.getScaledFontSize(16)),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: fontProvider.getScaledFontSize(18),
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w600,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: fontProvider.getScaledFontSize(8)),
+              Text(
+                description,
+                style: TextStyle(
+                  fontSize: fontProvider.getScaledFontSize(14),
+                  color: Colors.grey,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

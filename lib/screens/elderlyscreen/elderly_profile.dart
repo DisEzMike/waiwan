@@ -38,13 +38,13 @@ class _ElderlyProfilePageState extends State<ElderlyProfilePage> {
       context: context,
       builder:
           (context) => Dialog(child: JobDialog(seniorId: widget.person.id)),
-    ).then((chatroomId) {
+    ).then((res) {
       // Handle the result from the dialog (chatroomId)
-      if (chatroomId != null) {
+      if (res['chatroomId'] != null) {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ChatScreen(chatroomId: chatroomId),
+            builder: (context) => ChatScreen(chatroomId: res['chatroomId'], jobId: res['jobId']),
           ),
         );
       }
