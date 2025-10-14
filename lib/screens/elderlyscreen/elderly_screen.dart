@@ -19,6 +19,7 @@ class ElderlyScreen extends StatefulWidget {
 
 class _ElderlyScreenState extends State<ElderlyScreen> {
   List<ElderlyPerson> elderlyPersons = [];
+  final Set<String> groupSelectedIds = {};
   bool isLoading = true;
   bool isRefreshing = false;
   String errorMessage = '';
@@ -190,6 +191,16 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
                       builder: (context) => ElderlyProfilePage(person: person),
                     ),
                   );
+                },
+                selectedIds: groupSelectedIds,
+                onAdd: (person) {
+                  setState(() {
+                    if (groupSelectedIds.contains(person.id)) {
+                      groupSelectedIds.remove(person.id);
+                    } else {
+                      groupSelectedIds.add(person.id);
+                    }
+                  });
                 },
               ),
             ],

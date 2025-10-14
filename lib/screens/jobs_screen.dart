@@ -34,17 +34,18 @@ class _JobsScreenState extends State<JobsScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
               decoration: BoxDecoration(
-                color:
-                    selected
-                        ? const Color(0xFF6EB715)
-                        : const Color(0xFFF0F0F0),
+                color: selected ? const Color(0xFF6EB715) : const Color(0xFFF0F0F0),
                 borderRadius: BorderRadius.circular(28),
+                border: Border.all(
+                  color: selected ? Colors.transparent : const Color(0xFFE9E9E9),
+                  width: 1.0,
+                ),
               ),
               alignment: Alignment.center,
               child: Text(
                 _tabs[index],
                 style: TextStyle(
-                  color: selected ? Colors.white : Colors.grey[800],
+                  color: selected ? Colors.white : Colors.grey[700],
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -74,10 +75,31 @@ class _JobsScreenState extends State<JobsScreen> {
           context,
         ).push(MaterialPageRoute(builder: (c) => JobDetailScreen(job: j)));
       },
-      child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          // use a white border so it stays crisp and doesn't blend with the glow
+          border: Border.all(color: Colors.white, width: 1),
+          boxShadow: [
+            // reduced green glow so it doesn't blur the border edge
+            BoxShadow(
+              color: const Color(0xFF6EB715).withOpacity(0.06),
+              blurRadius: 18,
+              spreadRadius: 3,
+              offset: const Offset(0, 2),
+            ),
+            // subtle dark drop shadow for depth
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 16),
           child: Row(
             children: [
               Container(
@@ -85,44 +107,73 @@ class _JobsScreenState extends State<JobsScreen> {
                 height: 56,
                 decoration: BoxDecoration(
                   color: const Color(0xFF6EB715),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.work, color: Colors.white),
+                child: const Icon(Icons.work, color: Colors.white, size: 28),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       '${j['date'] ?? ''}, ${j['time'] ?? ''}',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        color: Colors.grey[500],
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 8),
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                          j['title'] ?? '',
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                        const Spacer(),
-                        Text(
-                          '฿ ${j['price_per_person'] ?? ''}/คน',
-                          style: TextStyle(
-                            color: Colors.green[800],
-                            fontWeight: FontWeight.w600,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                j['title'] ?? '',
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: const Color.fromARGB(255, 142, 142, 142)),
+                              ),
+                              const SizedBox(height: 6),
+                              RichText(
+                                text: TextSpan(
+                                  style: DefaultTextStyle.of(context).style,
+                                  children: [
+                                    TextSpan(
+                                      text: 'ผู้จ้าง ',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          color:  const Color.fromARGB(255, 142, 142, 142)),
+                                    ),
+                                    TextSpan(
+                                      text: j['employer'] ?? 'น้องกาย',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w800,
+                                          color: const Color.fromARGB(255, 0, 0, 0)),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Text('จำนวน ${j['max_seniors'] ?? 'N'} คน'),
                         const SizedBox(width: 12),
-                        Text(
-                          'ทั้งหมด ฿ ${j['total'] ?? ''}',
-                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              '${j['price_per_person'] ?? ''}.00 บาท',
+                              style: TextStyle(
+                                color: const Color.fromRGBO(46, 125, 50, 1),
+                                fontWeight: FontWeight.w800,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -146,7 +197,6 @@ class _JobsScreenState extends State<JobsScreen> {
           children: [
             // Title area handled by NavBarWrapper AppBar
             _buildStatusTabs(),
-            const Divider(height: 1),
             Expanded(
               child: ListView.builder(
                 itemCount: 6,

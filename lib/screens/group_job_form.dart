@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'group_search_results.dart';
+import '../model/group_job.dart';
 // Pin button intentionally left as a no-op (visible but does nothing)
 
 class GroupJobFormPage extends StatefulWidget {
@@ -36,67 +38,33 @@ class _GroupJobFormPageState extends State<GroupJobFormPage> {
 
   void _onSubmit() {
     if (_formKey.currentState?.validate() ?? false) {
-      // Determine start and end date from dateController (supports range like "YYYY-MM-DD - YYYY-MM-DD")
-      String startDate = _dateController.text;
-      String endDate = _dateController.text;
-      if (_dateController.text.contains(' - ')) {
-        final parts = _dateController.text.split(' - ');
-        if (parts.length >= 2) {
-          startDate = parts[0];
-          endDate = parts[1];
-        }
-      }
+      // We keep the raw date text in the controller; no local parsing required here.
 
-      // Build payload matching backend JSON schema (see provided example)
-      final nowIso = DateTime.now().toUtc().toIso8601String();
-      final payload = {
-        'title': _titleController.text,
-        'description': _descriptionController.text,
-        // Use full ISO datetimes for backend
-        'started_at': '${startDate}T${_timeFromController.text}:00Z',
-        'ended_at': '${endDate}T${_timeToController.text}:00Z',
-        'price': int.tryParse(_pricePerPersonController.text) ?? 0,
-        'work_type': 'general', // default; adjust UI later to choose
-        'vehicle': false, // default; adjust UI later to choose
-        'max_seniors': int.tryParse(_maxSeniorsController.text) ?? 0,
-        'location': {
-          'address': _locationController.text,
-          // backend may accept additional properties; leave empty for now
-          'additionalProp1': {},
-        },
-        'updated_at': nowIso,
-      };
+      // We intentionally do not send payload here. Navigation to
+      // GroupSearchResultsPage will let the user choose seniors first.
 
-      // Previously navigated to JobDetailScreen here. Requirement: do NOT navigate.
-      // Show a confirmation dialog with a brief summary instead.
-      showDialog<void>(
-        context: context,
-        builder: (ctx) {
-          return AlertDialog(
-            title: const Text('ข้อมูลการค้นหา'),
-            content: SingleChildScrollView(
-              child: ListBody(
-                children: <Widget>[
-                  Text('งาน: ${payload['title'] ?? '-'}'),
-                  Text(
-                    'วันที่: ${_dateController.text.isNotEmpty ? _dateController.text : '-'}',
-                  ),
-                  Text(
-                    'เวลา: ${_timeFromController.text}-${_timeToController.text}',
-                  ),
-                  Text('จำนวน: ${payload['max_seniors'] ?? '-'} คน'),
-                  Text('ค่าจ้าง/คน: ${payload['price'] ?? '-'}'),
-                ],
-              ),
-            ),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('ปิด'),
-                onPressed: () => Navigator.of(ctx).pop(),
-              ),
-            ],
-          );
-        },
+      // Per requirement: push the GroupSearchResultsPage so users can select seniors.
+      final query =
+          (_titleController.text.trim().isNotEmpty)
+              ? _titleController.text.trim()
+              : _descriptionController.text.trim();
+
+      final job = GroupJobDetails(
+        title: _titleController.text.trim(),
+        description: _descriptionController.text.trim(),
+        dateRange: _dateController.text.trim(),
+        timeFrom: _timeFromController.text.trim(),
+        timeTo: _timeToController.text.trim(),
+        location: _locationController.text.trim(),
+        maxSeniors: int.tryParse(_maxSeniorsController.text) ?? 0,
+        pricePerPerson: int.tryParse(_pricePerPersonController.text) ?? 0,
+      );
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => GroupSearchResultsPage(query: query, job: job),
+        ),
       );
     }
   }

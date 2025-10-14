@@ -13,6 +13,8 @@ class ElderlyPersonsGrid extends StatelessWidget {
   final String errorMessage;
   final VoidCallback onRetry;
   final Function(ElderlyPerson) onPersonTap;
+  final Set<String> selectedIds;
+  final Function(ElderlyPerson) onAdd;
 
   const ElderlyPersonsGrid({
     super.key,
@@ -22,6 +24,8 @@ class ElderlyPersonsGrid extends StatelessWidget {
     required this.errorMessage,
     required this.onRetry,
     required this.onPersonTap,
+    this.selectedIds = const {},
+    required this.onAdd,
   });
 
   @override
@@ -58,6 +62,8 @@ class ElderlyPersonsGrid extends StatelessWidget {
             return ElderlyPersonCard(
               person: person,
               onTap: () => onPersonTap(person),
+              isSelected: selectedIds.contains(person.id),
+              onAdd: () => onAdd(person),
             );
           },
         );
