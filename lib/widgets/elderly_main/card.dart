@@ -57,12 +57,12 @@ class ElderlyPersonCard extends StatelessWidget {
                   ),
                   child: Image.network(
                     person.profile.imageUrl,
-                    height: 174,
+                    height: 140,
                     width: double.infinity,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
-                        height: 174,
+                        height: 140,
                         color: Colors.grey[200],
                         child: const Icon(
                           Icons.person,

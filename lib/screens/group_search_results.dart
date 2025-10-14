@@ -90,11 +90,20 @@ class _GroupSearchResultsPageState extends State<GroupSearchResultsPage> {
   }
 
   void _toggle(String id) {
+    final maxAllowed = widget.job?.maxSeniors ?? 9999;
     setState(() {
-      if (selectedIds.contains(id))
+      if (selectedIds.contains(id)) {
         selectedIds.remove(id);
-      else
+      } else {
+        if (selectedIds.length >= maxAllowed) {
+          // show message informing user the limit is reached
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('เลือกได้สูงสุด $maxAllowed คน')),
+          );
+          return;
+        }
         selectedIds.add(id);
+      }
     });
   }
 
@@ -104,6 +113,8 @@ class _GroupSearchResultsPageState extends State<GroupSearchResultsPage> {
       appBar: AppBar(
         title: const Text('ค้นหา'),
         backgroundColor: const Color(0xFF6EB715),
+        foregroundColor: Colors.white,
+        centerTitle: true,
       ),
       body: SafeArea(
         child:

@@ -67,6 +67,12 @@ class _GroupJobFormPageState extends State<GroupJobFormPage> {
         ),
       );
     }
+    else {
+      // Show a helpful message when validation fails
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('กรุณากรอกข้อมูลให้ครบถ้วน')),
+      );
+    }
   }
 
   @override
@@ -75,12 +81,15 @@ class _GroupJobFormPageState extends State<GroupJobFormPage> {
       appBar: AppBar(
         title: const Text('จ้างงานแบบกลุ่ม'),
         backgroundColor: const Color(0xFF6EB715),
+        foregroundColor: Colors.white,
+        centerTitle: true,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Form(
             key: _formKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -88,6 +97,12 @@ class _GroupJobFormPageState extends State<GroupJobFormPage> {
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _titleController,
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) {
+                      return 'กรุณากรอกชื่องาน';
+                    }
+                    return null;
+                  },
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     filled: true,
@@ -99,6 +114,12 @@ class _GroupJobFormPageState extends State<GroupJobFormPage> {
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _descriptionController,
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) {
+                      return 'กรุณากรอกรายละเอียดงาน';
+                    }
+                    return null;
+                  },
                   maxLines: 4,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
@@ -111,6 +132,12 @@ class _GroupJobFormPageState extends State<GroupJobFormPage> {
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _dateController,
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) {
+                      return 'กรุณาเลือกช่วงวันที่';
+                    }
+                    return null;
+                  },
                   readOnly: true,
                   onTap: () async {
                     DateTime start = DateTime.now();
@@ -215,6 +242,12 @@ class _GroupJobFormPageState extends State<GroupJobFormPage> {
                     Expanded(
                       child: TextFormField(
                         controller: _timeFromController,
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) {
+                            return 'กรุณาเลือกเวลาเริ่มต้น';
+                          }
+                          return null;
+                        },
                         readOnly: true,
                         onTap: () async {
                           final now = TimeOfDay.now();
@@ -244,6 +277,12 @@ class _GroupJobFormPageState extends State<GroupJobFormPage> {
                     Expanded(
                       child: TextFormField(
                         controller: _timeToController,
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) {
+                            return 'กรุณาเลือกเวลาสิ้นสุด';
+                          }
+                          return null;
+                        },
                         readOnly: true,
                         onTap: () async {
                           final now = TimeOfDay.now();
@@ -270,19 +309,78 @@ class _GroupJobFormPageState extends State<GroupJobFormPage> {
                 const SizedBox(height: 12),
                 const Text('สถานที่'),
                 const SizedBox(height: 8),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      // Intentionally do nothing: button is visible but not interactive
-                    },
-                    icon: const Icon(Icons.location_on_outlined),
-                    label: Text(
-                      _locationController.text.isEmpty
-                          ? 'ปักหมุดสถานที่'
-                          : _locationController.text,
-                    ),
-                  ),
+                FormField<String>(
+                  initialValue: _locationController.text,
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) {
+                      return 'กรุณาระบุสถานที่';
+                    }
+                    return null;
+                  },
+                  builder: (state) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () async {
+                              final controller =
+                                  TextEditingController(text: _locationController.text);
+                              final result = await showDialog<bool?>(
+                                context: context,
+                                builder: (ctx) {
+                                  return AlertDialog(
+                                    title: const Text('สถานที่'),
+                                    content: TextField(
+                                      controller: controller,
+                                      decoration: const InputDecoration(
+                                        hintText: 'ระบุสถานที่',
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.of(ctx).pop(false),
+                                        child: const Text('ยกเลิก'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () => Navigator.of(ctx).pop(true),
+                                        child: const Text('ตกลง'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+
+                              if (result == true) {
+                                setState(() {
+                                  _locationController.text = controller.text.trim();
+                                });
+                                state.didChange(controller.text.trim());
+                              }
+                            },
+                            icon: const Icon(Icons.location_on_outlined),
+                            label: Text(
+                              _locationController.text.isEmpty
+                                  ? 'ปักหมุดสถานที่'
+                                  : _locationController.text,
+                            ),
+                          ),
+                        ),
+                        if (state.hasError)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0, left: 4.0),
+                            child: Text(
+                              state.errorText ?? '',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.error,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(height: 12),
                 Row(
@@ -295,6 +393,16 @@ class _GroupJobFormPageState extends State<GroupJobFormPage> {
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _maxSeniorsController,
+                            validator: (v) {
+                              if (v == null || v.trim().isEmpty) {
+                                return 'กรุณาระบุจำนวนคน';
+                              }
+                              final n = int.tryParse(v);
+                              if (n == null || n <= 0) {
+                                return 'จำนวนคนต้องเป็นตัวเลขมากกว่า 0';
+                              }
+                              return null;
+                            },
                             decoration: const InputDecoration(
                               border: OutlineInputBorder(),
                               filled: true,
@@ -313,6 +421,16 @@ class _GroupJobFormPageState extends State<GroupJobFormPage> {
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _pricePerPersonController,
+                            validator: (v) {
+                              if (v == null || v.trim().isEmpty) {
+                                return 'กรุณาระบุค่าจ้างต่อคน';
+                              }
+                              final p = int.tryParse(v);
+                              if (p == null || p < 0) {
+                                return 'ค่าจ้างต้องเป็นตัวเลข';
+                              }
+                              return null;
+                            },
                             decoration: const InputDecoration(
                               border: OutlineInputBorder(),
                               filled: true,
