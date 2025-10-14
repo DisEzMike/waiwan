@@ -26,7 +26,10 @@ class ElderlyPerson {
     if (json['distance'] != null) {
       final distanceOrig = json['distance'];
       final distance = distanceOrig / 1000;
-      json['distance'] = distance > 1 ? "${distance.toStringAsFixed(2)} กิโลเมตร" : "${(distance * 1000).toStringAsFixed(0)} เมตร";
+      json['distance'] =
+          distance > 1
+              ? "${distance.toStringAsFixed(2)} กิโลเมตร"
+              : "${(distance * 1000).toStringAsFixed(0)} เมตร";
     }
     return ElderlyPerson(
       id: json['user']['id']?.toString() ?? '',
@@ -41,6 +44,36 @@ class ElderlyPerson {
       isVerified: json['is_verified'] == true,
       distance: json['distance'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'displayName': displayName,
+      'profile': {
+        'id': profile.id,
+        'first_name': profile.firstName,
+        'last_name': profile.lastName,
+        'id_card': profile.idCard,
+        'id_address': profile.iDaddress,
+        'current_address': profile.currentAddress,
+        'chronic_diseases': profile.chronicDiseases,
+        'contact_person': profile.contactPerson,
+        'contact_phone': profile.contactPhone,
+        'phone': profile.phone,
+        'gender': profile.gender,
+        'image_url': profile.imageUrl,
+      },
+      'ability': {
+        'id': ability.id,
+        'type': ability.type,
+        'work_experience': ability.workExperience,
+        'other_ability': ability.otherAbility,
+        'vehicle': ability.vehicle,
+        'offsite_work': ability.offsiteWork,
+      },
+      'is_verified': isVerified,
+    };
   }
 
   // Calculate rating statistics from reviews

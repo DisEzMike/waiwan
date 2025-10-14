@@ -19,6 +19,7 @@ class ElderlyScreen extends StatefulWidget {
 
 class _ElderlyScreenState extends State<ElderlyScreen> {
   List<ElderlyPerson> elderlyPersons = [];
+  final Set<String> groupSelectedIds = {};
   bool isLoading = true;
   bool isRefreshing = false;
   String errorMessage = '';
@@ -90,7 +91,7 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
         });
       }
       debugPrint('Error loading elderly persons: $e');
-      snackBarErrorMessage(context, e.toString());
+      showErrorSnackBar(context, e.toString());
     }
   }
 
@@ -190,6 +191,16 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
                       builder: (context) => ElderlyProfilePage(person: person),
                     ),
                   );
+                },
+                selectedIds: groupSelectedIds,
+                onAdd: (person) {
+                  setState(() {
+                    if (groupSelectedIds.contains(person.id)) {
+                      groupSelectedIds.remove(person.id);
+                    } else {
+                      groupSelectedIds.add(person.id);
+                    }
+                  });
                 },
               ),
             ],

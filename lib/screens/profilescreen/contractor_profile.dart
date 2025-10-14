@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:waiwan/model/user.dart';
 import 'package:waiwan/services/user_service.dart';
 import 'package:waiwan/utils/font_size_helper.dart';
-import 'package:waiwan/utils/helper.dart';
+import 'package:waiwan/widgets/loading_widget.dart';
 import 'edit_profile.dart';
 import '../../widgets/user_profile/profile_header.dart';
 import '../../widgets/user_profile/menu_items.dart';
@@ -17,30 +16,56 @@ class ContractorProfile extends StatefulWidget {
 }
 
 class _ContractorProfileState extends State<ContractorProfile> {
-  User? _user;
+  bool _isLoading = false;
+  User _user = User(
+    id: "0",
+    displayName: '',
+    profile: UserProfile(
+      id: "0",
+      firstName: '',
+      lastName: '',
+      id_card: '',
+      id_address: '',
+      current_address: '',
+      phone: '',
+      gender: '',
+      imageUrl: 'https://placehold.co/600x400.png',
+
+    ),
+  );
 
   @override
   void initState() {
     super.initState();
-    _loadProfile();
+    _loadUserProfile();
   }
 
-  void _loadProfile() async {
-    try {
-      final res = await UserService().getProfile();
-      if (res != null && mounted) {
-        setState(() {
-          // Update user state with fetched profile data
-          _user = User.fromJson(res);
-          localStorage.setItem('userId', _user!.id);
+  @override
+  void didUpdateWidget(covariant ContractorProfile oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+    _loadUserProfile();
+  }
+
+  void _loadUserProfile() {
+    if (_isLoading) return; // Prevent multiple simultaneous loads
+
+    setState(() {
+      _isLoading = true;
+    });
+    UserService()
+        .getProfile()
+        .then((user) {
+          setState(() {
+            _user = user;
+            _isLoading = false;
+          });
+        })
+        .catchError((error) {
+          setState(() {
+            _isLoading = false;
+          });
         });
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-      if (mounted) {
-        snackBarErrorMessage(context, e.toString());
-      }
-    }
   }
 
   void _logout() async {
@@ -97,16 +122,12 @@ class _ContractorProfileState extends State<ContractorProfile> {
 
         // Show success message
         if (mounted) {
-          SchedulerBinding.instance.addPostFrameCallback((_) {
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('ออกจากระบบเรียบร้อยแล้ว'),
-                  backgroundColor: Colors.green,
-                ),
-              );
-            }
-          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('ออกจากระบบเรียบร้อยแล้ว'),
+              backgroundColor: Colors.green,
+            ),
+          );
 
           // Navigate back to login/start screen and clear navigation stack
           Navigator.of(context).pushNamedAndRemoveUntil(
@@ -117,16 +138,12 @@ class _ContractorProfileState extends State<ContractorProfile> {
       } catch (e) {
         // Handle logout error
         if (mounted) {
-          SchedulerBinding.instance.addPostFrameCallback((_) {
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('เกิดข้อผิดพลาด: $e'),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            }
-          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('เกิดข้อผิดพลาด: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       }
     }
@@ -134,79 +151,83 @@ class _ContractorProfileState extends State<ContractorProfile> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF2FEE7),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Profile card
-            Expanded(
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Color(0xFFF2FEE7),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    // Profile info section
-                    ProfileHeader(
-                      name: '${_user?.displayName}',
-                      subtitle: 'แก้ไขข้อมูลส่วนตัว',
-                      imageAsset:
-                          _user?.profile.imageUrl ??
-                          'https://placehold.co/600x400.png',
-                      onEditPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => EditProfile(user: _user!),
-                          ),
-                        );
-                      },
+    return _isLoading
+        ? LoadingWidget()
+        : Scaffold(
+          backgroundColor: const Color(0xFFF2FEE7),
+          body: SafeArea(
+            child: Column(
+              children: [
+                // Profile card
+                Expanded(
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF2FEE7),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(30),
+                        topRight: Radius.circular(30),
+                      ),
                     ),
-                    // Menu Items
-                    const MenuItems(),
-                    const SizedBox(height: 20),
+                    child: Column(
+                      children: [
+                        // Profile info section
+                        ProfileHeader(
+                          name: _user.displayName,
+                          subtitle: 'แก้ไขข้อมูลส่วนตัว',
+                          imageAsset: _user.profile.imageUrl!,
+                          onEditPressed: () async {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditProfile(user: _user),
+                              ),
+                            );
 
-                    // Logout button
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton.icon(
-                          onPressed: _logout,
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.red,
-                            side: const BorderSide(
-                              color: Colors.red,
-                              width: 1.5,
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          icon: const Icon(Icons.logout, size: 20),
-                          label: Text(
-                            'ออกจากระบบ',
-                            style: FontSizeHelper.createTextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                            _loadUserProfile();
+                          },
+                        ),
+                        // Menu Items
+                        const MenuItems(),
+                        const SizedBox(height: 20),
+
+                        // Logout button
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: _logout,
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.red,
+                                side: const BorderSide(
+                                  color: Colors.red,
+                                  width: 1.5,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              icon: const Icon(Icons.logout, size: 20),
+                              label: Text(
+                                'ออกจากระบบ',
+                                style: FontSizeHelper.createTextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
+          ),
+        );
   }
 }

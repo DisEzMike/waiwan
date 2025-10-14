@@ -89,7 +89,7 @@ class _ChatScreenState extends State<ChatScreen> {
     } catch (e) {
       debugPrint('WebSocket initialization error: ${e.toString()}');
       if (mounted) {
-        snackBarErrorMessage(context, e.toString());
+        showErrorSnackBar(context, e.toString());
       }
     }
   }
