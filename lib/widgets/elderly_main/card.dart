@@ -7,8 +7,16 @@ import '../../model/elderly_person.dart';
 class ElderlyPersonCard extends StatelessWidget {
   final ElderlyPerson person;
   final VoidCallback? onTap;
+  final bool isSelected;
+  final VoidCallback? onAdd;
 
-  const ElderlyPersonCard({super.key, required this.person, this.onTap});
+  const ElderlyPersonCard({
+    super.key,
+    required this.person,
+    this.onTap,
+    this.isSelected = false,
+    this.onAdd,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,16 +36,14 @@ class ElderlyPersonCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
+                  color: Colors.black.withOpacity(0.08),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
-                  spreadRadius: 0,
                 ),
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.16),
-                  blurRadius: 16,
+                  color: Colors.black.withOpacity(0.12),
+                  blurRadius: 8,
                   offset: const Offset(0, 4),
-                  spreadRadius: 0,
                 ),
               ],
             ),
@@ -50,10 +56,9 @@ class ElderlyPersonCard extends StatelessWidget {
                     top: Radius.circular(12),
                   ),
                   child: Image.network(
-                    // child: Image.network(  <-- if use api use this
                     person.profile.imageUrl,
                     height: 174,
-                    width: 248,
+                    width: double.infinity,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
@@ -91,10 +96,11 @@ class ElderlyPersonCard extends StatelessWidget {
                             const Icon(
                               Icons.verified,
                               color: Colors.blue,
-                              size: 26,
+                              size: 20,
                             ),
                         ],
                       ),
+                      const SizedBox(height: 6),
                       Row(
                         children: [
                           Text(
@@ -111,6 +117,7 @@ class ElderlyPersonCard extends StatelessWidget {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 6),
                       Text(
                         'ความสามารถ',
                         style: cardTextStyle.copyWith(
@@ -121,10 +128,57 @@ class ElderlyPersonCard extends StatelessWidget {
                         person.ability.otherAbility,
                         style: cardTextStyle,
                         maxLines: 2,
-                        overflow: TextOverflow.visible,
-                        softWrap: true,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
+                  ),
+                ),
+
+                // Action button row
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12.0,
+                    vertical: 8.0,
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 40,
+                    child:
+                        isSelected
+                            ? ElevatedButton(
+                              onPressed: null,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.grey[300],
+                                elevation: 6,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: const Text(
+                                'ถูกเพิ่มแล้ว',
+                                style: TextStyle(
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            )
+                            : ElevatedButton(
+                              onPressed: onAdd,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF39AB00),
+                                elevation: 6,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: const Text(
+                                'เพิ่ม',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
                   ),
                 ),
               ],
