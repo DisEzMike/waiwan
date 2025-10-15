@@ -60,11 +60,12 @@ class PointsButtons extends StatelessWidget {
               color: const Color.fromRGBO(204, 239, 178, 100),
               borderRadius: BorderRadius.circular(15),
               boxShadow: [
+                // stronger, more visible shadow per request
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  spreadRadius: 2,
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
+                  color: Colors.black.withOpacity(0.18),
+                  spreadRadius: 3,
+                  blurRadius: 14,
+                  offset: const Offset(0, 6),
                 ),
               ],
             ),

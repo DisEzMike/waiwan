@@ -6,7 +6,7 @@ import 'reviews.dart';
 import '../nav_bar.dart';
 import '../../widgets/elderly_profile/profile_card.dart';
 import '../../widgets/elderly_profile/chat_button.dart';
-import '../../widgets/elderly_profile/information_section.dart';
+// info sections are now rendered inside a Card
 
 class ElderlyProfilePage extends StatefulWidget {
   final ElderlyPerson person;
@@ -21,6 +21,7 @@ class ElderlyProfilePage extends StatefulWidget {
 class _ElderlyProfilePageState extends State<ElderlyProfilePage> {
   int _currentIndex = 0;
   String _currentTitle = 'โปรไฟล์ผู้รับจ้าง';
+  
 
   void _handleNavigation(int index) {
     setState(() {
@@ -70,30 +71,48 @@ class _ElderlyProfilePageState extends State<ElderlyProfilePage> {
           ),
           const SizedBox(height: 16),
 
-          // มือถือ Section
-          InformationSection(
-            title: 'เบอร์โทรศัพท์',
-            content: widget.person.profile.phone,
+          // Information card: phone, abilities, work experience, chronic diseases
+          Card(
+            color: const Color.fromARGB(255, 255, 255, 255), // pale green background
+            elevation: 3,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+            margin: const EdgeInsets.symmetric(vertical: 12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _infoTile(title: 'เบอร์โทรศัพท์', content: widget.person.profile.phone),
+                Divider(height: 1, thickness: 1, color: const Color.fromARGB(255, 161, 158, 158)),
+                _infoTile(title: 'ความสามารถ', content: widget.person.ability.otherAbility),
+                Divider(height: 1, thickness: 1, color: const Color.fromARGB(255, 161, 158, 158)),
+                _infoTile(title: 'อาชีพที่เคยทำ', content: widget.person.ability.workExperience),
+                Divider(height: 1, thickness: 1, color: const Color.fromARGB(255, 161, 158, 158)),
+                _infoTile(title: 'โรคประจำตัว', content: widget.person.profile.chronicDiseases),
+              ],
+            ),
           ),
+        ],
+      ),
+    );
+  }
 
-          // ความสามารถ Section
-          InformationSection(
-            title: 'ความสามารถ',
-            content: widget.person.ability.otherAbility,
+  Widget _infoTile({required String title, required String content}) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
           ),
-
-          // อาชีพที่เคยทำ Section
-          InformationSection(
-            title: 'อาชีพที่เคยทำ',
-            content: widget.person.ability.workExperience,
-            showVerification: true,
-            isVerified: widget.person.isVerified,
-          ),
-
-          // โรคประจำตัว Section
-          InformationSection(
-            title: 'โรคประจำตัว',
-            content: widget.person.profile.chronicDiseases,
+          const SizedBox(height: 8),
+          Text(
+            content.isEmpty ? '-' : content,
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
           ),
         ],
       ),
@@ -125,7 +144,7 @@ class _ElderlyProfilePageState extends State<ElderlyProfilePage> {
         appBar: AppBar(
           title: Text(_currentTitle),
           centerTitle: true,
-          backgroundColor: const Color(0xFF8BC34A), // Green color from mockup
+          backgroundColor: const Color(0xFF6EB715), // Green color from mockup
           foregroundColor: Colors.white,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),

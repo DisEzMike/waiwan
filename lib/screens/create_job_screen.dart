@@ -25,12 +25,17 @@ class _CreateJobScreenState extends State<CreateJobScreen> {
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
+
   final _formKey = GlobalKey<FormState>();
 
   DateTime startDateTime = DateTime.now();
   DateTime endDateTime = DateTime.now().add(const Duration(hours: 2));
   LatLng? _selectedLocation;
   String _selectedAddress = '';
+  // whether the user explicitly chose the start/end time
+  bool _startTimeSet = false;
+  bool _endTimeSet = false;
   bool _isLoading = false;
 
   @override
@@ -109,7 +114,6 @@ class _CreateJobScreenState extends State<CreateJobScreen> {
       final response = await jobService.createJob(payload);
       final job = MyJob.fromJson(response['job']);
 
-
       // Invite the selected senior
       final invitePayload = {
         "senior_id": widget.seniorId,
@@ -187,6 +191,79 @@ class _CreateJobScreenState extends State<CreateJobScreen> {
     }
   }
 
+  Future<void> _selectDateRange() async {
+    DateTime start = startDateTime;
+    DateTime end = endDateTime;
+
+    final result = await showDialog<bool?>(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx2, setState2) {
+            String fmt(DateTime d) =>
+                '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year.toString().padLeft(4, '0')}';
+
+            return AlertDialog(
+              title: const Text('เลือกช่วงวันที่'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    title: const Text('วันที่เริ่มต้น'),
+                    subtitle: Text(fmt(start)),
+                    onTap: () async {
+                      final picked = await showDatePicker(
+                        context: ctx2,
+                        initialDate: start,
+                        firstDate: DateTime.now().subtract(const Duration(days: 365 * 5)),
+                        lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
+                      );
+                      if (picked != null) {
+                        setState2(() {
+                          start = picked;
+                          if (end.isBefore(start)) end = start.add(const Duration(days: 1));
+                        });
+                      }
+                    },
+                  ),
+                  ListTile(
+                    title: const Text('วันที่สิ้นสุด'),
+                    subtitle: Text(fmt(end)),
+                    onTap: () async {
+                      final picked = await showDatePicker(
+                        context: ctx2,
+                        initialDate: end,
+                        firstDate: DateTime.now().subtract(const Duration(days: 365 * 5)),
+                        lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
+                      );
+                      if (picked != null) {
+                        setState2(() {
+                          end = picked;
+                          if (end.isBefore(start)) start = end.subtract(const Duration(days: 1));
+                        });
+                      }
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(onPressed: () => Navigator.of(ctx2).pop(false), child: const Text('ยกเลิก')),
+                TextButton(onPressed: () => Navigator.of(ctx2).pop(true), child: const Text('ตกลง')),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (result == true) {
+      setState(() {
+        startDateTime = DateTime(start.year, start.month, start.day, startDateTime.hour, startDateTime.minute);
+        endDateTime = DateTime(end.year, end.month, end.day, endDateTime.hour, endDateTime.minute);
+      });
+    }
+  }
+
   Future<void> _selectTime(bool isStart) async {
     final time = await showTimePicker(
       context: context,
@@ -198,25 +275,17 @@ class _CreateJobScreenState extends State<CreateJobScreen> {
     if (time != null) {
       setState(() {
         if (isStart) {
-          startDateTime = DateTime(
-            startDateTime.year,
-            startDateTime.month,
-            startDateTime.day,
-            time.hour,
-            time.minute,
-          );
+          startDateTime = DateTime(startDateTime.year, startDateTime.month, startDateTime.day, time.hour, time.minute);
+          _startTimeSet = true;
         } else {
-          endDateTime = DateTime(
-            endDateTime.year,
-            endDateTime.month,
-            endDateTime.day,
-            time.hour,
-            time.minute,
-          );
+          endDateTime = DateTime(endDateTime.year, endDateTime.month, endDateTime.day, time.hour, time.minute);
+          _endTimeSet = true;
         }
       });
     }
   }
+
+  String _formatTime(DateTime d) => '${d.hour.toString().padLeft(2, "0")}:${d.minute.toString().padLeft(2, "0")}';
 
   Future<void> _openMapPicker() async {
     final result = await Navigator.push<Map<String, dynamic>>(
@@ -253,414 +322,536 @@ class _CreateJobScreenState extends State<CreateJobScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFFFFFFF),
       appBar: AppBar(
+        backgroundColor: const Color(0xFF6EB715),
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
         title: const Text("เสนองาน"),
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: const Icon(Icons.arrow_back),
+          color: Colors.white,
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            Expanded(
-              child: Consumer<FontSizeProvider>(
-                builder: (context, fontSizeProvider, child) {
-                  return SingleChildScrollView(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        TextFormField(
-                          controller: _titleController,
-                          decoration: const InputDecoration(
-                            labelText: "งานที่ต้องการ",
-                            border: OutlineInputBorder(),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'กรุณากรอกชื่องาน';
-                            }
-                            return null;
-                          },
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF888888),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
                         ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _descriptionController,
-                          decoration: const InputDecoration(
-                            labelText: "รายละเอียดงาน",
-                            border: OutlineInputBorder(),
-                          ),
-                          maxLines: 3,
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'กรุณากรอกรายละเอียดงาน';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _priceController,
-                          decoration: const InputDecoration(
-                            labelText: "ราคาที่เสนอ (บาท)",
-                            border: OutlineInputBorder(),
-                          ),
-                          keyboardType: TextInputType.number,
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'กรุณากรอกราคา';
-                            }
-                            final price = double.tryParse(value.trim());
-                            if (price == null || price <= 0) {
-                              return 'กรุณากรอกราคาที่ถูกต้อง';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Start Date/Time Picker
-                        Container(
-                          margin: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "วันเริ่มงาน",
-                                style: FontSizeHelper.createTextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
+                      ],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Expanded(
+                      child: Consumer<FontSizeProvider>(
+                        builder: (context, fontSizeProvider, child) {
+                          return SingleChildScrollView(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text('งานที่ต้องการ', style: FontSizeHelper.createTextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                                const SizedBox(height: 8),
+                                TextFormField(
+                                  controller: _titleController,
+                                  decoration: const InputDecoration(
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.trim().isEmpty) {
+                                      return 'กรุณากรอกชื่องาน';
+                                    }
+                                    return null;
+                                  },
                                 ),
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    flex: 2,
-                                    child: InkWell(
-                                      onTap: () => _selectDate(true),
-                                      child: Container(
-                                        padding: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                            color: Colors.grey,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            const Icon(
-                                              Icons.calendar_today,
-                                              color: Colors.grey,
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Text(
-                                              "${startDateTime.day}/${startDateTime.month}/${startDateTime.year}",
-                                              style:
-                                                  FontSizeHelper.createTextStyle(
-                                                    fontSize: 16,
-                                                  ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
+                                const SizedBox(height: 16),
+                                Text('รายละเอียดงาน', style: FontSizeHelper.createTextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                                const SizedBox(height: 8),
+                                TextFormField(
+                                  controller: _descriptionController,
+                                  decoration: const InputDecoration(
+                                    border: OutlineInputBorder(),
                                   ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    flex: 1,
-                                    child: InkWell(
-                                      onTap: () => _selectTime(true),
-                                      child: Container(
-                                        padding: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                            color: Colors.grey,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            const Icon(
-                                              Icons.access_time,
-                                              color: Colors.grey,
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Text(
-                                              "${startDateTime.hour.toString().padLeft(2, '0')}:${startDateTime.minute.toString().padLeft(2, '0')}",
-                                              style:
-                                                  FontSizeHelper.createTextStyle(
-                                                    fontSize: 16,
-                                                  ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // End Date/Time Picker
-                        Container(
-                          margin: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "วันสิ้นสุดงาน",
-                                style: FontSizeHelper.createTextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
+                                  maxLines: 3,
+                                  validator: (value) {
+                                    if (value == null || value.trim().isEmpty) {
+                                      return 'กรุณากรอกรายละเอียดงาน';
+                                    }
+                                    return null;
+                                  },
                                 ),
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    flex: 2,
-                                    child: InkWell(
-                                      onTap: () => _selectDate(false),
-                                      child: Container(
-                                        padding: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                            color: Colors.grey,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            const Icon(
-                                              Icons.calendar_today,
-                                              color: Colors.grey,
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Text(
-                                              "${endDateTime.day}/${endDateTime.month}/${endDateTime.year}",
-                                              style:
-                                                  FontSizeHelper.createTextStyle(
-                                                    fontSize: 16,
-                                                  ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
+                                const SizedBox(height: 14),
+                                Text('ราคาที่เสนอ (บาท)', style: FontSizeHelper.createTextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                                const SizedBox(height: 8),
+                                TextFormField(
+                                  controller: _priceController,
+                                  decoration: const InputDecoration(
+                                    border: OutlineInputBorder(),
                                   ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    flex: 1,
-                                    child: InkWell(
-                                      onTap: () => _selectTime(false),
-                                      child: Container(
-                                        padding: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                            color: Colors.grey,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            const Icon(
-                                              Icons.access_time,
-                                              color: Colors.grey,
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Text(
-                                              "${endDateTime.hour.toString().padLeft(2, '0')}:${endDateTime.minute.toString().padLeft(2, '0')}",
-                                              style:
-                                                  FontSizeHelper.createTextStyle(
-                                                    fontSize: 16,
-                                                  ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Location Picker with Google Maps
-                        Container(
-                          margin: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    "สถานที่",
-                                    style: FontSizeHelper.createTextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  Text(
-                                    " *",
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              InkWell(
-                                onTap: _openMapPicker,
-                                child: Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color:
-                                          _selectedAddress.isEmpty
-                                              ? Colors.red.withOpacity(0.5)
-                                              : Colors.grey,
-                                      width: _selectedAddress.isEmpty ? 1.5 : 1,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8),
-                                    color:
-                                        _selectedAddress.isEmpty
-                                            ? Colors.red.withOpacity(0.05)
-                                            : Colors.white,
-                                  ),
-                                  child: Row(
+                                  keyboardType: TextInputType.number,
+                                  validator: (value) {
+                                    if (value == null || value.trim().isEmpty) {
+                                      return 'กรุณากรอกราคา';
+                                    }
+                                    final price = double.tryParse(value.trim());
+                                    if (price == null || price <= 0) {
+                                      return 'กรุณากรอกราคาที่ถูกต้อง';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(height: 2),
+          
+                                // Start Date/Time Picker
+                                Container(
+                                  margin: const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Icon(
-                                        Icons.location_on,
-                                        color:
-                                            _selectedAddress.isEmpty
-                                                ? Colors.red
-                                                : Colors.grey,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          _selectedAddress.isEmpty
-                                              ? "กดเพื่อปักหมุดสถานที่ (จำเป็น)"
-                                              : _selectedAddress,
-                                          style: FontSizeHelper.createTextStyle(
-                                            fontSize: 16,
-                                            color:
-                                                _selectedAddress.isEmpty
-                                                    ? Colors.red[600]
-                                                    : Colors.black,
-                                          ),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            flex: 2,
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "วันที่",
+                                                  style: FontSizeHelper.createTextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                                                ),
+                                                TextFormField(
+                            controller: _dateController,
+                            validator: (v) {
+                              if (v == null || v.trim().isEmpty) {
+                                return 'กรุณาเลือกช่วงวันที่';
+                              }
+                              return null;
+                            },
+                            readOnly: true,
+                            onTap: () async {
+                              DateTime start = DateTime.now();
+                              DateTime end = DateTime.now().add(
+                                const Duration(days: 1),
+                              );
+          
+                                      
+                              final result = await showDialog<bool?>(
+                                context: context,
+                                builder: (ctx) {
+                                  return StatefulBuilder(
+                                    builder: (ctx2, setState2) {
+                                      String fmt(DateTime d) =>
+                                          '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+          
+                                      return AlertDialog(
+                                        title: const Text('เลือกช่วงวันที่'),
+                                        content: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            ListTile(
+                                              title: const Text('วันที่เริ่มต้น'),
+                                              subtitle: Text(fmt(start)),
+                                              onTap: () async {
+                                                final picked =
+                                                    await showDatePicker(
+                                                      context: ctx2,
+                                                      initialDate: start,
+                                                      firstDate: DateTime(
+                                                        start.year - 5,
+                                                      ),
+                                                      lastDate: DateTime(
+                                                        start.year + 5,
+                                                      ),
+                                                    );
+                                                if (picked != null) {
+                                                  setState2(() {
+                                                    start = picked;
+                                                    if (end.isBefore(start)) {
+                                                      end = start.add(
+                                                        const Duration(days: 1),
+                                                      );
+                                                    }
+                                                  });
+                                                }
+                                              },
+                                            ),
+                                            ListTile(
+                                              title: const Text('วันที่สิ้นสุด'),
+                                              subtitle: Text(fmt(end)),
+                                              onTap: () async {
+                                                final picked =
+                                                    await showDatePicker(
+                                                      context: ctx2,
+                                                      initialDate: end,
+                                                      firstDate: DateTime(
+                                                        end.year - 5,
+                                                      ),
+                                                      lastDate: DateTime(
+                                                        end.year + 5,
+                                                      ),
+                                                    );
+                                                  if (picked != null) {
+                                                    setState2(() {
+                                                      end = picked;
+                                                    if (end.isBefore(start)) {
+                                                      start = end.subtract(
+                                                        const Duration(days: 1),
+                                                      );
+                                                    }
+                                                  });
+                                                }
+                                              },
+                                            ),
+                                          ],
                                         ),
-                                      ),
-                                      const Icon(
-                                        Icons.arrow_forward_ios,
-                                        size: 16,
-                                        color: Colors.grey,
+                                        actions: [
+                                          TextButton(
+                                            onPressed:
+                                                () =>
+                                                    Navigator.of(ctx2).pop(false),
+                                            child: const Text('ยกเลิก'),
+                                          ),
+                                          TextButton(
+                                            onPressed:
+                                                () =>
+                                                    Navigator.of(ctx2).pop(true),
+                                            child: const Text('ตกลง'),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                              );
+          
+                              if (result == true) {
+                                final s = start;
+                                final e = end;
+                                final sStr =
+                                    '${s.year.toString().padLeft(4, '0')}-${s.month.toString().padLeft(2, '0')}-${s.day.toString().padLeft(2, '0')}';
+                                final eStr =
+                                    '${e.year.toString().padLeft(4, '0')}-${e.month.toString().padLeft(2, '0')}-${e.day.toString().padLeft(2, '0')}';
+                                _dateController.text = '$sStr - $eStr';
+                              }
+                            },
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              hintText: 'ปี-เดือน-วัน',
+                              filled: true,
+                              fillColor: Colors.white,
+                            ),
+                          ),
+                                                
+                                              ],
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
                                 ),
-                              ),
-                              if (_selectedAddress.isEmpty)
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    top: 4,
-                                    left: 12,
-                                  ),
-                                  child: Text(
-                                    "กรุณาเลือกสถานที่โดยการปักหมุด",
-                                    style: TextStyle(
-                                      color: Colors.red[600],
-                                      fontSize: 12,
-                                    ),
+                                // Start Date/Time Picker
+                                Container(
+                                  margin: const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        children: [
+                                          Expanded(
+                                            flex: 2,
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "เวลา",
+                                                  style:
+                                                      FontSizeHelper.createTextStyle(
+                                                        fontSize: 14,
+                                                        fontWeight: FontWeight.w500,
+                                                      ),
+                                                ),
+                                                InkWell(
+                                                  onTap: () => _selectTime(true),
+                                                  child: Container(
+                                                    padding: const EdgeInsets.all(
+                                                      12,
+                                                    ),
+                                                    decoration: BoxDecoration(
+                                                      border: Border.all(
+                                                        color: Colors.grey,
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(8),
+                                                    ),
+                                                    child: Row(
+                                                      mainAxisAlignment: MainAxisAlignment.center,
+                                                      children: [
+                                                        Text(
+                                                          _startTimeSet
+                                                              ? '${startDateTime.hour.toString().padLeft(2, '0')}:${startDateTime.minute.toString().padLeft(2, '0')}'
+                                                              : 'เวลาเริ่มงาน',
+                                                          style: FontSizeHelper.createTextStyle(fontSize: 16),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+          
+                                          Expanded(
+                                            flex: 2,
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.end,
+                                              children: [
+                                                InkWell(
+                                                  onTap: () => _selectTime(false),
+                                                  child: Container(
+                                                    padding: const EdgeInsets.all(12),
+                                                    decoration: BoxDecoration(
+                                                      border: Border.all(
+                                                        color: Colors.grey,
+                                                        
+                                                      ),
+                                                      borderRadius: BorderRadius.circular(
+                                                        8,
+                                                      ),
+                                                    ),
+                                                    child: Row(
+                                                      mainAxisAlignment: MainAxisAlignment.center,
+                                                      children: [
+                                                        Text(
+                                                          _endTimeSet
+                                                              ? '${endDateTime.hour.toString().padLeft(2, '0')}:${endDateTime.minute.toString().padLeft(2, '0')}'
+                                                              : 'เวลาสิ้นสุดงาน',
+                                                          style: FontSizeHelper.createTextStyle(fontSize: 16),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
                                 ),
-                            ],
-                          ),
-                        ),
-
-                        // Note field
-                        TextFormField(
-                          controller: _noteController,
-                          decoration: const InputDecoration(
-                            labelText: "หมายเหตุเพิ่มเติม (ไม่บังคับ)",
-                            border: OutlineInputBorder(),
-                            hintText: "ระบุข้อมูลเพิ่มเติมหากต้องการ...",
-                          ),
-                          maxLines: 2,
-                        ),
-
-                        const SizedBox(height: 20),
-                      ],
+          
+                                // Location Picker with Google Maps
+                                Container(
+                                  margin: const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            "สถานที่",
+                                            style: FontSizeHelper.createTextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          Text(
+                                            " *",
+                                            style: TextStyle(
+                                              color: Colors.red,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 5),
+                                      InkWell(
+                                        onTap: _openMapPicker,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(12),
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color:
+                                                  _selectedAddress.isEmpty
+                                                      ? Colors.red.withOpacity(0.5)
+                                                      : Colors.grey,
+                                              width:
+                                                  _selectedAddress.isEmpty
+                                                      ? 1.5
+                                                      : 1,
+                                            ),
+                                            borderRadius: BorderRadius.circular(10),
+                                            color:
+                                                _selectedAddress.isEmpty
+                                                    ? Colors.red.withOpacity(0.05)
+                                                    : Colors.white,
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.location_on,
+                                                color:
+                                                    _selectedAddress.isEmpty
+                                                        ? Colors.red
+                                                        : Colors.grey,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                child: Text(
+                                                  _selectedAddress.isEmpty
+                                                      ? "กดเพื่อปักหมุดสถานที่ (จำเป็น)"
+                                                      : _selectedAddress,
+                                                  style:
+                                                      FontSizeHelper.createTextStyle(
+                                                        fontSize: 16,
+                                                        color:
+                                                            _selectedAddress.isEmpty
+                                                                ? Colors.red[600]
+                                                                : Colors.black,
+                                                      ),
+                                                ),
+                                              ),
+                                              const Icon(
+                                                Icons.arrow_forward_ios,
+                                                size: 16,
+                                                color: Colors.grey,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      // helper message removed as requested
+                                    ],
+                                  ),
+                                ),
+          
+                                // Note field
+                                TextFormField(
+                                  controller: _noteController,
+                                  decoration: const InputDecoration(
+                                    labelText: "หมายเหตุเพิ่มเติม (ไม่บังคับ)",
+                                    border: OutlineInputBorder(),
+                                    hintText: "ระบุข้อมูลเพิ่มเติมหากต้องการ...",
+                                  ),
+                                  maxLines: 2,
+                                ),
+          
+                                const SizedBox(height: 10),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  );
-                },
-              ),
-            ),
-            // Bottom button
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.3),
-                    spreadRadius: 1,
-                    blurRadius: 5,
-                    offset: const Offset(0, -2),
+                  ),
+                  // Bottom button
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16.0),
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _onSubmit,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF6EB715),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child:
+                          _isLoading
+                              ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                              : const Text(
+                                'เสนองาน',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                    ),
                   ),
                 ],
               ),
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _onSubmit,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6EB715),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child:
-                    _isLoading
-                        ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                        : const Text(
-                          'เสนองาน',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-              ),
             ),
-          ],
+          ),
+        ),
+      ),
+    );
+  }
+
+
+  Expanded time() {
+    return Expanded(
+      flex: 1,
+      child: InkWell(
+        onTap: () => _selectTime(true),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "${startDateTime.hour.toString().padLeft(2, '0')}:${startDateTime.minute.toString().padLeft(2, '0')}",
+                style: FontSizeHelper.createTextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Expanded date() {
+    return Expanded(
+      flex: 2,
+      child: InkWell(
+        onTap: () => _selectDate(true),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.calendar_today, color: Colors.grey),
+              const SizedBox(width: 8),
+              Text(
+                "${startDateTime.day}/${startDateTime.month}/${startDateTime.year}",
+                style: FontSizeHelper.createTextStyle(fontSize: 16),
+              ),
+            ],
+          ),
         ),
       ),
     );

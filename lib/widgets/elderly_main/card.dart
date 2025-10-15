@@ -9,6 +9,8 @@ class ElderlyPersonCard extends StatelessWidget {
   final VoidCallback? onTap;
   final bool isSelected;
   final VoidCallback? onAdd;
+  final bool showActionButton;
+  final Color? cardColor;
 
   const ElderlyPersonCard({
     super.key,
@@ -16,6 +18,8 @@ class ElderlyPersonCard extends StatelessWidget {
     this.onTap,
     this.isSelected = false,
     this.onAdd,
+    this.showActionButton = true,
+    this.cardColor,
   });
 
   @override
@@ -32,7 +36,7 @@ class ElderlyPersonCard extends StatelessWidget {
           onTap: onTap,
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: cardColor ?? Colors.white,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
@@ -57,12 +61,12 @@ class ElderlyPersonCard extends StatelessWidget {
                   ),
                   child: Image.network(
                     person.profile.imageUrl,
-                    height: 140,
+                    height: 180,
                     width: double.infinity,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
-                        height: 140,
+                        height: 180,
                         color: Colors.grey[200],
                         child: const Icon(
                           Icons.person,
@@ -134,18 +138,18 @@ class ElderlyPersonCard extends StatelessWidget {
                   ),
                 ),
 
-                // Action button row
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12.0,
-                    vertical: 8.0,
-                  ),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 40,
-                    child:
-                        isSelected
-                            ? ElevatedButton(
+                // Action button (optional)
+                if (showActionButton)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12.0,
+                      vertical: 8.0,
+                    ),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 40,
+                      child: isSelected
+                          ? ElevatedButton(
                               onPressed: null,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.grey[300],
@@ -162,7 +166,7 @@ class ElderlyPersonCard extends StatelessWidget {
                                 ),
                               ),
                             )
-                            : ElevatedButton(
+                          : ElevatedButton(
                               onPressed: onAdd,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF39AB00),
@@ -179,8 +183,8 @@ class ElderlyPersonCard extends StatelessWidget {
                                 ),
                               ),
                             ),
+                    ),
                   ),
-                ),
               ],
             ),
           ),

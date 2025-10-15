@@ -181,8 +181,7 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
                     'จ้างงานแบบกลุ่ม',
                     style: TextStyle(
                       fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: Color.fromARGB(255, 255, 255, 255),
                     ),
                   ),
                 ),
@@ -212,6 +211,8 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
                     }
                   });
                 },
+                showActionButton: false,
+                cardColor: const Color(0xFFF4FBF0),
               ),
             ],
           ),
