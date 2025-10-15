@@ -11,6 +11,7 @@ import 'package:waiwan/utils/font_size_helper.dart';
 import 'package:waiwan/utils/format_time.dart';
 import 'package:waiwan/utils/helper.dart';
 import 'package:waiwan/widgets/loading_widget.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class JobDetailScreen extends StatefulWidget {
   final int jobId;
@@ -218,6 +219,65 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _openGoogleMaps() async {
+    final lat = _job.location['lat'];
+    final lng = _job.location['lng'];
+
+    if (lat != null && lng != null) {
+      try {
+        // ลองใช้ Google Maps URL ก่อน
+        final googleMapsUrl = Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
+        
+        // ใช้ launchUrl โดยตรงโดยไม่ตรวจสอบ canLaunchUrl ก่อน
+        await launchUrl(
+          googleMapsUrl,
+          mode: LaunchMode.externalApplication,
+        );
+      } catch (e) {
+        debugPrint('Google Maps URL failed: $e');
+        
+        try {
+          // Fallback 1: ลอง geo URI
+          final geoUrl = Uri.parse('geo:$lat,$lng?q=$lat,$lng');
+          await launchUrl(geoUrl);
+        } catch (e2) {
+          debugPrint('Geo URL failed: $e2');
+          
+          try {
+            // Fallback 2: ลอง browser URL
+            final browserUrl = Uri.parse('https://maps.google.com/?q=$lat,$lng');
+            await launchUrl(
+              browserUrl,
+              mode: LaunchMode.externalApplication,
+            );
+          } catch (e3) {
+            debugPrint('Browser URL failed: $e3');
+            
+            // แสดง error message
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('ไม่สามารถเปิดแผนที่ได้ กรุณาตรวจสอบการติดตั้ง Google Maps'),
+                  backgroundColor: Colors.red,
+                  duration: Duration(seconds: 3),
+                ),
+              );
+            }
+          }
+        }
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('ไม่พบข้อมูลตำแหน่งสถานที่'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -754,7 +814,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          'สถานที่ที่ทำงาน',
+                          'สถานที่ทำงาน',
                           style: FontSizeHelper.createTextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -768,16 +828,25 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                             color: Colors.grey[700],
                           ),
                         ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'หมายเหตุ',
+                          style: FontSizeHelper.createTextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          _job.location['note'].toString(),
+                          style: FontSizeHelper.createTextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[700],
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         TextButton.icon(
-                          onPressed: () {
-                            // TODO: Implement map functionality
-                            // final lat = _job.location['lat'];
-                            // final lng = _job.location['lng'];
-                            debugPrint(
-                              'Open map functionality not implemented yet',
-                            );
-                          },
+                          onPressed: _openGoogleMaps,
                           icon: const Icon(Icons.location_on_outlined),
                           label: const Text('เปิดแผนที่'),
                         ),
