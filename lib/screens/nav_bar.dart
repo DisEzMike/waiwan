@@ -228,7 +228,7 @@ class _NavBarWrapperState extends State<NavBarWrapper> {
       automaticallyImplyLeading: false,
       actions: [
         IconButton(
-          icon: const Icon(Icons.notifications_none),
+          icon: const Icon(Icons.notifications),
           tooltip: 'แจ้งเตือน',
           onPressed: () {
             // Open notifications screen (push) so bell always opens notifications

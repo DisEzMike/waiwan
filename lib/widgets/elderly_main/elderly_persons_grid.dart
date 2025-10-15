@@ -15,6 +15,8 @@ class ElderlyPersonsGrid extends StatelessWidget {
   final Function(ElderlyPerson) onPersonTap;
   final Set<String> selectedIds;
   final Function(ElderlyPerson) onAdd;
+  final bool showActionButton;
+  final Color? cardColor;
 
   const ElderlyPersonsGrid({
     super.key,
@@ -26,6 +28,8 @@ class ElderlyPersonsGrid extends StatelessWidget {
     required this.onPersonTap,
     this.selectedIds = const {},
     required this.onAdd,
+    this.showActionButton = true,
+    this.cardColor,
   });
 
   @override
@@ -64,6 +68,8 @@ class ElderlyPersonsGrid extends StatelessWidget {
               onTap: () => onPersonTap(person),
               isSelected: selectedIds.contains(person.id),
               onAdd: () => onAdd(person),
+              showActionButton: showActionButton,
+              cardColor: cardColor,
             );
           },
         );
