@@ -184,150 +184,152 @@ class _ReviewScreenState extends State<ReviewScreen> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color: mySecondaryColor,
-                borderRadius: BorderRadius.circular(12),
+        child: Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Container(
+              //   decoration: BoxDecoration(
+              //     color: mySecondaryColor,
+              //     borderRadius: BorderRadius.circular(12),
+              //   ),
+              //   padding: const EdgeInsets.all(12),
+              //   child: Row(
+              //     children: [
+              //       CircleAvatar(
+              //         radius: 28,
+              //         backgroundImage: AssetImage('assets/images/guy_old.png'),
+              //       ),
+              //       const SizedBox(width: 12),
+              //       Expanded(
+              //         child: Column(
+              //           crossAxisAlignment: CrossAxisAlignment.start,
+              //           children: const [
+              //             Text(
+              //               'นายบาบี้ ที่หนึ่งเท่านั้น',
+              //               style: TextStyle(fontWeight: FontWeight.bold),
+              //             ),
+              //             SizedBox(height: 4),
+              //             Text('4.8 ⭐ (12 รีวิว)'),
+              //           ],
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
+              const SizedBox(height: 18),
+              const Center(
+                child: Text(
+                  'โปรดให้คะแนนการบริการ',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 28,
-                    backgroundImage: AssetImage('assets/images/guy_old.png'),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
-                          'นายบาบี้ ที่หนึ่งเท่านั้น',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(5, (i) => _buildStar(i + 1)),
+              ),
+              const SizedBox(height: 18),
+              Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 28,
+                            backgroundImage: AssetImage(
+                              'assets/images/guy.png',
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: const [
+                                Text(
+                                  'นายกาย',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  'เผยแพร่เป็นสาธารณะ',
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                              ],
+                            ),
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: myPrimaryColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            onPressed: _openTipSheet,
+                            child: const Text('กดที่นี่เพื่อให้ทิป'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Container(
+                        height: 120,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade200,
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        SizedBox(height: 4),
-                        Text('4.8 ⭐ (12 รีวิว)'),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 18),
-            const Center(
-              child: Text(
-                'โปรดให้คะแนนการบริการ',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(5, (i) => _buildStar(i + 1)),
-            ),
-            const SizedBox(height: 18),
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 28,
-                          backgroundImage: AssetImage(
-                            'assets/images/guy.png',
+                        child: TextField(
+                          controller: _commentController,
+                          maxLines: null,
+                          expands: true,
+                          decoration: const InputDecoration(
+                            contentPadding: EdgeInsets.all(12),
+                            hintText: 'เขียนรีวิวของคุณที่นี่...',
+                            border: InputBorder.none,
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              Text(
-                                'นายกาย',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                'เผยแพร่เป็นสาธารณะ',
-                                style: TextStyle(color: Colors.grey),
-                              ),
-                            ],
-                          ),
-                        ),
-                        ElevatedButton(
+                      ),
+                      const SizedBox(height: 12),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: myPrimaryColor,
+                            backgroundColor: myPrimaryColor,
+                            foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          onPressed: _openTipSheet,
-                          child: const Text('กดที่นี่เพื่อให้ทิป'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      height: 120,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: TextField(
-                        controller: _commentController,
-                        maxLines: null,
-                        expands: true,
-                        decoration: const InputDecoration(
-                          contentPadding: EdgeInsets.all(12),
-                          hintText: 'เขียนรีวิวของคุณที่นี่...',
-                          border: InputBorder.none,
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('ขอบคุณสำหรับรีวิวของคุณ'),
+                                backgroundColor: Color(0xFF6EB715),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+
+                            // Navigate back to chat screen
+                            // Pop twice: first to go back to map page, then to chat
+                            Navigator.of(context).pop(); // Back to map page
+                            Navigator.of(context).pop(); // Back to chat screen
+                          },
+                          child: const Text('ส่งรีวิว'),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: myPrimaryColor,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('ขอบคุณสำหรับรีวิวของคุณ'),
-                              backgroundColor: Color(0xFF6EB715),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                          
-                          // Navigate back to chat screen
-                          // Pop twice: first to go back to map page, then to chat
-                          Navigator.of(context).pop(); // Back to map page
-                          Navigator.of(context).pop(); // Back to chat screen
-                        },
-                        child: const Text('ส่งรีวิว'),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-            const SizedBox.shrink(),
-          ],
+              const SizedBox.shrink(),
+            ],
+          ),
         ),
       ),
     );

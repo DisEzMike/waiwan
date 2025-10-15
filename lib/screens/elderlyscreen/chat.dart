@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:provider/provider.dart';
+import 'package:waiwan/screens/job_detail.dart';
 import 'package:waiwan/utils/font_size_helper.dart';
 import 'package:waiwan/utils/helper.dart';
 import 'dart:async';
@@ -11,7 +12,8 @@ import '../../widgets/chat/attachment_options_sheet.dart';
 
 class ChatScreen extends StatefulWidget {
   final String chatroomId;
-  const ChatScreen({super.key, required this.chatroomId});
+  final int jobId; // เพิ่ม jobId เพื่อใช้ในปุ่มแชท
+  const ChatScreen({super.key, required this.chatroomId, required this.jobId});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -177,47 +179,47 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  // Demo function to simulate elderly person sending payment message
-  void _sendPaymentMessage() {
-    final currentRoom = _chatProvider?.currentRoom;
-    final seniorName =
-        currentRoom?.seniors.isNotEmpty == true
-            ? currentRoom!.seniors.first.displayname
-            : 'ผู้สูงอายุ';
+  // // Demo function to simulate elderly person sending payment message
+  // void _sendPaymentMessage() {
+  //   final currentRoom = _chatProvider?.currentRoom;
+  //   final seniorName =
+  //       currentRoom?.seniors.isNotEmpty == true
+  //           ? currentRoom!.seniors.first.displayname
+  //           : 'ผู้สูงอายุ';
 
-    final paymentDetails = PaymentDetails(
-      jobTitle: 'จับคู่ผู้สูงอายุ - $seniorName',
-      payment: '1,200 บาท',
-      workType: 'งานแปรงฟัน, อาบน้ำ, เช็ดตัว',
-      paymentMethod: 'QR Code',
-      code:
-          'PAY${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
-      totalAmount: '1,200 บาท',
-    );
+  //   final paymentDetails = PaymentDetails(
+  //     jobTitle: 'จับคู่ผู้สูงอายุ - $seniorName',
+  //     payment: '1,200 บาท',
+  //     workType: 'งานแปรงฟัน, อาบน้ำ, เช็ดตัว',
+  //     paymentMethod: 'QR Code',
+  //     code:
+  //         'PAY${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+  //     totalAmount: '1,200 บาท',
+  //   );
 
-    // Create a mock payment message from elderly person (not using WebSocket)
-    final paymentMessage = ChatMessage(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      roomId: widget.chatroomId,
-      senderId:
-          currentRoom?.seniors.isNotEmpty == true
-              ? currentRoom!.seniors.first.id
-              : 'mock_senior_id',
-      senderType: 'senior_user',
-      message: 'ได้รับการชำระเงินแล้ว',
-      isRead: false,
-      createdAt: DateTime.now(),
-      isMe: false,
-      isPayment: true,
-      paymentDetails: paymentDetails,
-    );
+  //   // Create a mock payment message from elderly person (not using WebSocket)
+  //   final paymentMessage = ChatMessage(
+  //     id: DateTime.now().millisecondsSinceEpoch.toString(),
+  //     roomId: widget.chatroomId,
+  //     senderId:
+  //         currentRoom?.seniors.isNotEmpty == true
+  //             ? currentRoom!.seniors.first.id
+  //             : 'mock_senior_id',
+  //     senderType: 'senior_user',
+  //     message: 'ได้รับการชำระเงินแล้ว',
+  //     isRead: false,
+  //     createdAt: DateTime.now(),
+  //     isMe: false,
+  //     isPayment: true,
+  //     paymentDetails: paymentDetails,
+  //   );
 
-    // Add message directly to ChatProvider (bypassing WebSocket)
-    if (_chatProvider != null) {
-      _chatProvider!.addMockMessage(paymentMessage);
-    }
-    // Note: No fallback needed as we always have ChatProvider
-  }
+  //   // Add message directly to ChatProvider (bypassing WebSocket)
+  //   if (_chatProvider != null) {
+  //     _chatProvider!.addMockMessage(paymentMessage);
+  //   }
+  //   // Note: No fallback needed as we always have ChatProvider
+  // }
 
   void _showAttachmentOptions() {
     showModalBottomSheet(
@@ -353,7 +355,7 @@ class _ChatScreenState extends State<ChatScreen> {
             // Show job title when room is loaded
             final currentRoom = chatProvider.currentRoom;
             final jobTitle = currentRoom?.jobTitle ?? 'แชท';
-            
+
             return Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -409,10 +411,16 @@ class _ChatScreenState extends State<ChatScreen> {
           // Demo button to simulate elderly person sending payment
           IconButton(
             onPressed: () {
-              _sendPaymentMessage();
+              // _sendPaymentMessage();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => JobDetailScreen(jobId: widget.jobId),
+                ),
+              );
             },
-            icon: const Icon(Icons.payment, color: Colors.white),
-            tooltip: 'Demo: ผู้สูงอายุส่งการชำระเงิน',
+            icon: const Icon(Icons.work, color: Colors.white),
+            // tooltip: 'Demo: ผู้สูงอายุส่งการชำระเงิน',
           ),
         ],
       ),
@@ -472,7 +480,8 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Consumer<ChatProvider>(
               builder: (context, chatProvider, child) {
                 // Show loading indicator if room is not loaded yet
-                if (chatProvider.isLoading && chatProvider.currentRoom == null) {
+                if (chatProvider.isLoading &&
+                    chatProvider.currentRoom == null) {
                   return const Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,

@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:waiwan/model/elderly_person.dart';
-import 'package:waiwan/model/group_job.dart';
-import 'group_job_detail.dart';
+import 'package:waiwan/model/job.dart';
+import 'package:waiwan/screens/job_detail.dart';
+import 'package:waiwan/screens/main_screen.dart';
+import 'package:waiwan/services/job_service.dart';
 import 'package:waiwan/services/search_service.dart';
-import '../widgets/elderly_main/elderly_persons_grid.dart';
+import 'package:waiwan/utils/helper.dart';
+import 'package:waiwan/widgets/elderly_main/elderly_persons_grid.dart';
+import 'package:waiwan/widgets/loading_widget.dart';
 
 class GroupSearchResultsPage extends StatefulWidget {
-  final String query;
-  final GroupJobDetails? job;
+  final MyJob job;
 
-  const GroupSearchResultsPage({Key? key, required this.query, this.job})
-    : super(key: key);
+  const GroupSearchResultsPage({Key? key, required this.job}) : super(key: key);
 
   @override
   State<GroupSearchResultsPage> createState() => _GroupSearchResultsPageState();
@@ -19,9 +20,9 @@ class GroupSearchResultsPage extends StatefulWidget {
 
 class _GroupSearchResultsPageState extends State<GroupSearchResultsPage> {
   List<ElderlyPerson> results = [];
-  final Set<String> selectedIds = {};
-  bool loading = true;
+  bool loading = false;
   String error = '';
+  Set<String> selectedIds = {};
 
   @override
   void initState() {
@@ -29,19 +30,29 @@ class _GroupSearchResultsPageState extends State<GroupSearchResultsPage> {
     _runSearch();
   }
 
+  @override
+  void dispose() {
+    // Any cleanup if needed
+    super.dispose();
+  }
+
   Future<void> _runSearch() async {
+    if (!mounted) return;
+    
     setState(() {
       loading = true;
       error = '';
     });
 
+    final query = "${widget.job.title} ${widget.job.description}";
+
     try {
-      final pos = await Geolocator.getCurrentPosition();
-      final svc = SearchService(accessToken: '');
+      // final pos = await Geolocator.getCurrentPosition();
+      final svc = SearchService();
       final list = await svc.searchByQuery(
-        widget.query,
-        pos.latitude,
-        pos.longitude,
+        query,
+        widget.job.location['lat'],
+        widget.job.location['lng'],
       );
       if (mounted) {
         setState(() {
@@ -90,21 +101,87 @@ class _GroupSearchResultsPageState extends State<GroupSearchResultsPage> {
   }
 
   void _toggle(String id) {
-    final maxAllowed = widget.job?.maxSeniors ?? 9999;
+    if (!mounted) return;
+    
     setState(() {
       if (selectedIds.contains(id)) {
         selectedIds.remove(id);
-      } else {
-        if (selectedIds.length >= maxAllowed) {
-          // show message informing user the limit is reached
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('เลือกได้สูงสุด $maxAllowed คน')),
-          );
-          return;
-        }
+      } else if (selectedIds.length < widget.job.maxSeniors) {
         selectedIds.add(id);
       }
     });
+  }
+
+  void _sendInvites() async {
+    // Implement sending invites to selected seniors
+    // For now, just print the selected IDs
+    try {
+      for (var id in selectedIds) {
+        print('Inviting senior ID: $id to job ID: ${widget.job.id}');
+        final payload = {
+          'senior_id': id,
+          'message': 'คุณได้รับเชิญให้เข้าร่วมงาน ${widget.job.title}',
+        };
+        await JobService().inviteSenior(widget.job.id, payload);
+      }
+
+      if (mounted) {
+        showSuccessSnackBar(context, 'ส่งคำเชิญเรียบร้อยแล้ว');
+        setState(() {
+          selectedIds.clear();
+        });
+
+        await Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => MyMainPage(initialIndex: 2,)),
+          (route) => false,
+        );
+        if (mounted) {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => JobDetailScreen(jobId: widget.job.id)),
+          );
+        }
+      }
+    } catch (e) {
+      print('Error sending invites: $e');
+      if (mounted) {
+        showErrorSnackBar(context, e.toString());
+      }
+    }
+
+    // JobService().inviteSenior(widget.job.id, payload)
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.search_off, size: 80, color: Colors.grey[400]),
+          const SizedBox(height: 16),
+          Text(
+            'ไม่พบผู้สูงอายุ',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'ลองปรับเปลี่ยนเงื่อนไขการค้นหา',
+            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: _runSearch,
+            icon: const Icon(Icons.refresh),
+            label: const Text('ค้นหาใหม่'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -115,39 +192,143 @@ class _GroupSearchResultsPageState extends State<GroupSearchResultsPage> {
         backgroundColor: const Color(0xFF6EB715),
         foregroundColor: Colors.white,
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: loading ? null : _runSearch,
+            tooltip: 'รีเฟรช',
+          ),
+        ],
       ),
       body: SafeArea(
         child:
             loading
-                ? const Center(child: CircularProgressIndicator())
-                : Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
-                    children: [
-                      if (error.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Text(
-                            error,
-                            style: const TextStyle(color: Colors.orange),
+                ? LoadingWidget()
+                : RefreshIndicator(
+                  onRefresh: _runSearch,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      children: [
+                        if (error.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color:
+                                    error.contains('Offline')
+                                        ? Colors.orange[50]
+                                        : Colors.red[50],
+                                border: Border.all(
+                                  color:
+                                      error.contains('Offline')
+                                          ? Colors.orange
+                                          : Colors.red,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    error.contains('Offline')
+                                        ? Icons.wifi_off
+                                        : Icons.error_outline,
+                                    color:
+                                        error.contains('Offline')
+                                            ? Colors.orange
+                                            : Colors.red,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      error,
+                                      style: TextStyle(
+                                        color:
+                                            error.contains('Offline')
+                                                ? Colors.orange[800]
+                                                : Colors.red[800],
+                                      ),
+                                    ),
+                                  ),
+                                  if (!loading)
+                                    TextButton(
+                                      onPressed: _runSearch,
+                                      child: const Text('ลองใหม่'),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        // Summary card
+                        Card(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'งาน: ${widget.job.title}',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'พบผู้สูงอายุ ${results.length} คน',
+                                  style: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.people,
+                                      size: 16,
+                                      color: Colors.blue,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'เลือกแล้ว ${selectedIds.length}/${widget.job.maxSeniors} คน',
+                                      style: TextStyle(
+                                        color:
+                                            selectedIds.length ==
+                                                    widget.job.maxSeniors
+                                                ? Colors.green
+                                                : Colors.blue,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      Expanded(
-                        child: ElderlyPersonsGrid(
-                          elderlyPersons: results,
-                          isLoading: loading,
-                          isRefreshing: false,
-                          errorMessage: '',
-                          onRetry: _runSearch,
-                          onPersonTap: (p) {
-                            // open profile page if needed - for now toggle selection
-                            _toggle(p.id);
-                          },
-                          selectedIds: selectedIds,
-                          onAdd: (p) => _toggle(p.id),
+                        Expanded(
+                          child:
+                              results.isEmpty
+                                  ? _buildEmptyState()
+                                  : ElderlyPersonsGrid(
+                                    elderlyPersons: results,
+                                    isLoading: loading,
+                                    isRefreshing: false,
+                                    errorMessage: '',
+                                    onRetry: _runSearch,
+                                    onPersonTap: (p) {
+                                      _toggle(p.id);
+                                    },
+                                    selectedIds: selectedIds,
+                                    onAdd: (p) => _toggle(p.id),
+                                  ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
       ),
@@ -158,32 +339,7 @@ class _GroupSearchResultsPageState extends State<GroupSearchResultsPage> {
             right: 16,
             child: FloatingActionButton(
               backgroundColor: const Color(0xFF1FA2FF),
-              onPressed: () {
-                // Navigate to group details page with selected seniors and job data
-                final selected =
-                    results.where((r) => selectedIds.contains(r.id)).toList();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder:
-                        (_) => GroupJobDetailPage(
-                          job:
-                              widget.job ??
-                              GroupJobDetails(
-                                title: widget.query,
-                                description: '',
-                                dateRange: '',
-                                timeFrom: '',
-                                timeTo: '',
-                                location: '',
-                                maxSeniors: 0,
-                                pricePerPerson: 0,
-                              ),
-                          selectedSeniors: selected,
-                        ),
-                  ),
-                );
-              },
+              onPressed: () => selectedIds.isEmpty ? null : _sendInvites(),
               child: const Icon(Icons.group),
             ),
           ),

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:localstorage/localstorage.dart';
 import 'package:waiwan/model/elderly_person.dart';
 import 'package:waiwan/utils/config.dart';
 import 'package:waiwan/utils/helper.dart';
@@ -11,9 +12,8 @@ class SearchService {
   // Alternative: Use localhost only when running on web or same device
   // static const String baseUrl = 'http://localhost:8001/auth';
 
-  final String accessToken;
+  final String accessToken = localStorage.getItem('token') ?? '';
 
-  SearchService({required this.accessToken});
 
   Map<String, String> get headers => {
     'Content-Type': 'application/json',

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:waiwan/widgets/job_dialog.dart';
+import 'package:waiwan/screens/create_job_screen.dart';
 import '../../model/elderly_person.dart';
 import 'chat.dart';
 import 'reviews.dart';
@@ -10,8 +10,9 @@ import '../../widgets/elderly_profile/information_section.dart';
 
 class ElderlyProfilePage extends StatefulWidget {
   final ElderlyPerson person;
+  String? q = "";
 
-  const ElderlyProfilePage({super.key, required this.person});
+  ElderlyProfilePage({super.key, required this.person, this.q});
 
   @override
   State<ElderlyProfilePage> createState() => _ElderlyProfilePageState();
@@ -31,24 +32,6 @@ class _ElderlyProfilePageState extends State<ElderlyProfilePage> {
     if (index == 0) {
       Navigator.of(context).popUntil((route) => route.isFirst);
     }
-  }
-
-  void _showDialog() async {
-    showDialog(
-      context: context,
-      builder:
-          (context) => Dialog(child: JobDialog(seniorId: widget.person.id)),
-    ).then((chatroomId) {
-      // Handle the result from the dialog (chatroomId)
-      if (chatroomId != null) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ChatScreen(chatroomId: chatroomId),
-          ),
-        );
-      }
-    });
   }
 
   Widget _buildProfileContent() {
@@ -72,13 +55,25 @@ class _ElderlyProfilePageState extends State<ElderlyProfilePage> {
           const SizedBox(height: 16),
 
           // Chat Button
-          ChatButton(onPressed: () => _showDialog()),
+          ChatButton(
+            onPressed:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) => CreateJobScreen(
+                          seniorId: widget.person.id,
+                          query: widget.q,
+                        ),
+                  ),
+                ),
+          ),
           const SizedBox(height: 16),
 
           // มือถือ Section
           InformationSection(
-            title: 'มือถือ',
-            content: '0${widget.person.profile.phone}',
+            title: 'เบอร์โทรศัพท์',
+            content: widget.person.profile.phone,
           ),
 
           // ความสามารถ Section
@@ -153,11 +148,6 @@ class _ElderlyProfilePageState extends State<ElderlyProfilePage> {
               child: Text('หน้าโปรไฟล์', style: TextStyle(fontSize: 18)),
             ), // หน้าโปรไฟล์
           ],
-        ),
-        bottomNavigationBar: AppNavigationBar(
-          destinations: AppDestinations.destinations,
-          selectedIndex: _currentIndex,
-          onDestinationSelected: _handleNavigation,
         ),
       ),
     );

@@ -74,13 +74,11 @@ class _EditProfileState extends State<EditProfile> {
   Future<void> _pickFromGallery() async {
     try {
       final XFile? photo = await _picker.pickImage(source: ImageSource.gallery);
-      final croppedFile = await _cropImage(imageFile: File(photo!.path));
-      if (croppedFile != null) {
-        final bytes = await croppedFile.readAsBytes();
+      if (photo != null) {
+        final bytes = await photo.readAsBytes();
         setState(() {
           _pickedImage = photo;
           _pickedBytes = bytes;
-          _cropedImage = croppedFile;
         });
       }
     } catch (e) {
@@ -101,7 +99,7 @@ class _EditProfileState extends State<EditProfile> {
         sourcePath: imageFile.path,
         compressQuality: 100,
         aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-        uiSettings: [WebUiSettings(context: context)]
+        uiSettings: [WebUiSettings(context: context)],
       );
       if (croppedImg == null) {
         return null;
@@ -109,9 +107,23 @@ class _EditProfileState extends State<EditProfile> {
         return File(croppedImg.path);
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
     return null;
+  }
+
+  Future<void> _pickImg() async {
+    await _pickFromGallery();
+    if (_pickedImage != null && _pickedBytes != null) {
+      final crop = await _cropImage(imageFile: File(_pickedImage!.path));
+      if (crop != null) {
+        final bytes = await crop.readAsBytes();
+        setState(() {
+          _cropedImage = crop;
+          _pickedBytes = bytes;
+        });
+      }
+    }
   }
 
   Future<void> _onConfirm() async {
@@ -163,15 +175,13 @@ class _EditProfileState extends State<EditProfile> {
               EditProfileImage(
                 imageAsset: widget.user.profile.imageUrl!,
                 onEditPressed: () async {
-                  await _pickFromGallery();
-
+                  await _pickImg();
                   if (_cropedImage != null && mounted) {
                     await _onConfirm();
                     Timer(
                       Duration(milliseconds: 500),
                       () => Navigator.pop(context),
                     );
-                    // Navigator.pop(context);
                   }
                 },
               ),
@@ -180,10 +190,9 @@ class _EditProfileState extends State<EditProfile> {
               ProfileForm(
                 name:
                     '${_firstnameController.text} ${_lastnameController.text}',
-                phoneNumber: '${_phoneController.text}',
-                address: '${_currentAddressController.text}',
+                phoneNumber: _phoneController.text,
+                address: _currentAddressController.text,
                 onNameChanged: (value) {
-                  // TODO: Handle name change
                   debugPrint('Name changed: $value');
                   final name = value.split(' ');
                   if (name.isNotEmpty) {
@@ -194,11 +203,9 @@ class _EditProfileState extends State<EditProfile> {
                   }
                 },
                 onPhoneChanged: (value) {
-                  // TODO: Handle phone change
                   debugPrint('Phone changed: $value');
                 },
                 onAddressChanged: (value) {
-                  // TODO: Handle address change
                   debugPrint('Address changed: $value');
                 },
               ),
@@ -206,7 +213,6 @@ class _EditProfileState extends State<EditProfile> {
               // Save Button
               SaveButton(
                 onPressed: () {
-                  // TODO: Implement save functionality
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('บันทึกข้อมูลเรียบร้อย'),

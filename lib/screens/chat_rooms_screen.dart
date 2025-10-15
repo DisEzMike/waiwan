@@ -57,7 +57,7 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
       context,
       MaterialPageRoute(
         builder:
-            (context) => ChatScreen(chatroomId: chatRoom.id),
+            (context) => ChatScreen(chatroomId: chatRoom.id, jobId: chatRoom.jobId),
       ),
     );
   }

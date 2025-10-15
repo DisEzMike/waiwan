@@ -23,8 +23,7 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
   bool isLoading = true;
   bool isRefreshing = false;
   String errorMessage = '';
-  final String token = localStorage.getItem('token') ?? '';
-
+  String q = "";
   @override
   void initState() {
     super.initState();
@@ -68,9 +67,10 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
       }
 
       Position position = await _determinePosition();
-      final persons = await SearchService(
-        accessToken: token,
-      ).searchNearby(position.latitude, position.longitude);
+      final persons = await SearchService().searchNearby(
+        position.latitude,
+        position.longitude,
+      );
       if (mounted) {
         setState(() {
           elderlyPersons = persons;
@@ -108,9 +108,11 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
         errorMessage = '';
       });
       Position position = await _determinePosition();
-      final persons = await SearchService(
-        accessToken: token,
-      ).searchByQuery(query, position.latitude, position.longitude);
+      final persons = await SearchService().searchByQuery(
+        query,
+        position.latitude,
+        position.longitude,
+      );
       setState(() {
         elderlyPersons = persons;
         isLoading = false;
@@ -136,7 +138,15 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              CustomSearchBar(hintText: 'ค้นหางาน', onSubmitted: _onSearch),
+              CustomSearchBar(
+                hintText: 'ค้นหางาน',
+                onSubmitted: (q) {
+                  setState(() {
+                    this.q = q;
+                  });
+                  _onSearch(q);
+                },
+              ),
               const SizedBox(height: 16),
               PointsButtons(
                 onCouponTap: () {
@@ -188,7 +198,7 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ElderlyProfilePage(person: person),
+                      builder: (context) => ElderlyProfilePage(person: person, q: q,),
                     ),
                   );
                 },

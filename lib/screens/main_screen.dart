@@ -19,7 +19,7 @@ class MyMainPage extends StatelessWidget {
       items: [
         AppNavItem(
           destination: destinations[0],
-          builder: (context) => const ElderlyScreen(),
+          builder: (context) => ElderlyScreen(),
         ),
         AppNavItem(
           destination: destinations[1],
@@ -28,7 +28,7 @@ class MyMainPage extends StatelessWidget {
         AppNavItem(
           destination: destinations[2],
           // Jobs tab: show JobsScreen (status + job list). Keeps same destination slot.
-          builder: (context) => const JobsScreen(),
+          builder: (context) => JobScreen(),
         ),
         AppNavItem(
           destination: destinations[3],
