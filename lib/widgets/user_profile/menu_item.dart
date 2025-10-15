@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/font_size_provider.dart';
 
 class MenuItem extends StatelessWidget {
   final String title;
@@ -16,20 +18,27 @@ class MenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fontProvider = Provider.of<FontSizeProvider>(context);
+    
     return Column(
       children: [
         ListTile(
-          leading: Icon(icon, color: Colors.black54),
+          leading: Icon(
+            icon, 
+            color: Colors.black54,
+            size: fontProvider.getScaledFontSize(24),
+          ),
           title: Text(
             title,
-            style: const TextStyle(
-              fontSize: 16,
+            style: TextStyle(
+              fontSize: fontProvider.getScaledFontSize(16),
               color: Colors.black87,
             ),
           ),
-          trailing: const Icon(
+          trailing: Icon(
             Icons.chevron_right,
             color: Colors.black54,
+            size: fontProvider.getScaledFontSize(24),
           ),
           onTap: onTap,
         ),

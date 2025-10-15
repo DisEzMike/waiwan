@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waiwan/widgets/responsive_text.dart';
 
 class ProfileHeader extends StatelessWidget {
   final String name;
@@ -47,7 +48,7 @@ class ProfileHeader extends StatelessWidget {
               ],
             ),
             child: ClipOval(
-              child: Image.asset(
+              child: Image.network(
                 imageAsset,
                 width: 60,
                 height: 60,
@@ -59,27 +60,29 @@ class ProfileHeader extends StatelessWidget {
           // Name and edit button
           Expanded(
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: const TextStyle(
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ResponsiveText(
+                        name,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: Colors.green,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                    Text(
-                      subtitle,
-                      style: const TextStyle(
+                      ResponsiveText(
+                        subtitle,
                         fontSize: 14,
                         color: Colors.black54,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 IconButton(
                   icon: const Icon(

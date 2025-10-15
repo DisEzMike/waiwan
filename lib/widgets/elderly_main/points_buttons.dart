@@ -17,19 +17,39 @@ class PointsButtons extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: FilledButton.icon(
-            onPressed: onCouponTap,
-            icon: Image.asset('assets/images/coupon.png', width: 24, height: 24),
-            label: const Text(
-              'คะแนนของฉัน',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  spreadRadius: 2,
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                ),
+              ],
             ),
-            style: FilledButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: Colors.black,
+            child: FilledButton.icon(
+              onPressed: onCouponTap,
+              icon: Image.asset(
+                'assets/images/coupon.png',
+                width: 24,
+                height: 24,
+              ),
+              label: Text(
+                'คะแนนของฉัน',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                foregroundColor: Colors.black,
+                elevation: 0,
+                shadowColor: Colors.transparent,
+              ),
             ),
           ),
         ),
@@ -37,20 +57,24 @@ class PointsButtons extends StatelessWidget {
         Expanded(
           child: Container(
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [
-                  Color(0xFFFFFFFF), // White (0%)
-                  Color(0xFF6EB715), // Green (100% at 95%)
-                ],
-                stops: [0.0, 0.95],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(25),
+              color: const Color.fromRGBO(204, 239, 178, 100),
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  spreadRadius: 2,
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                ),
+              ],
             ),
             child: FilledButton.icon(
               onPressed: onPointsTap,
-              icon: Image.asset('assets/images/p.png', width: 24, height: 24),
+              icon: Image.asset(
+                'assets/images/p.png',
+                width: 24,
+                height: 24,
+              ),
               label: Text(
                 pointsText,
                 style: const TextStyle(

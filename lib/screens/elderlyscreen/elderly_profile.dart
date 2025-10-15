@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waiwan/screens/create_job_screen.dart';
 import '../../model/elderly_person.dart';
 import 'chat.dart';
 import 'reviews.dart';
@@ -9,11 +10,9 @@ import '../../widgets/elderly_profile/information_section.dart';
 
 class ElderlyProfilePage extends StatefulWidget {
   final ElderlyPerson person;
+  String? q = "";
 
-  const ElderlyProfilePage({
-    super.key,
-    required this.person,
-  });
+  ElderlyProfilePage({super.key, required this.person, this.q});
 
   @override
   State<ElderlyProfilePage> createState() => _ElderlyProfilePageState();
@@ -28,7 +27,7 @@ class _ElderlyProfilePageState extends State<ElderlyProfilePage> {
       _currentIndex = index;
       _currentTitle = AppDestinations.destinations[index].label;
     });
-    
+
     // If home button is pressed (index 0), navigate back to main screen
     if (index == 0) {
       Navigator.of(context).popUntil((route) => route.isFirst);
@@ -54,44 +53,47 @@ class _ElderlyProfilePageState extends State<ElderlyProfilePage> {
             },
           ),
           const SizedBox(height: 16),
-          
+
           // Chat Button
           ChatButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ChatPage(person: widget.person),
+            onPressed:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) => CreateJobScreen(
+                          seniorId: widget.person.id,
+                          query: widget.q,
+                        ),
+                  ),
                 ),
-              );
-            },
           ),
           const SizedBox(height: 16),
-          
+
           // มือถือ Section
           InformationSection(
-            title: 'มือถือ',
-            content: '0${widget.person.phoneNumber}',
+            title: 'เบอร์โทรศัพท์',
+            content: widget.person.profile.phone,
           ),
-          
+
           // ความสามารถ Section
           InformationSection(
             title: 'ความสามารถ',
-            content: widget.person.ability,
+            content: widget.person.ability.otherAbility,
           ),
-          
-          // อาชีพที่เคยทำ Section  
+
+          // อาชีพที่เคยทำ Section
           InformationSection(
             title: 'อาชีพที่เคยทำ',
-            content: widget.person.workExperience,
+            content: widget.person.ability.workExperience,
             showVerification: true,
             isVerified: widget.person.isVerified,
           ),
-          
+
           // โรคประจำตัว Section
           InformationSection(
             title: 'โรคประจำตัว',
-            content: widget.person.chronicDiseases,
+            content: widget.person.profile.chronicDiseases,
           ),
         ],
       ),
@@ -122,7 +124,7 @@ class _ElderlyProfilePageState extends State<ElderlyProfilePage> {
         backgroundColor: const Color(0xFFF5F5F5), // Light gray background
         appBar: AppBar(
           title: Text(_currentTitle),
-          centerTitle: true,   
+          centerTitle: true,
           backgroundColor: const Color(0xFF8BC34A), // Green color from mockup
           foregroundColor: Colors.white,
           leading: IconButton(
@@ -136,18 +138,18 @@ class _ElderlyProfilePageState extends State<ElderlyProfilePage> {
           index: _currentIndex,
           children: [
             _buildProfileContent(), // โปรไฟล์ผู้รับจ้าง
-            const Center(child: Text('หน้าข้อความ', style: TextStyle(fontSize: 18))), // หน้าข้อความ
-            const Center(child: Text('หน้าแจ้งเตือน', style: TextStyle(fontSize: 18))), // หน้าแจ้งเตือน
-            const Center(child: Text('หน้าโปรไฟล์', style: TextStyle(fontSize: 18))), // หน้าโปรไฟล์
+            const Center(
+              child: Text('หน้าข้อความ', style: TextStyle(fontSize: 18)),
+            ), // หน้าข้อความ
+            const Center(
+              child: Text('หน้าแจ้งเตือน', style: TextStyle(fontSize: 18)),
+            ), // หน้าแจ้งเตือน
+            const Center(
+              child: Text('หน้าโปรไฟล์', style: TextStyle(fontSize: 18)),
+            ), // หน้าโปรไฟล์
           ],
-        ),
-        bottomNavigationBar: AppNavigationBar(
-          destinations: AppDestinations.destinations,
-          selectedIndex: _currentIndex,
-          onDestinationSelected: _handleNavigation,
         ),
       ),
     );
-
   }
 }

@@ -21,9 +21,9 @@ class _MyBottomAppBarState extends State<MyBottomAppBar> {
       label: 'ข้อความ',
     ),
     Destination(
-      icon: Icons.notifications_outlined,
-      iconSelected: Icons.notifications,
-      label: 'แจ้งเตือน',
+      icon: Icons.work_outline,
+      iconSelected: Icons.work,
+      label: 'งาน',
     ),
     Destination(
       icon: Icons.person_outlined,
@@ -43,21 +43,22 @@ class _MyBottomAppBarState extends State<MyBottomAppBar> {
             fontSize: 16,
           ),
         ),
-        destinations: destinations
-            .map<NavigationDestination>(
-              (Destination destination) => NavigationDestination(
-                icon: Icon(
-                  destination.icon,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-                selectedIcon: Icon(
-                  destination.iconSelected,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-                label: destination.label,
-              ),
-            )
-            .toList(),
+        destinations:
+            destinations
+                .map<NavigationDestination>(
+                  (Destination destination) => NavigationDestination(
+                    icon: Icon(
+                      destination.icon,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                    selectedIcon: Icon(
+                      destination.iconSelected,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                    label: destination.label,
+                  ),
+                )
+                .toList(),
         selectedIndex: currentIndex,
         indicatorColor: Theme.of(context).colorScheme.inversePrimary,
         onDestinationSelected: (int index) {

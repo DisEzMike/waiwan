@@ -25,8 +25,8 @@ class ProfileCard extends StatelessWidget {
           // Circle profile image
           ClipRRect(
             borderRadius: BorderRadius.circular(40),
-            child: Image.asset(
-              person.imageUrl,
+            child: Image.network(
+              person.profile.imageUrl,
               height: 80,
               width: 80,
               fit: BoxFit.cover,
@@ -57,7 +57,7 @@ class ProfileCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        person.name,
+                        person.displayName,
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,

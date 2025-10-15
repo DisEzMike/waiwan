@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
-import '../../services/api_service.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:localstorage/localstorage.dart';
+import 'package:waiwan/services/search_service.dart';
+import 'package:waiwan/utils/helper.dart';
 import '../../model/elderly_person.dart';
 import 'elderly_profile.dart';
 import '../../widgets/elderly_main/custom_search_bar.dart';
 import '../../widgets/elderly_main/points_buttons.dart';
 import '../../widgets/elderly_main/elderly_persons_grid.dart';
+import '../group_job_form.dart';
 
 class ElderlyScreen extends StatefulWidget {
   const ElderlyScreen({super.key});
@@ -15,14 +19,37 @@ class ElderlyScreen extends StatefulWidget {
 
 class _ElderlyScreenState extends State<ElderlyScreen> {
   List<ElderlyPerson> elderlyPersons = [];
+  final Set<String> groupSelectedIds = {};
   bool isLoading = true;
   bool isRefreshing = false;
   String errorMessage = '';
-
+  String q = "";
   @override
   void initState() {
     super.initState();
     _loadElderlyPersons();
+  }
+
+  // void _getCurrentLocation() async {
+  //   Position position = await _determinePosition();
+  //   setState(() {
+  //     _position = position;
+  //   });
+  // }
+
+  Future<Position> _determinePosition() async {
+    LocationPermission permission;
+
+    permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location Permissions are denied');
+      }
+    }
+
+    return await Geolocator.getCurrentPosition();
   }
 
   Future<void> _loadElderlyPersons({bool isRefresh = false}) async {
@@ -39,8 +66,11 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
         });
       }
 
-      final persons = await ApiService.getElderlyPersons();
-      
+      Position position = await _determinePosition();
+      final persons = await SearchService().searchNearby(
+        position.latitude,
+        position.longitude,
+      );
       if (mounted) {
         setState(() {
           elderlyPersons = persons;
@@ -60,12 +90,42 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
           }
         });
       }
-      print('Error loading elderly persons: $e');
+      debugPrint('Error loading elderly persons: $e');
+      showErrorSnackBar(context, e.toString());
     }
   }
 
   Future<void> _refreshData() async {
     await _loadElderlyPersons(isRefresh: true);
+  }
+
+  void _onSearch(String query) async {
+    // Implement search functionality here
+    try {
+      setState(() {
+        isLoading = true;
+        elderlyPersons = [];
+        errorMessage = '';
+      });
+      Position position = await _determinePosition();
+      final persons = await SearchService().searchByQuery(
+        query,
+        position.latitude,
+        position.longitude,
+      );
+      setState(() {
+        elderlyPersons = persons;
+        isLoading = false;
+        errorMessage = '';
+      });
+    } catch (e) {
+      print('Error searching elderly persons: $e');
+      setState(() {
+        isLoading = false;
+        errorMessage = e.toString();
+        elderlyPersons = [];
+      });
+    }
   }
 
   @override
@@ -79,9 +139,12 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
           child: Column(
             children: [
               CustomSearchBar(
-                hintText: 'พบกล่อง',
-                onTap: () {
-                  // TODO: Handle search tap
+                hintText: 'ค้นหางาน',
+                onSubmitted: (q) {
+                  setState(() {
+                    this.q = q;
+                  });
+                  _onSearch(q);
                 },
               ),
               const SizedBox(height: 16),
@@ -92,7 +155,37 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
                 onPointsTap: () {
                   // TODO: Handle points tap
                 },
-                pointsText: '1000 คะแนน',
+                pointsText: '100 คะแนน',
+              ),
+              const SizedBox(height: 16),
+              // Group job button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const GroupJobFormPage(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0EA1F0),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'จ้างงานแบบกลุ่ม',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(height: 16),
               ElderlyPersonsGrid(
@@ -105,9 +198,19 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ElderlyProfilePage(person: person),
+                      builder: (context) => ElderlyProfilePage(person: person, q: q,),
                     ),
                   );
+                },
+                selectedIds: groupSelectedIds,
+                onAdd: (person) {
+                  setState(() {
+                    if (groupSelectedIds.contains(person.id)) {
+                      groupSelectedIds.remove(person.id);
+                    } else {
+                      groupSelectedIds.add(person.id);
+                    }
+                  });
                 },
               ),
             ],

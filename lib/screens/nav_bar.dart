@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:waiwan/providers/font_size_provider.dart';
+import 'package:waiwan/utils/font_size_helper.dart';
+import 'notificationscreen/notification.dart';
 
 // โครงสร้างข้อมูลสำหรับแต่ละปุ่มในแถบนำทางด้านล่าง
 class NavDestination {
@@ -27,9 +31,9 @@ class AppDestinations {
       label: 'ข้อความ',
     ),
     NavDestination(
-      icon: Icons.notifications_outlined,
-      iconSelected: Icons.notifications,
-      label: 'แจ้งเตือน',
+      icon: Icons.work_outline,
+      iconSelected: Icons.work,
+      label: 'งาน',
     ),
     NavDestination(
       icon: Icons.person_outlined,
@@ -45,11 +49,8 @@ class AppNavItem {
   final WidgetBuilder builder;
   final String title;
 
-  AppNavItem({
-    required this.destination,
-    required this.builder,
-    String? title,
-  }) : title = title ?? destination.label;
+  AppNavItem({required this.destination, required this.builder, String? title})
+    : title = title ?? destination.label;
 }
 
 // วิดเจ็ต NavigationBar ส่วนกลางสำหรับทั้งแอป
@@ -77,25 +78,23 @@ class AppNavigationBar extends StatelessWidget {
       elevation: 0,
       indicatorColor: Colors.transparent,
       height: 70,
-      destinations: destinations
-          .map(
-            (destination) => NavigationDestination(
-              icon: Icon(destination.icon),
-              selectedIcon: Icon(destination.iconSelected),
-              label: destination.label,
-            ),
-          )
-          .toList(),
+      destinations:
+          destinations
+              .map(
+                (destination) => NavigationDestination(
+                  icon: Icon(destination.icon),
+                  selectedIcon: Icon(destination.iconSelected),
+                  label: destination.label,
+                ),
+              )
+              .toList(),
       selectedIndex: selectedIndex,
       onDestinationSelected: onDestinationSelected,
     );
 
     final themeData = theme ?? _defaultNavTheme(Theme.of(context));
 
-    return NavigationBarTheme(
-      data: themeData,
-      child: navigationBar,
-    );
+    return NavigationBarTheme(data: themeData, child: navigationBar);
   }
 }
 
@@ -106,9 +105,9 @@ NavigationBarThemeData _defaultNavTheme(ThemeData theme) {
   return NavigationBarThemeData(
     labelTextStyle: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.selected)) {
-        return const TextStyle(color: Colors.black, height: 0.5);
+        return const TextStyle(fontSize: 12, color: Colors.black, height: 0.5);
       }
-      return TextStyle(color: onPrimary, height: 0.5);
+      return TextStyle(fontSize: 12, color: onPrimary, height: 0.5);
     }),
     iconTheme: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.selected)) {
@@ -132,7 +131,8 @@ class NavBarWrapper extends StatefulWidget {
     BuildContext context,
     AppNavItem currentItem,
     int currentIndex,
-  )? appBarBuilder;
+  )?
+  appBarBuilder;
   final bool Function(int newIndex)? onDestinationSelected;
 
   const NavBarWrapper({
@@ -145,7 +145,10 @@ class NavBarWrapper extends StatefulWidget {
     this.showAppBar = true,
     this.appBarBuilder,
     this.onDestinationSelected,
-  }) : assert(items.length > 0, 'NavBarWrapper requires at least one navigation item');
+  }) : assert(
+         items.length > 0,
+         'NavBarWrapper requires at least one navigation item',
+       );
 
   @override
   State<NavBarWrapper> createState() => _NavBarWrapperState();
@@ -212,11 +215,29 @@ class _NavBarWrapperState extends State<NavBarWrapper> {
     final theme = Theme.of(context);
 
     return AppBar(
-      title: Text(currentItem.title),
+      title: Text(
+        currentItem.title,
+        style: FontSizeHelper.createTextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
       centerTitle: true,
       backgroundColor: widget.backgroundColor ?? theme.colorScheme.primary,
       foregroundColor: theme.colorScheme.onPrimary,
       automaticallyImplyLeading: false,
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.notifications_none),
+          tooltip: 'แจ้งเตือน',
+          onPressed: () {
+            // Open notifications screen (push) so bell always opens notifications
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (c) => const NotificationScreen()),
+            );
+          },
+        ),
+      ],
     );
   }
 
@@ -224,27 +245,37 @@ class _NavBarWrapperState extends State<NavBarWrapper> {
   Widget build(BuildContext context) {
     final destinations = widget.items.map((item) => item.destination).toList();
 
-    return Scaffold(
-      backgroundColor: widget.scaffoldBackgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
-      appBar: _buildAppBar(context),
-      body: IndexedStack(
-        index: _currentIndex,
-        children: List.generate(widget.items.length, (index) {
-          final item = widget.items[index];
-
-          return KeyedSubtree(
-            key: PageStorageKey<String>('nav-item-${item.destination.label}-$index'),
-            child: Builder(builder: item.builder),
-          );
-        }),
-      ),
-      bottomNavigationBar: AppNavigationBar(
-        destinations: destinations,
-        selectedIndex: _currentIndex,
-        onDestinationSelected: _handleNavigation,
-        backgroundColor: widget.backgroundColor,
-        theme: widget.navigationBarTheme,
-      ),
+    return Consumer<FontSizeProvider>(
+      builder: (context, fontProvider, child) {
+        return Scaffold(
+          backgroundColor:
+              widget.scaffoldBackgroundColor ??
+              Theme.of(context).scaffoldBackgroundColor,
+          appBar: _buildAppBar(context),
+          body: SafeArea(
+            child: IndexedStack(
+              index: _currentIndex,
+              children: List.generate(widget.items.length, (index) {
+                final item = widget.items[index];
+            
+                return KeyedSubtree(
+                  key: PageStorageKey<String>(
+                    'nav-item-${item.destination.label}-$index',
+                  ),
+                  child: Builder(builder: item.builder),
+                );
+              }),
+            ),
+          ),
+          bottomNavigationBar: AppNavigationBar(
+            destinations: destinations,
+            selectedIndex: _currentIndex,
+            onDestinationSelected: _handleNavigation,
+            backgroundColor: widget.backgroundColor,
+            theme: widget.navigationBarTheme,
+          ),
+        );
+      },
     );
   }
 }

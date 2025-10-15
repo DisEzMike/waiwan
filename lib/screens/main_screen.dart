@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:waiwan/screens/chat_rooms_screen.dart';
 import 'elderlyscreen/elderly_screen.dart';
 import 'nav_bar.dart';
 import 'profilescreen/contractor_profile.dart';
-import 'notificationscreen/notification.dart';
+import 'jobs_screen.dart';
 // Make sure the class name in contractor_profile.dart matches 'ContractorProfilePage'
 
 class MyMainPage extends StatelessWidget {
-  const MyMainPage({super.key});
+  final int initialIndex;
+
+  const MyMainPage({super.key, this.initialIndex = 0});
 
   @override
   Widget build(BuildContext context) {
@@ -16,37 +19,23 @@ class MyMainPage extends StatelessWidget {
       items: [
         AppNavItem(
           destination: destinations[0],
-          builder: (context) => const ElderlyScreen(),
+          builder: (context) => ElderlyScreen(),
         ),
         AppNavItem(
           destination: destinations[1],
-          builder: (context) => const _TextPlaceholder('หน้าข้อความ'),
+          builder: (context) => ChatRoomsScreen(),
         ),
         AppNavItem(
           destination: destinations[2],
-          builder: (context) => const NotificationScreen(),
+          // Jobs tab: show JobsScreen (status + job list). Keeps same destination slot.
+          builder: (context) => JobScreen(),
         ),
         AppNavItem(
           destination: destinations[3],
-          builder: (context) => const ContractorProfile(),
+          builder: (context) => ContractorProfile(),
         ),
       ],
-    );
-  }
-}
-
-class _TextPlaceholder extends StatelessWidget {
-  final String text;
-
-  const _TextPlaceholder(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        text,
-        style: const TextStyle(fontSize: 18),
-      ),
+      initialIndex: initialIndex,
     );
   }
 }

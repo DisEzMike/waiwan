@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'menu_item.dart';
+import '../../screens/settings_screen.dart';
 
 class MenuItems extends StatelessWidget {
   const MenuItems({super.key});
@@ -19,25 +20,33 @@ class MenuItems extends StatelessWidget {
           ),
         ],
       ),
-      child: const Column(
+      child: Column(
         children: [
           MenuItem(
             title: 'การตั้งค่า',
             icon: Icons.settings,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SettingsScreen(),
+                ),
+              );
+            },
           ),
-          MenuItem(
+          const MenuItem(
             title: 'การชำระเงิน',
             icon: Icons.payment,
           ),
-          MenuItem(
+          const MenuItem(
             title: 'ประวัติการงาน',
             icon: Icons.work_history,
           ),
-          MenuItem(
+          const MenuItem(
             title: 'ศูนย์ของความช่วยเหลือ',
             icon: Icons.help,
           ),
-          MenuItem(
+          const MenuItem(
             title: 'นโยบาย',
             icon: Icons.policy,
             showDivider: false, // Last item doesn't need divider
