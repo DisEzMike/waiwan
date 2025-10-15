@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:localstorage/localstorage.dart';
+import 'package:waiwan/model/job.dart';
+import 'package:waiwan/screens/group_search_results.dart';
 import 'package:waiwan/services/job_service.dart';
 import 'package:waiwan/utils/helper.dart';
 import 'map_picker_screen.dart';
@@ -95,8 +97,13 @@ class _GroupJobFormPageState extends State<GroupJobFormPage> {
           },
         };
 
-
         final res = await JobService().createJob(jobPayLoad);
+        final job = MyJob.fromJson(res['job']);
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => GroupSearchResultsPage(job: job),
+          ),
+        );
       } catch (e) {
         print('Error creating job: $e');
         if (mounted) {

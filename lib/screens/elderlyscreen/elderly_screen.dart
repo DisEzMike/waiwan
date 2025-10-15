@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:localstorage/localstorage.dart';
 import 'package:waiwan/services/search_service.dart';
 import 'package:waiwan/utils/helper.dart';
 import '../../model/elderly_person.dart';
@@ -23,7 +22,6 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
   bool isLoading = true;
   bool isRefreshing = false;
   String errorMessage = '';
-  final String token = localStorage.getItem('token') ?? '';
 
   @override
   void initState() {
@@ -68,9 +66,10 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
       }
 
       Position position = await _determinePosition();
-      final persons = await SearchService(
-        accessToken: token,
-      ).searchNearby(position.latitude, position.longitude);
+      final persons = await SearchService().searchNearby(
+        position.latitude,
+        position.longitude,
+      );
       if (mounted) {
         setState(() {
           elderlyPersons = persons;
@@ -108,9 +107,7 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
         errorMessage = '';
       });
       Position position = await _determinePosition();
-      final persons = await SearchService(
-        accessToken: token,
-      ).searchByQuery(query, position.latitude, position.longitude);
+      final persons = await SearchService().searchByQuery(query, position.latitude, position.longitude);
       setState(() {
         elderlyPersons = persons;
         isLoading = false;

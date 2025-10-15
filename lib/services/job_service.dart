@@ -139,7 +139,7 @@ class JobService {
   }
 
   //  Invite senior to job
-  Future inviteSenior(String jobId, dynamic payload) async {
+  Future inviteSenior(int jobId, dynamic payload) async {
     final response = await http
         .post(
           Uri.parse('$baseUrl/$jobId/invite'),

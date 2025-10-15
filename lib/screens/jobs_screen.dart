@@ -6,6 +6,7 @@ import 'package:waiwan/screens/job_detail.dart';
 import 'package:waiwan/services/job_service.dart';
 import 'package:waiwan/utils/format_time.dart';
 import 'package:waiwan/utils/helper.dart';
+import 'package:waiwan/widgets/loading_widget.dart';
 
 class JobScreen extends StatefulWidget {
   const JobScreen({super.key});
@@ -15,6 +16,7 @@ class JobScreen extends StatefulWidget {
 }
 
 class _JobScreenState extends State<JobScreen> {
+  bool _isLoading = false;
   int _selectedIndex = 0;
   // 0 = คำขอจ้างงาน, 1 = กำลังดำเนินงาน, 2 = ประวัติการจ้าง, 3 = ยกเลิก/ปฏิเสธ
 
@@ -38,6 +40,10 @@ class _JobScreenState extends State<JobScreen> {
   }
 
   void _loadJobs() {
+    if (_isLoading) return;
+    setState(() {
+      _isLoading = true;
+    });
     JobService()
         .getMyJobs()
         .then((jobs) {
@@ -75,6 +81,7 @@ class _JobScreenState extends State<JobScreen> {
               _jobs_cancelled.addAll(cancelledJobs);
               _jobs_ongoing.clear();
               _jobs_ongoing.addAll(ongoingJobs);
+              _isLoading = false;
             });
           }
         })
@@ -88,14 +95,21 @@ class _JobScreenState extends State<JobScreen> {
   Widget build(BuildContext context) {
     return Consumer<FontSizeProvider>(
       builder: (context, fontProvider, child) {
-        return Column(
-          children: [
-            // ปุ่มแท็บใต้ Top App Bar
-            _buildTabButtons(fontProvider),
-            // เนื้อหาตามแท็บที่เลือก
-            Expanded(child: _buildTabContent(fontProvider)),
-          ],
-        );
+        return _isLoading
+            ? LoadingWidget()
+            : RefreshIndicator(
+              onRefresh: () async {
+                _loadJobs();
+              },
+              child: Column(
+                children: [
+                  // ปุ่มแท็บใต้ Top App Bar
+                  _buildTabButtons(fontProvider),
+                  // เนื้อหาตามแท็บที่เลือก
+                  Expanded(child: _buildTabContent(fontProvider)),
+                ],
+              ),
+            );
       },
     );
   }
@@ -354,7 +368,7 @@ class _JobScreenState extends State<JobScreen> {
                               ),
                             ],
                           ),
-                        ]
+                        ],
                       ],
                     ),
                   ),
