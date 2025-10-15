@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:localstorage/localstorage.dart';
 import 'package:waiwan/services/search_service.dart';
 import 'package:waiwan/utils/helper.dart';
 import '../../model/elderly_person.dart';
@@ -22,7 +23,7 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
   bool isLoading = true;
   bool isRefreshing = false;
   String errorMessage = '';
-
+  String q = "";
   @override
   void initState() {
     super.initState();
@@ -107,7 +108,11 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
         errorMessage = '';
       });
       Position position = await _determinePosition();
-      final persons = await SearchService().searchByQuery(query, position.latitude, position.longitude);
+      final persons = await SearchService().searchByQuery(
+        query,
+        position.latitude,
+        position.longitude,
+      );
       setState(() {
         elderlyPersons = persons;
         isLoading = false;
@@ -133,7 +138,15 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              CustomSearchBar(hintText: 'ค้นหางาน', onSubmitted: _onSearch),
+              CustomSearchBar(
+                hintText: 'ค้นหางาน',
+                onSubmitted: (q) {
+                  setState(() {
+                    this.q = q;
+                  });
+                  _onSearch(q);
+                },
+              ),
               const SizedBox(height: 16),
               PointsButtons(
                 onCouponTap: () {
@@ -185,7 +198,7 @@ class _ElderlyScreenState extends State<ElderlyScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ElderlyProfilePage(person: person),
+                      builder: (context) => ElderlyProfilePage(person: person, q: q,),
                     ),
                   );
                 },

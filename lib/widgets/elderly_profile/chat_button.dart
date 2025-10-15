@@ -23,7 +23,7 @@ class ChatButton extends StatelessWidget {
           ),
         ),
         child: const Text(
-          'แชทเพื่อเสนองาน',
+          'เสนองาน',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
