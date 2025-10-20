@@ -67,23 +67,22 @@ class _JobScreenState extends State<JobScreen> {
             } else if (job.status == 'cancelled') {
               cancelledJobs.add(job);
             }
-
-            setState(() {
-              _jobs_completed.clear();
-              _jobs_completed.addAll(completedJobs);
-              _jobs_accepted.clear();
-              _jobs_accepted.addAll(acceptedJobs);
-              _jobs_pending.clear();
-              _jobs_pending.addAll(pendingJobs);
-              _jobs_delined.clear();
-              _jobs_delined.addAll(declinedJobs);
-              _jobs_cancelled.clear();
-              _jobs_cancelled.addAll(cancelledJobs);
-              _jobs_ongoing.clear();
-              _jobs_ongoing.addAll(ongoingJobs);
-              _isLoading = false;
-            });
           }
+          setState(() {
+            _isLoading = false;
+            _jobs_completed.clear();
+            _jobs_completed.addAll(completedJobs);
+            _jobs_accepted.clear();
+            _jobs_accepted.addAll(acceptedJobs);
+            _jobs_pending.clear();
+            _jobs_pending.addAll(pendingJobs);
+            _jobs_delined.clear();
+            _jobs_delined.addAll(declinedJobs);
+            _jobs_cancelled.clear();
+            _jobs_cancelled.addAll(cancelledJobs);
+            _jobs_ongoing.clear();
+            _jobs_ongoing.addAll(ongoingJobs);
+          });
         })
         .catchError((e) {
           debugPrint('eee : ${e.toString()}');
